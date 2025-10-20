@@ -546,6 +546,9 @@ async def start_whatsapp_service():
         raise HTTPException(status_code=500, detail="Timeout durante l'avvio del servizio")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Errore: {str(e)}")
+
+# Statistics endpoint
+@api_router.get("/stats")
 async def get_stats():
     total_properties = await db.properties.count_documents({})
     available_properties = await db.properties.count_documents({"status": "disponibile"})
