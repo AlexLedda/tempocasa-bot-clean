@@ -233,6 +233,26 @@ async def get_client(phone: str):
     
     return client
 
+@api_router.put("/clients/{phone}", response_model=Client)
+async def update_client(phone: str, client_update: ClientUpdate):
+    existing = await db.clients.find_one({"phone": phone})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Cliente non trovato")
+    
+    update_data = {k: v for k, v in client_update.model_dump().items() if v is not None}
+    
+    if update_data:
+        await db.clients.update_one(
+            {"phone": phone},
+            {"$set": update_data}
+        )
+    
+    updated = await db.clients.find_one({"phone": phone}, {"_id": 0})
+    if isinstance(updated['created_at'], str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    
+    return updated
+
 # Messages endpoints
 @api_router.post("/messages", response_model=Message)
 async def create_message(msg: MessageCreate):
