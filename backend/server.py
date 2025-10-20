@@ -392,13 +392,14 @@ async def get_ai_response(message: str, client_phone: str, client: dict) -> dict
     ])
     
     # Client profile info
+    profile_completed = client.get('profile_completed', False)
     client_info = f"""
 Informazioni Cliente:
 - Nome: {client.get('name', 'Non fornito')} {client.get('surname', '')}
-- Email: {client.get('email', 'Non fornita')}
-- Cerca: {client.get('looking_for', 'Non specificato')}
+- Email: {client.get('email') or 'Non fornita'}
+- Cerca: {client.get('looking_for') or 'Non specificato'}
 - Budget: €{client.get('budget', 0):,.2f} {f"(con mutuo di €{client.get('mortgage_amount', 0):,.2f})" if client.get('needs_mortgage') else ''}
-- Profilo Completo: {"Sì" if client.get('profile_completed') else "No"}
+- Profilo Completo: {"Sì" if profile_completed else "No"}
 """
     
     system_message = f"""Sei un assistente virtuale per un'agenzia immobiliare. Il tuo nome è Emma.
