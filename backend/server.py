@@ -375,7 +375,7 @@ async def whatsapp_webhook(webhook: WhatsAppWebhook):
         return {"reply": "Scusa, c'è stato un errore. Un nostro agente ti contatterà presto.", "success": False}
 
 # AI Chat endpoint
-async def get_ai_response(message: str, client_phone: str) -> AIResponse:
+async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
     # Get all available properties
     properties = await db.properties.find({"status": "disponibile"}, {"_id": 0}).to_list(100)
     
@@ -391,23 +391,59 @@ async def get_ai_response(message: str, client_phone: str) -> AIResponse:
         for p in properties
     ])
     
-    system_message = f"""Sei un assistente virtuale per un'agenzia immobiliare.
+    # Client profile info
+    client_info = f"""
+Informazioni Cliente:
+- Nome: {client.get('name', 'Non fornito')} {client.get('surname', '')}
+- Email: {client.get('email', 'Non fornita')}
+- Cerca: {client.get('looking_for', 'Non specificato')}
+- Budget: €{client.get('budget', 0):,.2f} {f"(con mutuo di €{client.get('mortgage_amount', 0):,.2f})" if client.get('needs_mortgage') else ''}
+- Profilo Completo: {"Sì" if client.get('profile_completed') else "No"}
+"""
+    
+    system_message = f"""Sei un assistente virtuale per un'agenzia immobiliare. Il tuo nome è Emma.
+
+{client_info}
 
 Immobili disponibili:
 {properties_text}
 
-Compiti:
-1. Rispondi alle domande sugli immobili disponibili
-2. Suggerisci immobili basandoti sulle esigenze del cliente
-3. Se il cliente vuole prenotare una visita, chiedi data e ora preferite
-4. Sii cordiale, professionale e conciso
-5. Rispondi SEMPRE in italiano
-6. Se chiede info su un immobile specifico, fornisci tutti i dettagli
-7. Per prenotare una visita usa il formato: "PRENOTA|property_id|data_ora"
+COMPITI PRINCIPALI:
 
-Esempi di risposta:
-- "Abbiamo un bellissimo appartamento in Centro con 3 camere a €250,000. Vuoi saperne di più?"
-- "Per prenotare una visita, che giorno e orario preferisci?"
+1. **RACCOLTA DATI CLIENTE** (se profilo non completo):
+   Se mancano informazioni, chiedile in modo naturale e conversazionale:
+   - Nome e Cognome
+   - Email
+   - Cosa cerca (tipo immobile, zona, caratteristiche)
+   - Budget massimo
+   - Ha bisogno di mutuo? Se sì, quanto?
+   
+   Chiedi UNA informazione alla volta, in modo cordiale.
+   
+2. **SUGGERIMENTI IMMOBILI**:
+   Basandoti su budget e preferenze, suggerisci immobili pertinenti.
+   
+3. **APPUNTAMENTI**:
+   Quando il cliente vuole prenotare, chiedi data e ora preferite.
+
+4. **RISPOSTE**:
+   - Sii cordiale, professionale e conciso
+   - Usa emoji con moderazione
+   - Rispondi SEMPRE in italiano
+   - Fornisci dettagli completi quando richiesti
+
+FORMATO RISPOSTA:
+Se vuoi aggiornare il profilo cliente, la tua risposta DEVE iniziare con:
+UPDATE_CLIENT: campo1=valore1|campo2=valore2
+
+Poi continua con il messaggio per il cliente.
+
+Esempi:
+UPDATE_CLIENT: name=Mario|surname=Rossi|profile_completed=False
+Piacere di conoscerti Mario! Per aiutarti meglio, che tipo di immobile stai cercando?
+
+UPDATE_CLIENT: looking_for=Appartamento 3 camere centro|budget=300000
+Perfetto! Hai bisogno di un mutuo per l'acquisto?
 """
     
     # Initialize AI chat
@@ -422,7 +458,40 @@ Esempi di risposta:
     user_message = UserMessage(text=message)
     response = await chat.send_message(user_message)
     
-    return AIResponse(response=response, properties_mentioned=[])
+    # Parse response for client updates
+    update_client = {}
+    final_response = response
+    
+    if response.startswith("UPDATE_CLIENT:"):
+        lines = response.split("\n", 1)
+        update_line = lines[0].replace("UPDATE_CLIENT:", "").strip()
+        final_response = lines[1].strip() if len(lines) > 1 else ""
+        
+        # Parse updates
+        for item in update_line.split("|"):
+            if "=" in item:
+                key, value = item.split("=", 1)
+                key = key.strip()
+                value = value.strip()
+                
+                # Convert values
+                if key in ["budget", "mortgage_amount"]:
+                    try:
+                        update_client[key] = float(value)
+                    except:
+                        pass
+                elif key == "needs_mortgage":
+                    update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
+                elif key == "profile_completed":
+                    update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
+                else:
+                    update_client[key] = value
+    
+    return {
+        "response": final_response,
+        "update_client": update_client,
+        "properties_mentioned": []
+    }
 
 # Statistics endpoint
 @api_router.get("/stats")
