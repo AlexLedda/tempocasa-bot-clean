@@ -341,25 +341,35 @@ async def whatsapp_webhook(webhook: WhatsAppWebhook):
     if not client:
         new_client = ClientCreate(
             name=f"Cliente {webhook.phone_number[-4:]}",
-            phone=webhook.phone_number
+            surname="",
+            phone=webhook.phone_number,
+            profile_completed=False
         )
         await create_client(new_client)
+        client = await db.clients.find_one({"phone": webhook.phone_number})
     
-    # Get AI response
+    # Get AI response with client context
     try:
-        ai_response = await get_ai_response(webhook.message, webhook.phone_number)
+        ai_response = await get_ai_response(webhook.message, webhook.phone_number, client)
+        
+        # Check if AI wants to update client profile
+        if ai_response.get("update_client"):
+            update_data = ai_response["update_client"]
+            await db.clients.update_one(
+                {"phone": webhook.phone_number},
+                {"$set": update_data}
+            )
         
         # Save AI response
         response_msg = MessageCreate(
             client_phone=webhook.phone_number,
-            message=ai_response.response,
+            message=ai_response["response"],
             direction="outgoing",
-            client_name=client['name'] if client else None
+            client_name=client.get('name') if client else None
         )
-        response_msg_obj = await create_message(response_msg)
-        response_msg_obj.ai_response = True
+        await create_message(response_msg)
         
-        return {"reply": ai_response.response, "success": True}
+        return {"reply": ai_response["response"], "success": True}
     except Exception as e:
         logging.error(f"Error processing message: {e}")
         return {"reply": "Scusa, c'è stato un errore. Un nostro agente ti contatterà presto.", "success": False}
