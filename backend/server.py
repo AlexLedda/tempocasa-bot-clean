@@ -57,16 +57,39 @@ class Client(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
+    surname: str = ""
     phone: str
     email: Optional[str] = None
+    looking_for: Optional[str] = None  # cosa cerca
+    budget: Optional[float] = None
+    needs_mortgage: Optional[bool] = None  # mutuo da prendere
+    mortgage_amount: Optional[float] = None  # importo mutuo
     notes: Optional[str] = None
+    profile_completed: bool = False  # profilo completo
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ClientCreate(BaseModel):
     name: str
+    surname: str = ""
     phone: str
     email: Optional[str] = None
+    looking_for: Optional[str] = None
+    budget: Optional[float] = None
+    needs_mortgage: Optional[bool] = None
+    mortgage_amount: Optional[float] = None
     notes: Optional[str] = None
+    profile_completed: bool = False
+
+class ClientUpdate(BaseModel):
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    email: Optional[str] = None
+    looking_for: Optional[str] = None
+    budget: Optional[float] = None
+    needs_mortgage: Optional[bool] = None
+    mortgage_amount: Optional[float] = None
+    notes: Optional[str] = None
+    profile_completed: Optional[bool] = None
 
 class Message(BaseModel):
     model_config = ConfigDict(extra="ignore")
