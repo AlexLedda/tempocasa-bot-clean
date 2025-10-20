@@ -21,6 +21,7 @@ function Layout({ children }) {
   const navigation = [
     { name: "Dashboard", href: "/", icon: Home },
     { name: "Immobili", href: "/properties", icon: Building2 },
+    { name: "Clienti", href: "/clients", icon: Users },
     { name: "Messaggi", href: "/messages", icon: MessageSquare },
     { name: "Appuntamenti", href: "/appointments", icon: Calendar },
     { name: "WhatsApp Setup", href: "/whatsapp-setup", icon: Settings },
