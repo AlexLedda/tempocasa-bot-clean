@@ -498,7 +498,53 @@ Perfetto! Hai bisogno di un mutuo per l'acquisto?
     }
 
 # Statistics endpoint
-@api_router.get("/stats")
+@api_router.get("/whatsapp/status")
+async def get_whatsapp_status():
+    """Get WhatsApp connection status"""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://localhost:3001/status", timeout=5.0)
+            return response.json()
+    except Exception as e:
+        return {"connected": False, "status": "error", "user": None, "error": str(e)}
+
+@api_router.get("/whatsapp/qr")
+async def get_whatsapp_qr():
+    """Get WhatsApp QR code"""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://localhost:3001/qr", timeout=5.0)
+            return response.json()
+    except Exception as e:
+        return {"qr": None, "error": str(e)}
+
+@api_router.post("/whatsapp/start")
+async def start_whatsapp_service():
+    """Start WhatsApp service via supervisor"""
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["sudo", "supervisorctl", "start", "whatsapp-service"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        
+        if result.returncode == 0 or "already started" in result.stdout.lower():
+            return {
+                "success": True,
+                "message": "Servizio WhatsApp avviato. Il QR code apparirà tra pochi secondi.",
+                "output": result.stdout
+            }
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Errore avvio servizio: {result.stderr or result.stdout}"
+            )
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=500, detail="Timeout durante l'avvio del servizio")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore: {str(e)}")
 async def get_stats():
     total_properties = await db.properties.count_documents({})
     available_properties = await db.properties.count_documents({"status": "disponibile"})
