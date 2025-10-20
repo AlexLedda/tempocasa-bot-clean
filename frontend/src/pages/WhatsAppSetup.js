@@ -1,9 +1,55 @@
 import { useState, useEffect } from "react";
-import { QrCode, CheckCircle, AlertCircle, Smartphone, Zap } from "lucide-react";
+import { QrCode, CheckCircle, AlertCircle, Smartphone, Zap, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { API } from "../App";
+import axios from "axios";
+import { toast } from "sonner";
 
 export default function WhatsAppSetup() {
   const [connectionStatus, setConnectionStatus] = useState("disconnected");
+  const [qrCode, setQrCode] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [statusInfo, setStatusInfo] = useState(null);
+
+  useEffect(() => {
+    checkStatus();
+    const interval = setInterval(checkStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const checkStatus = async () => {
+    try {
+      const response = await axios.get(`${API}/whatsapp/status`);
+      setStatusInfo(response.data);
+      setConnectionStatus(response.data.connected ? "connected" : "disconnected");
+      
+      if (!response.data.connected) {
+        // Prova a ottenere il QR code
+        const qrResponse = await axios.get(`${API}/whatsapp/qr`);
+        if (qrResponse.data.qr) {
+          setQrCode(qrResponse.data.qr);
+        }
+      } else {
+        setQrCode(null);
+      }
+    } catch (error) {
+      console.error("Errore verifica stato:", error);
+      setConnectionStatus("error");
+    }
+  };
+
+  const startService = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/whatsapp/start`);
+      toast.success(response.data.message);
+      setTimeout(checkStatus, 3000);
+    } catch (error) {
+      toast.error("Errore avvio servizio: " + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6" data-testid="whatsapp-setup-page">
