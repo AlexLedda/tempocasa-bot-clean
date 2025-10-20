@@ -157,16 +157,64 @@ export default function WhatsAppSetup() {
           </div>
         </div>
 
-        {/* Right Column - QR Code Placeholder */}
+        {/* Right Column - QR Code */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Codice QR</h2>
-          <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center">
-              <QrCode className="w-24 h-24 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 font-medium">In attesa del servizio Node.js</p>
-              <p className="text-sm text-gray-400 mt-2">Il QR code apparirà qui</p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Codice QR</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={checkStatus}
+              disabled={loading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Aggiorna
+            </Button>
           </div>
+          
+          {qrCode ? (
+            <div>
+              <div className="aspect-square bg-white rounded-xl flex items-center justify-center border-2 border-gray-200 p-4">
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrCode)}`}
+                  alt="QR Code WhatsApp"
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="mt-4 bg-blue-50 rounded-lg p-4">
+                <p className="text-sm text-blue-700 font-medium text-center">
+                  ⏱️ Il QR code scade dopo 60 secondi. Scansiona ora!
+                </p>
+              </div>
+            </div>
+          ) : connectionStatus === "connected" ? (
+            <div className="aspect-square bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl flex items-center justify-center border-2 border-green-200">
+              <div className="text-center">
+                <CheckCircle className="w-24 h-24 mx-auto text-green-500 mb-4" />
+                <p className="text-green-700 font-semibold text-lg">WhatsApp Connesso!</p>
+                <p className="text-sm text-green-600 mt-2">
+                  {statusInfo?.user?.name || "Utente connesso"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300">
+              <div className="text-center p-6">
+                <QrCode className="w-24 h-24 mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500 font-medium mb-3">In attesa del QR code</p>
+                <Button 
+                  onClick={startService}
+                  disabled={loading}
+                  className="bg-blue-500 hover:bg-blue-600"
+                >
+                  {loading ? "Avvio in corso..." : "Avvia Servizio WhatsApp"}
+                </Button>
+                <p className="text-xs text-gray-400 mt-3">
+                  Il QR code apparirà automaticamente
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="mt-6 space-y-3">
             <div className="flex items-start space-x-2 text-sm text-gray-600">
