@@ -393,12 +393,15 @@ async def get_ai_response(message: str, client_phone: str, client: dict) -> dict
     
     # Client profile info
     profile_completed = client.get('profile_completed', False)
+    budget = client.get('budget') or 0
+    mortgage_amount = client.get('mortgage_amount') or 0
+    
     client_info = f"""
 Informazioni Cliente:
 - Nome: {client.get('name', 'Non fornito')} {client.get('surname', '')}
 - Email: {client.get('email') or 'Non fornita'}
 - Cerca: {client.get('looking_for') or 'Non specificato'}
-- Budget: €{client.get('budget', 0):,.2f} {f"(con mutuo di €{client.get('mortgage_amount', 0):,.2f})" if client.get('needs_mortgage') else ''}
+- Budget: €{budget:,.2f} {f"(con mutuo di €{mortgage_amount:,.2f})" if client.get('needs_mortgage') else ''}
 - Profilo Completo: {"Sì" if profile_completed else "No"}
 """
     
