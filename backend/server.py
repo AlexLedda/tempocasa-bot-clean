@@ -436,7 +436,25 @@ async def update_valuation_status(valuation_id: str, status: str, estimated_valu
 # WhatsApp webhook endpoint
 @api_router.post("/whatsapp/webhook")
 async def whatsapp_webhook(webhook: WhatsAppWebhook):
-    # Save incoming message
+    # Check if client has previous messages (only respond to new contacts)
+    existing_messages = await db.messages.count_documents({"client_phone": webhook.phone_number})
+    
+    # If client has already contacted us, save message but don't respond
+    if existing_messages > 0:
+        # Just save the incoming message
+        msg = MessageCreate(
+            client_phone=webhook.phone_number,
+            message=webhook.message,
+            direction="incoming"
+        )
+        await create_message(msg)
+        return {
+            "reply": None,
+            "success": True,
+            "note": "Cliente esistente - messaggio salvato senza risposta automatica"
+        }
+    
+    # New contact - proceed with normal flow
     msg = MessageCreate(
         client_phone=webhook.phone_number,
         message=webhook.message,
