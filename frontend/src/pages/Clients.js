@@ -60,6 +60,20 @@ export default function Clients() {
     setDialogOpen(true);
   };
 
+  const handleDelete = async (phone) => {
+    if (!window.confirm("Sei sicuro di voler eliminare questo cliente? Verranno eliminati anche tutti i messaggi, appuntamenti e valutazioni associati.")) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API}/clients/${phone}`);
+      toast.success("Cliente eliminato con successo");
+      fetchClients();
+    } catch (error) {
+      toast.error("Errore nell'eliminazione del cliente");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
