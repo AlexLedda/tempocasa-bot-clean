@@ -764,6 +764,64 @@ async def get_stats():
         "pending_valuations": pending_valuations
     }
 
+class BotSettings(BaseModel):
+    bot_name: str = "Emma"
+    agency_name: str = "Agenzia Immobiliare"
+    auto_respond_new_only: bool = True
+
+@api_router.get("/settings")
+async def get_settings():
+    """Get bot settings"""
+    return {
+        "bot_name": os.environ.get('BOT_NAME', 'Emma'),
+        "agency_name": os.environ.get('BOT_AGENCY_NAME', 'Agenzia Immobiliare'),
+        "auto_respond_new_only": True
+    }
+
+@api_router.put("/settings")
+async def update_settings(settings: BotSettings):
+    """Update bot settings"""
+    # Update .env file
+    env_path = ROOT_DIR / '.env'
+    env_lines = []
+    
+    if env_path.exists():
+        with open(env_path, 'r') as f:
+            env_lines = f.readlines()
+    
+    # Update or add settings
+    updated = {'BOT_NAME': False, 'BOT_AGENCY_NAME': False}
+    
+    for i, line in enumerate(env_lines):
+        if line.startswith('BOT_NAME='):
+            env_lines[i] = f'BOT_NAME="{settings.bot_name}"\n'
+            updated['BOT_NAME'] = True
+        elif line.startswith('BOT_AGENCY_NAME='):
+            env_lines[i] = f'BOT_AGENCY_NAME="{settings.agency_name}"\n'
+            updated['BOT_AGENCY_NAME'] = True
+    
+    # Add if not found
+    if not updated['BOT_NAME']:
+        env_lines.append(f'BOT_NAME="{settings.bot_name}"\n')
+    if not updated['BOT_AGENCY_NAME']:
+        env_lines.append(f'BOT_AGENCY_NAME="{settings.agency_name}"\n')
+    
+    # Write back
+    with open(env_path, 'w') as f:
+        f.writelines(env_lines)
+    
+    # Update environment variables for current session
+    os.environ['BOT_NAME'] = settings.bot_name
+    os.environ['BOT_AGENCY_NAME'] = settings.agency_name
+    
+    return {
+        "message": "Impostazioni aggiornate con successo",
+        "settings": {
+            "bot_name": settings.bot_name,
+            "agency_name": settings.agency_name
+        }
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "Real Estate WhatsApp Bot API"}
