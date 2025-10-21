@@ -46,6 +46,21 @@ export default function Valuations() {
     }
   };
 
+  const toggleEvaluated = async (id, currentStatus) => {
+    try {
+      const params = new URLSearchParams({ 
+        status: currentStatus,
+        is_evaluated: (!currentStatus || currentStatus === "false").toString()
+      });
+      
+      await axios.put(`${API}/valuations/${id}?${params.toString()}`);
+      toast.success("Stato valutazione aggiornato");
+      fetchValuations();
+    } catch (error) {
+      toast.error("Errore nell'aggiornamento");
+    }
+  };
+
   const openValuationDialog = (valuation) => {
     setSelectedValuation(valuation);
     setEstimatedValue(valuation.estimated_value?.toString() || "");
