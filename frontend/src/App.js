@@ -27,6 +27,7 @@ function Layout({ children }) {
     { name: "Messaggi", href: "/messages", icon: MessageSquare },
     { name: "Appuntamenti", href: "/appointments", icon: Calendar },
     { name: "Valutazioni", href: "/valuations", icon: ClipboardCheck },
+    { name: "Impostazioni Bot", href: "/bot-settings", icon: Bot },
     { name: "WhatsApp Setup", href: "/whatsapp-setup", icon: Settings },
   ];
 
