@@ -501,16 +501,24 @@ async def get_ai_response(message: str, client_phone: str, client: dict) -> dict
     
     # Client profile info
     profile_completed = client.get('profile_completed', False)
+    conversation_completed = client.get('conversation_completed', False)
     budget = client.get('budget') or 0
     mortgage_amount = client.get('mortgage_amount') or 0
+    mortgage_percentage = client.get('mortgage_percentage') or 0
     
     client_info = f"""
 Informazioni Cliente:
 - Nome: {client.get('name', 'Non fornito')} {client.get('surname', '')}
 - Email: {client.get('email') or 'Non fornita'}
 - Cerca: {client.get('looking_for') or 'Non specificato'}
-- Budget: €{budget:,.2f} {f"(con mutuo di €{mortgage_amount:,.2f})" if client.get('needs_mortgage') else ''}
+- Budget: €{budget:,.2f}
+- Mutuo: {"Sì" if client.get('needs_mortgage') else "No"} {f"({mortgage_percentage}% - €{mortgage_amount:,.2f})" if mortgage_percentage else ""}
+- Deve vendere: {"Sì" if client.get('needs_to_sell') else "No"}
+- Casa da vendere: {client.get('property_to_sell_location') or 'Non specificata'}
+- Già in vendita: {"Sì" if client.get('property_already_listed') else "No"}
+- Vuole valutazione: {"Sì" if client.get('wants_evaluation') else "No"}
 - Profilo Completo: {"Sì" if profile_completed else "No"}
+- Conversazione Conclusa: {"Sì" if conversation_completed else "No"}
 """
     
     system_message = f"""Sei un assistente virtuale per un'agenzia immobiliare. Il tuo nome è Emma.
