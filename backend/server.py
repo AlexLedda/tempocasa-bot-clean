@@ -65,8 +65,14 @@ class Client(BaseModel):
     budget: Optional[float] = None
     needs_mortgage: Optional[bool] = None  # mutuo da prendere
     mortgage_amount: Optional[float] = None  # importo mutuo
+    mortgage_percentage: Optional[int] = None  # percentuale mutuo
+    needs_to_sell: Optional[bool] = None  # deve vendere casa attuale
+    property_to_sell_location: Optional[str] = None  # ubicazione immobile da vendere
+    property_already_listed: Optional[bool] = None  # già in vendita con agenzia
+    wants_evaluation: Optional[bool] = None  # vuole valutazione
     notes: Optional[str] = None
     profile_completed: bool = False  # profilo completo
+    conversation_completed: bool = False  # conversazione conclusa
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ClientCreate(BaseModel):
@@ -78,8 +84,14 @@ class ClientCreate(BaseModel):
     budget: Optional[float] = None
     needs_mortgage: Optional[bool] = None
     mortgage_amount: Optional[float] = None
+    mortgage_percentage: Optional[int] = None
+    needs_to_sell: Optional[bool] = None
+    property_to_sell_location: Optional[str] = None
+    property_already_listed: Optional[bool] = None
+    wants_evaluation: Optional[bool] = None
     notes: Optional[str] = None
     profile_completed: bool = False
+    conversation_completed: bool = False
 
 class ClientUpdate(BaseModel):
     name: Optional[str] = None
@@ -89,8 +101,14 @@ class ClientUpdate(BaseModel):
     budget: Optional[float] = None
     needs_mortgage: Optional[bool] = None
     mortgage_amount: Optional[float] = None
+    mortgage_percentage: Optional[int] = None
+    needs_to_sell: Optional[bool] = None
+    property_to_sell_location: Optional[str] = None
+    property_already_listed: Optional[bool] = None
+    wants_evaluation: Optional[bool] = None
     notes: Optional[str] = None
     profile_completed: Optional[bool] = None
+    conversation_completed: Optional[bool] = None
 
 class Message(BaseModel):
     model_config = ConfigDict(extra="ignore")
