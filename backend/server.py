@@ -145,6 +145,33 @@ class AppointmentCreate(BaseModel):
     appointment_date: str
     notes: Optional[str] = None
 
+class Valuation(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_phone: str
+    client_name: str
+    property_location: str
+    property_type: Optional[str] = None
+    property_description: Optional[str] = None
+    already_listed: bool = False
+    current_agency: Optional[str] = None
+    appointment_date: Optional[datetime] = None
+    status: str = "richiesta"  # richiesta, appuntamento_fissato, valutata, conclusa
+    estimated_value: Optional[float] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ValuationCreate(BaseModel):
+    client_phone: str
+    client_name: str
+    property_location: str
+    property_type: Optional[str] = None
+    property_description: Optional[str] = None
+    already_listed: bool = False
+    current_agency: Optional[str] = None
+    appointment_date: Optional[str] = None
+    notes: Optional[str] = None
+
 class WhatsAppMessage(BaseModel):
     phone_number: str
     message: str
