@@ -149,6 +149,17 @@ function Layout({ children }) {
 }
 
 function App() {
+  useEffect(() => {
+    // Carica colore primario all'avvio
+    axios.get(`${API}/settings`)
+      .then(response => {
+        if (response.data.primary_color) {
+          applyPrimaryColor(response.data.primary_color);
+        }
+      })
+      .catch(error => console.error('Error loading theme:', error));
+  }, []);
+
   return (
     <div className="App">
       <BrowserRouter>
