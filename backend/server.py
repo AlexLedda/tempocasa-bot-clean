@@ -539,7 +539,12 @@ Informazioni Cliente:
 - Conversazione Conclusa: {"Sì" if conversation_completed else "No"}
 """
     
-    system_message = f"""Sei un assistente virtuale per un'agenzia immobiliare. Il tuo nome è Emma.
+    # Get bot configuration
+    bot_name = os.environ.get('BOT_NAME', 'Emma')
+    agency_name = os.environ.get('BOT_AGENCY_NAME', 'Agenzia Immobiliare')
+    
+    system_message = f"""Sei un assistente virtuale per un'agenzia immobiliare. Il tuo nome è {bot_name}.
+Lavori per {agency_name}.
 
 {client_info}
 
