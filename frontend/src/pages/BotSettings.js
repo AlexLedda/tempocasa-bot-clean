@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { API } from "../App";
+import { API, applyPrimaryColor } from "../App";
 import { toast } from "sonner";
-import { Settings, Bot, Building2, Save } from "lucide-react";
+import { Settings, Bot, Building2, Save, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,22 @@ export default function BotSettings() {
   const [settings, setSettings] = useState({
     bot_name: "Emma",
     agency_name: "Agenzia Immobiliare",
+    primary_color: "#3b82f6",
   });
+
+  // Colori predefiniti
+  const presetColors = [
+    { name: "Blu", color: "#3b82f6" },
+    { name: "Indigo", color: "#6366f1" },
+    { name: "Verde", color: "#10b981" },
+    { name: "Teal", color: "#14b8a6" },
+    { name: "Viola", color: "#8b5cf6" },
+    { name: "Rosa", color: "#ec4899" },
+    { name: "Rosso", color: "#ef4444" },
+    { name: "Arancione", color: "#f97316" },
+    { name: "Giallo", color: "#eab308" },
+    { name: "Grigio", color: "#6b7280" },
+  ];
 
   useEffect(() => {
     fetchSettings();
@@ -24,6 +39,10 @@ export default function BotSettings() {
     try {
       const response = await axios.get(`${API}/settings`);
       setSettings(response.data);
+      // Applica il colore salvato
+      if (response.data.primary_color) {
+        applyPrimaryColor(response.data.primary_color);
+      }
     } catch (error) {
       toast.error("Errore nel caricamento delle impostazioni");
     } finally {
@@ -35,12 +54,20 @@ export default function BotSettings() {
     setSaving(true);
     try {
       await axios.put(`${API}/settings`, settings);
-      toast.success("Impostazioni salvate! Riavvia il bot WhatsApp per applicare le modifiche.");
+      // Applica il nuovo colore
+      applyPrimaryColor(settings.primary_color);
+      toast.success("Impostazioni salvate! Le modifiche sono attive.");
     } catch (error) {
       toast.error("Errore nel salvataggio");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleColorChange = (color) => {
+    setSettings({ ...settings, primary_color: color });
+    // Preview immediato
+    applyPrimaryColor(color);
   };
 
   if (loading) {
