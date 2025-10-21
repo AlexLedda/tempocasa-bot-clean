@@ -3,13 +3,14 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
-import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck } from "lucide-react";
+import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Properties from "./pages/Properties";
 import Messages from "./pages/Messages";
 import Appointments from "./pages/Appointments";
 import Clients from "./pages/Clients";
 import Valuations from "./pages/Valuations";
+import BotSettings from "./pages/BotSettings";
 import WhatsAppSetup from "./pages/WhatsAppSetup";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
