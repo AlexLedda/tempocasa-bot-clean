@@ -158,6 +158,7 @@ class Valuation(BaseModel):
     appointment_date: Optional[datetime] = None
     status: str = "richiesta"  # richiesta, appuntamento_fissato, valutata, conclusa
     estimated_value: Optional[float] = None
+    is_evaluated: bool = False  # segno di spunta se valutato
     notes: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
