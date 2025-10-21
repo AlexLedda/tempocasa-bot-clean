@@ -218,6 +218,52 @@ export default function Properties() {
                   />
                 </div>
               </div>
+              <div>
+                <Label>Immagini (URL)</Label>
+                <div className="space-y-2">
+                  {formData.images.map((img, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={img}
+                        onChange={(e) => {
+                          const newImages = [...formData.images];
+                          newImages[index] = e.target.value;
+                          setFormData({ ...formData, images: newImages });
+                        }}
+                        placeholder="https://esempio.com/foto.jpg"
+                        data-testid={`property-image-input-${index}`}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newImages = formData.images.filter((_, i) => i !== index);
+                          setFormData({ ...formData, images: newImages });
+                        }}
+                        data-testid={`remove-image-${index}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFormData({ ...formData, images: [...formData.images, ""] });
+                    }}
+                    data-testid="add-image-btn"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Aggiungi Foto
+                  </Button>
+                  <p className="text-xs text-gray-500">
+                    Inserisci URL delle foto (es. da Google Drive, Dropbox, o servizi di hosting immagini)
+                  </p>
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Tipo Immobile</Label>
