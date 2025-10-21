@@ -323,9 +323,27 @@ export default function Properties() {
               className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover"
               data-testid={`property-card-${property.id}`}
             >
-              {/* Property Image Placeholder */}
-              <div className="h-48 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                <Building2 className="w-16 h-16 text-blue-400" />
+              {/* Property Image */}
+              <div className="h-48 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center overflow-hidden relative">
+                {property.images && property.images.length > 0 && property.images[0] ? (
+                  <img 
+                    src={property.images[0]} 
+                    alt={property.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-full flex items-center justify-center ${property.images && property.images.length > 0 && property.images[0] ? 'hidden' : ''}`}>
+                  <Building2 className="w-16 h-16 text-blue-400" />
+                </div>
+                {property.images && property.images.length > 1 && (
+                  <span className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                    +{property.images.length - 1} foto
+                  </span>
+                )}
               </div>
 
               {/* Property Info */}
