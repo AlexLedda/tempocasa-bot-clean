@@ -371,6 +371,68 @@ async def update_appointment_status(appointment_id: str, status: str):
         raise HTTPException(status_code=404, detail="Appuntamento non trovato")
     return {"message": "Appuntamento aggiornato"}
 
+# Valuations endpoints
+@api_router.post("/valuations", response_model=Valuation)
+async def create_valuation(valuation: ValuationCreate):
+    valuation_dict = valuation.model_dump()
+    
+    # Convert appointment_date if provided
+    if valuation_dict.get('appointment_date'):
+        valuation_dict['appointment_date'] = datetime.fromisoformat(valuation.appointment_date)
+    
+    valuation_obj = Valuation(**valuation_dict)
+    
+    doc = valuation_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    if doc.get('appointment_date'):
+        doc['appointment_date'] = doc['appointment_date'].isoformat()
+    
+    await db.valuations.insert_one(doc)
+    return valuation_obj
+
+@api_router.get("/valuations", response_model=List[Valuation])
+async def get_valuations(status: Optional[str] = None):
+    query = {}
+    if status:
+        query['status'] = status
+    
+    valuations = await db.valuations.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    for val in valuations:
+        if isinstance(val['created_at'], str):
+            val['created_at'] = datetime.fromisoformat(val['created_at'])
+        if val.get('appointment_date') and isinstance(val['appointment_date'], str):
+            val['appointment_date'] = datetime.fromisoformat(val['appointment_date'])
+    
+    return valuations
+
+@api_router.get("/valuations/{valuation_id}", response_model=Valuation)
+async def get_valuation(valuation_id: str):
+    valuation = await db.valuations.find_one({"id": valuation_id}, {"_id": 0})
+    if not valuation:
+        raise HTTPException(status_code=404, detail="Valutazione non trovata")
+    
+    if isinstance(valuation['created_at'], str):
+        valuation['created_at'] = datetime.fromisoformat(valuation['created_at'])
+    if valuation.get('appointment_date') and isinstance(valuation['appointment_date'], str):
+        valuation['appointment_date'] = datetime.fromisoformat(valuation['appointment_date'])
+    
+    return valuation
+
+@api_router.put("/valuations/{valuation_id}")
+async def update_valuation_status(valuation_id: str, status: str, estimated_value: Optional[float] = None):
+    update_data = {"status": status}
+    if estimated_value:
+        update_data["estimated_value"] = estimated_value
+    
+    result = await db.valuations.update_one(
+        {"id": valuation_id},
+        {"$set": update_data}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Valutazione non trovata")
+    return {"message": "Valutazione aggiornata"}
+
 # WhatsApp webhook endpoint
 @api_router.post("/whatsapp/webhook")
 async def whatsapp_webhook(webhook: WhatsAppWebhook):
