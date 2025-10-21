@@ -183,25 +183,42 @@ export default function Valuations() {
                     <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
                       <Building2 className="w-6 h-6 text-white" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900">{valuation.property_location}</h3>
                       <p className="text-sm text-gray-500">
                         {valuation.property_type || "Tipo non specificato"}
                       </p>
                     </div>
-                    <span
-                      className={`ml-auto text-xs px-3 py-1 rounded-full ${
-                        valuation.status === "richiesta"
-                          ? "bg-orange-100 text-orange-700"
-                          : valuation.status === "appuntamento_fissato"
-                          ? "bg-blue-100 text-blue-700"
-                          : valuation.status === "valutata"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {valuation.status.replace("_", " ")}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {/* Checkbox Valutato */}
+                      <button
+                        onClick={() => toggleEvaluated(valuation.id, valuation.is_evaluated)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
+                          valuation.is_evaluated
+                            ? "bg-green-50 border-green-500 text-green-700"
+                            : "bg-gray-50 border-gray-300 text-gray-500 hover:border-gray-400"
+                        }`}
+                        data-testid={`toggle-evaluated-${valuation.id}`}
+                      >
+                        <CheckCircle className={`w-5 h-5 ${valuation.is_evaluated ? "fill-green-500" : ""}`} />
+                        <span className="text-sm font-medium">
+                          {valuation.is_evaluated ? "Valutato" : "Da valutare"}
+                        </span>
+                      </button>
+                      <span
+                        className={`text-xs px-3 py-1 rounded-full ${
+                          valuation.status === "richiesta"
+                            ? "bg-orange-100 text-orange-700"
+                            : valuation.status === "appuntamento_fissato"
+                            ? "bg-blue-100 text-blue-700"
+                            : valuation.status === "valutata"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {valuation.status.replace("_", " ")}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Info Grid */}
