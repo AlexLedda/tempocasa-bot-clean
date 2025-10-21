@@ -730,13 +730,15 @@ async def get_stats():
     total_clients = await db.clients.count_documents({})
     total_messages = await db.messages.count_documents({})
     pending_appointments = await db.appointments.count_documents({"status": "confermato"})
+    pending_valuations = await db.valuations.count_documents({"status": "richiesta"})
     
     return {
         "total_properties": total_properties,
         "available_properties": available_properties,
         "total_clients": total_clients,
         "total_messages": total_messages,
-        "pending_appointments": pending_appointments
+        "pending_appointments": pending_appointments,
+        "pending_valuations": pending_valuations
     }
 
 @api_router.get("/")
