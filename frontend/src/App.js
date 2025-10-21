@@ -25,6 +25,7 @@ function Layout({ children }) {
     { name: "Clienti", href: "/clients", icon: Users },
     { name: "Messaggi", href: "/messages", icon: MessageSquare },
     { name: "Appuntamenti", href: "/appointments", icon: Calendar },
+    { name: "Valutazioni", href: "/valuations", icon: ClipboardCheck },
     { name: "WhatsApp Setup", href: "/whatsapp-setup", icon: Settings },
   ];
 
