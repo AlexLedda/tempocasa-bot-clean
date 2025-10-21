@@ -129,6 +129,7 @@ function App() {
             <Route path="/clients" element={<Clients />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/appointments" element={<Appointments />} />
+            <Route path="/valuations" element={<Valuations />} />
             <Route path="/whatsapp-setup" element={<WhatsAppSetup />} />
           </Routes>
         </Layout>
