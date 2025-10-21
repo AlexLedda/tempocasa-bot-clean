@@ -797,6 +797,7 @@ async def get_stats():
 class BotSettings(BaseModel):
     bot_name: str = "Emma"
     agency_name: str = "Agenzia Immobiliare"
+    primary_color: str = "#3b82f6"
     auto_respond_new_only: bool = True
 
 @api_router.get("/settings")
@@ -805,6 +806,7 @@ async def get_settings():
     return {
         "bot_name": os.environ.get('BOT_NAME', 'Emma'),
         "agency_name": os.environ.get('BOT_AGENCY_NAME', 'Agenzia Immobiliare'),
+        "primary_color": os.environ.get('PRIMARY_COLOR', '#3b82f6'),
         "auto_respond_new_only": True
     }
 
@@ -820,7 +822,7 @@ async def update_settings(settings: BotSettings):
             env_lines = f.readlines()
     
     # Update or add settings
-    updated = {'BOT_NAME': False, 'BOT_AGENCY_NAME': False}
+    updated = {'BOT_NAME': False, 'BOT_AGENCY_NAME': False, 'PRIMARY_COLOR': False}
     
     for i, line in enumerate(env_lines):
         if line.startswith('BOT_NAME='):
@@ -829,12 +831,17 @@ async def update_settings(settings: BotSettings):
         elif line.startswith('BOT_AGENCY_NAME='):
             env_lines[i] = f'BOT_AGENCY_NAME="{settings.agency_name}"\n'
             updated['BOT_AGENCY_NAME'] = True
+        elif line.startswith('PRIMARY_COLOR='):
+            env_lines[i] = f'PRIMARY_COLOR="{settings.primary_color}"\n'
+            updated['PRIMARY_COLOR'] = True
     
     # Add if not found
     if not updated['BOT_NAME']:
         env_lines.append(f'BOT_NAME="{settings.bot_name}"\n')
     if not updated['BOT_AGENCY_NAME']:
         env_lines.append(f'BOT_AGENCY_NAME="{settings.agency_name}"\n')
+    if not updated['PRIMARY_COLOR']:
+        env_lines.append(f'PRIMARY_COLOR="{settings.primary_color}"\n')
     
     # Write back
     with open(env_path, 'w') as f:
@@ -843,12 +850,14 @@ async def update_settings(settings: BotSettings):
     # Update environment variables for current session
     os.environ['BOT_NAME'] = settings.bot_name
     os.environ['BOT_AGENCY_NAME'] = settings.agency_name
+    os.environ['PRIMARY_COLOR'] = settings.primary_color
     
     return {
         "message": "Impostazioni aggiornate con successo",
         "settings": {
             "bot_name": settings.bot_name,
-            "agency_name": settings.agency_name
+            "agency_name": settings.agency_name,
+            "primary_color": settings.primary_color
         }
     }
 
