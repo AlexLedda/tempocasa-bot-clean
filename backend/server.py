@@ -439,10 +439,21 @@ async def get_valuation(valuation_id: str):
     return valuation
 
 @api_router.put("/valuations/{valuation_id}")
-async def update_valuation_status(valuation_id: str, status: str, estimated_value: Optional[float] = None):
+async def update_valuation_status(
+    valuation_id: str, 
+    status: str, 
+    estimated_value: Optional[float] = None,
+    is_evaluated: Optional[bool] = None
+):
     update_data = {"status": status}
     if estimated_value:
         update_data["estimated_value"] = estimated_value
+    if is_evaluated is not None:
+        update_data["is_evaluated"] = is_evaluated
+    
+    # Se lo stato è "valutata", imposta automaticamente is_evaluated a True
+    if status == "valutata":
+        update_data["is_evaluated"] = True
     
     result = await db.valuations.update_one(
         {"id": valuation_id},
