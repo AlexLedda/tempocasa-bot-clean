@@ -467,30 +467,43 @@ Perfetto! Hai bisogno di un mutuo per l'acquisto?
     update_client = {}
     final_response = response
     
-    if response.startswith("UPDATE_CLIENT:"):
-        lines = response.split("\n", 1)
-        update_line = lines[0].replace("UPDATE_CLIENT:", "").strip()
-        final_response = lines[1].strip() if len(lines) > 1 else ""
+    if "UPDATE_CLIENT:" in response:
+        # Trova la riga con UPDATE_CLIENT
+        lines = response.split("\n")
+        update_line = None
+        message_lines = []
         
-        # Parse updates
-        for item in update_line.split("|"):
-            if "=" in item:
-                key, value = item.split("=", 1)
-                key = key.strip()
-                value = value.strip()
-                
-                # Convert values
-                if key in ["budget", "mortgage_amount"]:
-                    try:
-                        update_client[key] = float(value)
-                    except:
-                        pass
-                elif key == "needs_mortgage":
-                    update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
-                elif key == "profile_completed":
-                    update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
-                else:
-                    update_client[key] = value
+        for line in lines:
+            if line.strip().startswith("UPDATE_CLIENT:"):
+                update_line = line.replace("UPDATE_CLIENT:", "").strip()
+            else:
+                # Aggiungi solo le righe che NON sono UPDATE_CLIENT
+                if line.strip():
+                    message_lines.append(line)
+        
+        # Ricostruisci il messaggio senza UPDATE_CLIENT
+        final_response = "\n".join(message_lines).strip()
+        
+        # Parse updates se trovato
+        if update_line:
+            for item in update_line.split("|"):
+                if "=" in item:
+                    key, value = item.split("=", 1)
+                    key = key.strip()
+                    value = value.strip()
+                    
+                    # Convert values
+                    if key in ["budget", "mortgage_amount"]:
+                        try:
+                            update_client[key] = float(value)
+                        except:
+                            pass
+                    elif key == "needs_mortgage":
+                        update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
+                    elif key == "profile_completed":
+                        update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
+                    else:
+                        update_client[key] = value
     
     return {
         "response": final_response,
