@@ -250,16 +250,27 @@ export default function Clients() {
               )}
 
               {/* Edit Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => handleEdit(client)}
-                data-testid={`edit-client-${client.phone}`}
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Modifica Profilo
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleEdit(client)}
+                  data-testid={`edit-client-${client.phone}`}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Modifica
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleDelete(client.phone)}
+                  data-testid={`delete-client-${client.phone}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           ))
         )}
