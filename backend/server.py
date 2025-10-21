@@ -437,18 +437,27 @@ COMPITI PRINCIPALI:
    - Rispondi SEMPRE in italiano
    - Fornisci dettagli completi quando richiesti
 
-FORMATO RISPOSTA:
-Se vuoi aggiornare il profilo cliente, la tua risposta DEVE iniziare con:
-UPDATE_CLIENT: campo1=valore1|campo2=valore2
+IMPORTANTE - FORMATO AGGIORNAMENTO PROFILO:
+Quando raccogli nuove informazioni dal cliente, DEVI includere NELLA PRIMA RIGA della risposta:
+UPDATE_CLIENT: campo=valore|campo2=valore2
 
-Poi continua con il messaggio per il cliente.
+Questa riga DEVE essere sulla PRIMA RIGA, seguita da una riga vuota, poi il messaggio per il cliente.
 
-Esempi:
+Esempio CORRETTO:
 UPDATE_CLIENT: name=Mario|surname=Rossi|profile_completed=False
+
 Piacere di conoscerti Mario! Per aiutarti meglio, che tipo di immobile stai cercando?
 
+Altro esempio:
 UPDATE_CLIENT: looking_for=Appartamento 3 camere centro|budget=300000
+
 Perfetto! Hai bisogno di un mutuo per l'acquisto?
+
+REGOLE:
+- UPDATE_CLIENT deve essere SEMPRE sulla prima riga
+- Dopo UPDATE_CLIENT metti una riga vuota
+- Poi scrivi il messaggio normale per il cliente
+- Non mettere UPDATE_CLIENT in mezzo o alla fine del messaggio
 """
     
     # Initialize AI chat
