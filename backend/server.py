@@ -652,15 +652,18 @@ Verrà ricontattata da un nostro consulente per la visione dell'immobile e il co
                     value = value.strip()
                     
                     # Convert values
-                    if key in ["budget", "mortgage_amount"]:
+                    if key in ["budget", "mortgage_amount", "estimated_value"]:
                         try:
                             update_client[key] = float(value)
                         except:
                             pass
-                    elif key == "needs_mortgage":
-                        update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
-                    elif key == "profile_completed":
-                        update_client[key] = value.lower() in ["true", "sì", "si", "yes"]
+                    elif key in ["mortgage_percentage"]:
+                        try:
+                            update_client[key] = int(value)
+                        except:
+                            pass
+                    elif key in ["needs_mortgage", "needs_to_sell", "property_already_listed", "wants_evaluation", "profile_completed", "conversation_completed"]:
+                        update_client[key] = value.lower() in ["true", "sì", "si", "yes", "vero"]
                     else:
                         update_client[key] = value
     
