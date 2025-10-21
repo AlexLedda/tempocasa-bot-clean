@@ -299,6 +299,24 @@ async def update_client(phone: str, client_update: ClientUpdate):
     
     return updated
 
+@api_router.delete("/clients/{phone}")
+async def delete_client(phone: str):
+    # Delete client
+    client_result = await db.clients.delete_one({"phone": phone})
+    if client_result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Cliente non trovato")
+    
+    # Delete associated messages
+    await db.messages.delete_many({"client_phone": phone})
+    
+    # Delete associated appointments
+    await db.appointments.delete_many({"client_phone": phone})
+    
+    # Delete associated valuations
+    await db.valuations.delete_many({"client_phone": phone})
+    
+    return {"message": "Cliente e dati associati eliminati con successo"}
+
 # Messages endpoints
 @api_router.post("/messages", response_model=Message)
 async def create_message(msg: MessageCreate):
