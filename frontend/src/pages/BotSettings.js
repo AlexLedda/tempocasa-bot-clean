@@ -91,7 +91,7 @@ export default function BotSettings() {
         <Card>
           <CardHeader>
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${settings.primary_color} 0%, ${settings.primary_color}dd 100%)` }}>
                 <Bot className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -132,7 +132,8 @@ export default function BotSettings() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+              className="w-full"
+              style={{ background: `linear-gradient(135deg, ${settings.primary_color} 0%, ${settings.primary_color}dd 100%)` }}
               data-testid="save-settings-btn"
             >
               <Save className="w-4 h-4 mr-2" />
@@ -141,8 +142,82 @@ export default function BotSettings() {
           </CardContent>
         </Card>
 
-        {/* Preview */}
+        {/* Theme Configuration */}
         <Card>
+          <CardHeader>
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${settings.primary_color} 0%, ${settings.primary_color}dd 100%)` }}>
+                <Palette className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <CardTitle>Tema e Colori</CardTitle>
+                <CardDescription>Personalizza l'aspetto dell'applicazione</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Colore Primario</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <input
+                  type="color"
+                  value={settings.primary_color}
+                  onChange={(e) => handleColorChange(e.target.value)}
+                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
+                  data-testid="color-picker"
+                />
+                <div className="flex-1">
+                  <Input
+                    value={settings.primary_color}
+                    onChange={(e) => handleColorChange(e.target.value)}
+                    placeholder="#3b82f6"
+                    data-testid="color-input"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Codice esadecimale del colore</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label>Colori Predefiniti</Label>
+              <div className="grid grid-cols-5 gap-2 mt-2">
+                {presetColors.map((preset) => (
+                  <button
+                    key={preset.color}
+                    onClick={() => handleColorChange(preset.color)}
+                    className={`relative w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${
+                      settings.primary_color === preset.color ? "border-gray-900 ring-2 ring-gray-900" : "border-gray-200"
+                    }`}
+                    style={{ backgroundColor: preset.color }}
+                    title={preset.name}
+                    data-testid={`preset-${preset.name.toLowerCase()}`}
+                  >
+                    {settings.primary_color === preset.color && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white drop-shadow" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <p className="text-sm text-gray-700 font-medium mb-2">✨ Anteprima</p>
+              <div className="space-y-2">
+                <div className="h-8 rounded-md" style={{ backgroundColor: settings.primary_color }}></div>
+                <div className="flex gap-2">
+                  <div className="h-8 flex-1 rounded-md" style={{ backgroundColor: settings.primary_color, opacity: 0.8 }}></div>
+                  <div className="h-8 flex-1 rounded-md" style={{ backgroundColor: settings.primary_color, opacity: 0.6 }}></div>
+                  <div className="h-8 flex-1 rounded-md" style={{ backgroundColor: settings.primary_color, opacity: 0.4 }}></div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
           <CardHeader>
             <CardTitle>Anteprima Messaggio</CardTitle>
             <CardDescription>Come si presenterà il bot ai clienti</CardDescription>
