@@ -218,34 +218,39 @@ export default function BotSettings() {
           </CardContent>
         </Card>
       </div>
-          <CardHeader>
-            <CardTitle>Anteprima Messaggio</CardTitle>
-            <CardDescription>Come si presenterà il bot ai clienti</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200">
-              <div className="flex items-start space-x-3 mb-4">
-                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900 mb-1">
-                    {settings.bot_name || "Nome Bot"}
+
+      {/* Preview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Anteprima Messaggio</CardTitle>
+          <CardDescription>Come si presenterà il bot ai clienti</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200">
+            <div className="flex items-start space-x-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: settings.primary_color }}
+              >
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-900 mb-1">
+                  {settings.bot_name || "Nome Bot"}
+                </p>
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <p className="text-sm text-gray-700">
+                    Ciao! Sono <strong>{settings.bot_name || "Nome Bot"}</strong>, l'assistente
+                    virtuale di <strong>{settings.agency_name || "Agenzia Immobiliare"}</strong>.
+                    Sono qui per aiutarti a trovare l'immobile perfetto! 🏠
                   </p>
-                  <div className="bg-white rounded-xl p-4 shadow-sm">
-                    <p className="text-sm text-gray-700">
-                      Ciao! Sono <strong>{settings.bot_name || "Nome Bot"}</strong>, l'assistente
-                      virtuale di <strong>{settings.agency_name || "Agenzia Immobiliare"}</strong>.
-                      Sono qui per aiutarti a trovare l'immobile perfetto! 🏠
-                    </p>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">Adesso</p>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">Adesso</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
