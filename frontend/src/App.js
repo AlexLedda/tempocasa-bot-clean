@@ -5,7 +5,7 @@ import axios from "axios";
 import { Toaster, toast } from "sonner";
 import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
-import Properties from "./pages/Properties";
+import Properties from "./pages/PropertiesNew";
 import Messages from "./pages/Messages";
 import Appointments from "./pages/Appointments";
 import Clients from "./pages/Clients";
