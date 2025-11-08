@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // IMPORTANTE: URL del tuo backend Emergent
-const FASTAPI_URL = process.env.FASTAPI_URL || 'https://realestate-bot-2.preview.emergentagent.com';
+const FASTAPI_URL = process.env.FASTAPI_URL || 'https://propbot-5.preview.emergentagent.com';
 const PORT = process.env.PORT || 3001;
 
 let sock = null;

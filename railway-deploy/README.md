@@ -71,7 +71,7 @@ Assicurati di avere tutti questi file:
 
 **FASTAPI_URL**:
 ```
-https://realestate-bot-2.preview.emergentagent.com
+https://propbot-5.preview.emergentagent.com
 ```
 
 **PORT**:

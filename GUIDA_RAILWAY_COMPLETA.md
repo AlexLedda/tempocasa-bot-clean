@@ -124,7 +124,7 @@ Click **"+ New Variable"** e aggiungi:
 
 **Variable 1:**
 - Name: `FASTAPI_URL`
-- Value: `https://realestate-bot-2.preview.emergentagent.com`
+- Value: `https://propbot-5.preview.emergentagent.com`
 
 **Variable 2:**
 - Name: `PORT`
@@ -204,7 +204,7 @@ Oppure scansiona dal terminale:
 Nei logs Railway vedrai:
 ```
 ✅ WhatsApp connesso con successo!
-📡 Backend: https://realestate-bot-2.preview.emergentagent.com
+📡 Backend: https://propbot-5.preview.emergentagent.com
 ```
 
 ### 8.2 Testa il Bot
@@ -213,7 +213,7 @@ Nei logs Railway vedrai:
 3. Il bot dovrebbe rispondere! 🎉
 
 ### 8.3 Verifica Dashboard
-1. Vai su: https://realestate-bot-2.preview.emergentagent.com
+1. Vai su: https://propbot-5.preview.emergentagent.com
 2. Sezione **Messaggi**
 3. Dovresti vedere il messaggio e la risposta!
 
@@ -243,7 +243,7 @@ Vedrai:
     "id": "393xxxxxx",
     "name": "Tuo Nome"
   },
-  "backend": "https://realestate-bot-2.preview.emergentagent.com",
+  "backend": "https://propbot-5.preview.emergentagent.com",
   "hasQR": false
 }
 ```

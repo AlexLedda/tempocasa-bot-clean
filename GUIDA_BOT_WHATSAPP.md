@@ -128,7 +128,7 @@ L'AI (Claude Sonnet 4) ha accesso a:
 ## 🔑 Credenziali e Setup
 
 ### Backend API
-- **URL**: https://realestate-bot-2.preview.emergentagent.com/api
+- **URL**: https://propbot-5.preview.emergentagent.com/api
 - **AI Key**: EMERGENT_LLM_KEY (già configurata)
 - **Database**: MongoDB locale
 

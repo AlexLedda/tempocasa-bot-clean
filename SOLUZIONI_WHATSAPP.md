@@ -14,7 +14,7 @@
 ```bash
 npm init -y
 npm install @whiskeysockets/baileys express cors axios dotenv qrcode-terminal
-echo "FASTAPI_URL=https://realestate-bot-2.preview.emergentagent.com" > .env
+echo "FASTAPI_URL=https://propbot-5.preview.emergentagent.com" > .env
 node LOCAL_WHATSAPP_SERVICE.js
 ```
 5. Scansiona il QR code
