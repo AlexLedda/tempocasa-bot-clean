@@ -40,7 +40,7 @@ app.post('/webhook', async (req, res) => {
         const response = await axios.post(`${FASTAPI_URL}/api/whatsapp/webhook`, {
             phone_number: phoneNumber,
             message: incomingMsg,
-            timestamp: new Date().toISOString()
+            timestamp: Math.floor(Date.now() / 1000)
         }, { 
             timeout: 30000,
             headers: {
