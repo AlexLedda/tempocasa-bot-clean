@@ -1,11 +1,9 @@
-from fastapi import FastAPI, APIRouter, HTTPException, File, UploadFile
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
-import shutil
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
@@ -16,10 +14,6 @@ import httpx
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
-
-# Configure uploads directory
-UPLOAD_DIR = ROOT_DIR / 'uploads'
-UPLOAD_DIR.mkdir(exist_ok=True)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -396,13 +390,6 @@ async def update_appointment_status(appointment_id: str, status: str):
         raise HTTPException(status_code=404, detail="Appuntamento non trovato")
     return {"message": "Appuntamento aggiornato"}
 
-@api_router.delete("/appointments/{appointment_id}")
-async def delete_appointment(appointment_id: str):
-    result = await db.appointments.delete_one({"id": appointment_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Appuntamento non trovato")
-    return {"message": "Appuntamento eliminato"}
-
 # Valuations endpoints
 @api_router.post("/valuations", response_model=Valuation)
 async def create_valuation(valuation: ValuationCreate):
@@ -475,13 +462,6 @@ async def update_valuation_status(
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Valutazione non trovata")
     return {"message": "Valutazione aggiornata"}
-
-@api_router.delete("/valuations/{valuation_id}")
-async def delete_valuation(valuation_id: str):
-    result = await db.valuations.delete_one({"id": valuation_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Valutazione non trovata")
-    return {"message": "Valutazione eliminata"}
 
 # WhatsApp webhook endpoint
 @api_router.post("/whatsapp/webhook")
@@ -818,9 +798,6 @@ class BotSettings(BaseModel):
     bot_name: str = "Emma"
     agency_name: str = "Agenzia Immobiliare"
     primary_color: str = "#3b82f6"
-    secondary_color: str = "#10b981"
-    accent_color: str = "#f59e0b"
-    logo_url: str = ""
     auto_respond_new_only: bool = True
 
 @api_router.get("/settings")
@@ -830,9 +807,6 @@ async def get_settings():
         "bot_name": os.environ.get('BOT_NAME', 'Emma'),
         "agency_name": os.environ.get('BOT_AGENCY_NAME', 'Agenzia Immobiliare'),
         "primary_color": os.environ.get('PRIMARY_COLOR', '#3b82f6'),
-        "secondary_color": os.environ.get('SECONDARY_COLOR', '#10b981'),
-        "accent_color": os.environ.get('ACCENT_COLOR', '#f59e0b'),
-        "logo_url": os.environ.get('LOGO_URL', ''),
         "auto_respond_new_only": True
     }
 
@@ -848,14 +822,7 @@ async def update_settings(settings: BotSettings):
             env_lines = f.readlines()
     
     # Update or add settings
-    updated = {
-        'BOT_NAME': False, 
-        'BOT_AGENCY_NAME': False, 
-        'PRIMARY_COLOR': False,
-        'SECONDARY_COLOR': False,
-        'ACCENT_COLOR': False,
-        'LOGO_URL': False
-    }
+    updated = {'BOT_NAME': False, 'BOT_AGENCY_NAME': False, 'PRIMARY_COLOR': False}
     
     for i, line in enumerate(env_lines):
         if line.startswith('BOT_NAME='):
@@ -867,15 +834,6 @@ async def update_settings(settings: BotSettings):
         elif line.startswith('PRIMARY_COLOR='):
             env_lines[i] = f'PRIMARY_COLOR="{settings.primary_color}"\n'
             updated['PRIMARY_COLOR'] = True
-        elif line.startswith('SECONDARY_COLOR='):
-            env_lines[i] = f'SECONDARY_COLOR="{settings.secondary_color}"\n'
-            updated['SECONDARY_COLOR'] = True
-        elif line.startswith('ACCENT_COLOR='):
-            env_lines[i] = f'ACCENT_COLOR="{settings.accent_color}"\n'
-            updated['ACCENT_COLOR'] = True
-        elif line.startswith('LOGO_URL='):
-            env_lines[i] = f'LOGO_URL="{settings.logo_url}"\n'
-            updated['LOGO_URL'] = True
     
     # Add if not found
     if not updated['BOT_NAME']:
@@ -884,12 +842,6 @@ async def update_settings(settings: BotSettings):
         env_lines.append(f'BOT_AGENCY_NAME="{settings.agency_name}"\n')
     if not updated['PRIMARY_COLOR']:
         env_lines.append(f'PRIMARY_COLOR="{settings.primary_color}"\n')
-    if not updated['SECONDARY_COLOR']:
-        env_lines.append(f'SECONDARY_COLOR="{settings.secondary_color}"\n')
-    if not updated['ACCENT_COLOR']:
-        env_lines.append(f'ACCENT_COLOR="{settings.accent_color}"\n')
-    if not updated['LOGO_URL']:
-        env_lines.append(f'LOGO_URL="{settings.logo_url}"\n')
     
     # Write back
     with open(env_path, 'w') as f:
@@ -899,77 +851,15 @@ async def update_settings(settings: BotSettings):
     os.environ['BOT_NAME'] = settings.bot_name
     os.environ['BOT_AGENCY_NAME'] = settings.agency_name
     os.environ['PRIMARY_COLOR'] = settings.primary_color
-    os.environ['SECONDARY_COLOR'] = settings.secondary_color
-    os.environ['ACCENT_COLOR'] = settings.accent_color
-    os.environ['LOGO_URL'] = settings.logo_url
     
     return {
         "message": "Impostazioni aggiornate con successo",
         "settings": {
             "bot_name": settings.bot_name,
             "agency_name": settings.agency_name,
-            "primary_color": settings.primary_color,
-            "secondary_color": settings.secondary_color,
-            "accent_color": settings.accent_color,
-            "logo_url": settings.logo_url
+            "primary_color": settings.primary_color
         }
     }
-
-@api_router.post("/upload-logo")
-async def upload_logo(file: UploadFile = File(...)):
-    """Upload logo image"""
-    # Validate file type
-    allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml"]
-    if file.content_type not in allowed_types:
-        raise HTTPException(
-            status_code=400, 
-            detail="Formato file non valido. Sono accettati solo: JPG, PNG, WEBP, SVG"
-        )
-    
-    # Validate file size (max 5MB)
-    file.file.seek(0, 2)  # Go to end of file
-    file_size = file.file.tell()  # Get size
-    file.file.seek(0)  # Go back to start
-    
-    if file_size > 5 * 1024 * 1024:  # 5MB
-        raise HTTPException(status_code=400, detail="Il file è troppo grande. Massimo 5MB")
-    
-    # Generate unique filename
-    file_extension = file.filename.split(".")[-1]
-    unique_filename = f"{uuid.uuid4()}.{file_extension}"
-    file_path = UPLOAD_DIR / unique_filename
-    
-    # Save file
-    try:
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Errore durante il salvataggio: {str(e)}")
-    
-    # Return the public URL
-    # Note: This assumes the backend is accessible at the REACT_APP_BACKEND_URL
-    backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
-    logo_url = f"{backend_url}/uploads/{unique_filename}"
-    
-    return {
-        "success": True,
-        "filename": unique_filename,
-        "url": logo_url
-    }
-
-@api_router.delete("/upload-logo/{filename}")
-async def delete_logo(filename: str):
-    """Delete uploaded logo"""
-    file_path = UPLOAD_DIR / filename
-    
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="File non trovato")
-    
-    try:
-        file_path.unlink()  # Delete the file
-        return {"success": True, "message": "Logo eliminato con successo"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Errore durante l'eliminazione: {str(e)}")
 
 @api_router.get("/")
 async def root():
@@ -977,9 +867,6 @@ async def root():
 
 # Include the router in the main app
 app.include_router(api_router)
-
-# Mount uploads directory for static file serving
-app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
