@@ -71,7 +71,7 @@ Assicurati di avere tutti questi file:
 
 **FASTAPI_URL**:
 ```
-https://propbot-5.preview.emergentagent.com
+https://realtyai-manager.preview.emergentagent.com
 ```
 
 **PORT**:
