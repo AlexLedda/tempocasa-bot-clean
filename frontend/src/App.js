@@ -26,6 +26,13 @@ function hexToRgb(hex) {
   } : null;
 }
 
+// Funzione per applicare tutti i colori
+export function applyAllColors(primary, secondary, accent) {
+  if (primary) applyPrimaryColor(primary);
+  if (secondary) applySecondaryColor(secondary);
+  if (accent) applyAccentColor(accent);
+}
+
 // Funzione per applicare il colore primario
 export function applyPrimaryColor(color) {
   const rgb = hexToRgb(color);
@@ -44,7 +51,27 @@ export function applyPrimaryColor(color) {
   root.style.setProperty('--primary-700', `rgb(${Math.max(0, rgb.r - 40)}, ${Math.max(0, rgb.g - 40)}, ${Math.max(0, rgb.b - 40)})`);
 }
 
-function Layout({ children }) {
+// Funzione per applicare il colore secondario
+export function applySecondaryColor(color) {
+  const rgb = hexToRgb(color);
+  if (!rgb) return;
+  
+  const root = document.documentElement;
+  root.style.setProperty('--secondary-color', color);
+  root.style.setProperty('--secondary-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+}
+
+// Funzione per applicare il colore accent
+export function applyAccentColor(color) {
+  const rgb = hexToRgb(color);
+  if (!rgb) return;
+  
+  const root = document.documentElement;
+  root.style.setProperty('--accent-color', color);
+  root.style.setProperty('--accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+}
+
+function Layout({ children, settings }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -79,11 +106,30 @@ function Layout({ children }) {
           {/* Logo */}
           <div className="flex items-center justify-between p-6 border-b border-blue-100">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
+              {settings?.logo_url ? (
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-white">
+                  <img 
+                    src={settings.logo_url} 
+                    alt="Logo Agenzia" 
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="hidden w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl items-center justify-center">
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+              )}
               <div>
-                <h1 className="text-lg font-bold text-gray-900">RealEstate</h1>
+                <h1 className="text-lg font-bold text-gray-900">
+                  {settings?.agency_name || "RealEstate"}
+                </h1>
                 <p className="text-xs text-gray-500">Bot Manager</p>
               </div>
             </div>
@@ -119,7 +165,9 @@ function Layout({ children }) {
           <div className="p-4 border-t border-blue-100">
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
               <p className="text-sm font-semibold mb-1">Bot WhatsApp Attivo</p>
-              <p className="text-xs opacity-90">Gestisci i tuoi clienti automaticamente</p>
+              <p className="text-xs opacity-90">
+                {settings?.bot_name ? `${settings.bot_name} gestisce i clienti` : "Gestisci i tuoi clienti automaticamente"}
+              </p>
             </div>
           </div>
         </div>
@@ -149,21 +197,32 @@ function Layout({ children }) {
 }
 
 function App() {
+  const [settings, setSettings] = useState(null);
+
   useEffect(() => {
-    // Carica colore primario all'avvio
+    // Carica impostazioni all'avvio
     axios.get(`${API}/settings`)
       .then(response => {
+        setSettings(response.data);
+        
+        // Applica tutti i colori
         if (response.data.primary_color) {
           applyPrimaryColor(response.data.primary_color);
         }
+        if (response.data.secondary_color) {
+          applySecondaryColor(response.data.secondary_color);
+        }
+        if (response.data.accent_color) {
+          applyAccentColor(response.data.accent_color);
+        }
       })
-      .catch(error => console.error('Error loading theme:', error));
+      .catch(error => console.error('Error loading settings:', error));
   }, []);
 
   return (
     <div className="App">
       <BrowserRouter>
-        <Layout>
+        <Layout settings={settings}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/properties" element={<Properties />} />
