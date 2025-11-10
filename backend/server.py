@@ -13,6 +13,9 @@ import uuid
 from datetime import datetime, timezone
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 import httpx
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
