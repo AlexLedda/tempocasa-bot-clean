@@ -1,0 +1,40 @@
+services:
+  # Backend FastAPI
+  - type: web
+    name: real-estate-backend
+    runtime: python
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: MONGO_URL
+        sync: false
+      - key: DB_NAME
+        value: real_estate_bot
+      - key: EMERGENT_LLM_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: BOT_NAME
+        value: "Emma"
+      - key: BOT_AGENCY_NAME
+        value: "Agenzia Immobiliare"
+      - key: PRIMARY_COLOR
+        value: "#3b82f6"
+      - key: SECONDARY_COLOR
+        value: "#10b981"
+      - key: ACCENT_COLOR
+        value: "#f59e0b"
+      - key: LOGO_URL
+        value: ""
+
+  # WhatsApp Service
+  - type: web
+    name: whatsapp-service
+    runtime: node
+    buildCommand: "cd whatsapp-service && npm install"
+    startCommand: "cd whatsapp-service && node whatsapp-service.js"
+    envVars:
+      - key: BACKEND_URL
+        sync: false
+      - key: PORT
+        value: "10000"
