@@ -14,6 +14,8 @@ export default function PropertiesNew() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
