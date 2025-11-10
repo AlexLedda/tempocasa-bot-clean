@@ -785,29 +785,22 @@ Perfetto! Ho registrato la richiesta di valutazione per il suo immobile a Roma C
     user_message = UserMessage(text=message)
     response = await chat.send_message(user_message)
     
-    # Parse response for client updates
+    # Parse response for commands and updates
     update_client = {}
+    create_appointment = None
+    create_valuation = None
+    check_availability = None
     final_response = response
     
-    if "UPDATE_CLIENT:" in response:
-        # Trova la riga con UPDATE_CLIENT
-        lines = response.split("\n")
-        update_line = None
-        message_lines = []
+    lines = response.split("\n")
+    message_lines = []
+    
+    for line in lines:
+        line_stripped = line.strip()
         
-        for line in lines:
-            if line.strip().startswith("UPDATE_CLIENT:"):
-                update_line = line.replace("UPDATE_CLIENT:", "").strip()
-            else:
-                # Aggiungi solo le righe che NON sono UPDATE_CLIENT
-                if line.strip():
-                    message_lines.append(line)
-        
-        # Ricostruisci il messaggio senza UPDATE_CLIENT
-        final_response = "\n".join(message_lines).strip()
-        
-        # Parse updates se trovato
-        if update_line:
+        # UPDATE_CLIENT command
+        if line_stripped.startswith("UPDATE_CLIENT:"):
+            update_line = line_stripped.replace("UPDATE_CLIENT:", "").strip()
             for item in update_line.split("|"):
                 if "=" in item:
                     key, value = item.split("=", 1)
@@ -829,11 +822,78 @@ Perfetto! Ho registrato la richiesta di valutazione per il suo immobile a Roma C
                         update_client[key] = value.lower() in ["true", "sì", "si", "yes", "vero"]
                     else:
                         update_client[key] = value
+        
+        # CREATE_APPOINTMENT command
+        elif line_stripped.startswith("CREATE_APPOINTMENT:"):
+            appt_line = line_stripped.replace("CREATE_APPOINTMENT:", "").strip()
+            create_appointment = {}
+            for item in appt_line.split("|"):
+                if "=" in item:
+                    key, value = item.split("=", 1)
+                    create_appointment[key.strip()] = value.strip()
+        
+        # CREATE_VALUATION command
+        elif line_stripped.startswith("CREATE_VALUATION:"):
+            val_line = line_stripped.replace("CREATE_VALUATION:", "").strip()
+            create_valuation = {}
+            for item in val_line.split("|"):
+                if "=" in item:
+                    key, value = item.split("=", 1)
+                    create_valuation[key.strip()] = value.strip()
+        
+        # CHECK_AVAILABILITY command
+        elif line_stripped.startswith("CHECK_AVAILABILITY:"):
+            check_line = line_stripped.replace("CHECK_AVAILABILITY:", "").strip()
+            check_availability = {}
+            for item in check_line.split("|"):
+                if "=" in item:
+                    key, value = item.split("=", 1)
+                    check_availability[key.strip()] = value.strip()
+        
+        else:
+            # Regular message line
+            if line.strip():
+                message_lines.append(line)
+    
+    # Ricostruisci il messaggio senza comandi
+    final_response = "\n".join(message_lines).strip()
+    
+    # Execute commands
+    if create_appointment:
+        try:
+            # Create appointment in database
+            appt_date_str = f"{create_appointment.get('date')} {create_appointment.get('time', '10:00')}"
+            appt = AppointmentCreate(
+                client_phone=client_phone,
+                client_name=client.get('name', 'Cliente'),
+                property_id=create_appointment.get('property_id', 'unknown'),
+                appointment_date=appt_date_str,
+                notes=create_appointment.get('notes', '')
+            )
+            await create_appointment_endpoint(appt)
+        except Exception as e:
+            logging.error(f"Error creating appointment: {e}")
+    
+    if create_valuation:
+        try:
+            # Create valuation in database
+            val = ValuationCreate(
+                client_phone=client_phone,
+                client_name=client.get('name', 'Cliente'),
+                property_location=create_valuation.get('location', ''),
+                property_type=create_valuation.get('property_type'),
+                notes=create_valuation.get('notes', '')
+            )
+            await create_valuation_endpoint(val)
+        except Exception as e:
+            logging.error(f"Error creating valuation: {e}")
     
     return {
         "response": final_response,
         "update_client": update_client,
-        "properties_mentioned": []
+        "properties_mentioned": [],
+        "appointment_created": create_appointment is not None,
+        "valuation_created": create_valuation is not None
     }
 
 # Statistics endpoint
