@@ -329,29 +329,84 @@ export default function PropertiesNew() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Immagini (URL)</Label>
+                  <Label>Immagini Immobile</Label>
                   <Button type="button" onClick={addImageField} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Aggiungi
+                    <Plus className="w-4 h-4 mr-1" /> Aggiungi Campo
                   </Button>
                 </div>
+                <p className="text-sm text-gray-500">
+                  Puoi caricare foto dal PC o inserire URL manualmente
+                </p>
                 {formData.images.map((img, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      placeholder="https://esempio.com/immagine.jpg"
-                      value={img}
-                      onChange={(e) => updateImageField(index, e.target.value)}
-                    />
-                    {formData.images.length > 1 && (
-                      <Button
-                        type="button"
-                        onClick={() => removeImageField(index)}
-                        size="sm"
-                        variant="destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                  <div key={index} className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://esempio.com/immagine.jpg o carica dal PC"
+                        value={img}
+                        onChange={(e) => updateImageField(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      {formData.images.length > 1 && (
+                        <Button
+                          type="button"
+                          onClick={() => removeImageField(index)}
+                          size="sm"
+                          variant="destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={(e) => handleImageUpload(index, e)}
+                        className="hidden"
+                        id={`image-upload-${index}`}
+                        disabled={uploadingImage && uploadingIndex === index}
+                      />
+                      <label htmlFor={`image-upload-${index}`}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={uploadingImage && uploadingIndex === index}
+                          onClick={() => document.getElementById(`image-upload-${index}`).click()}
+                          className="w-full"
+                        >
+                          {uploadingImage && uploadingIndex === index ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                              Caricamento...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              📤 Carica dal PC
+                            </>
+                          )}
+                        </Button>
+                      </label>
+                      {img && (
+                        <div className="text-xs text-green-600 flex items-center">
+                          ✅ Immagine caricata
+                        </div>
+                      )}
+                    </div>
+                    {img && (
+                      <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                        <img 
+                          src={img} 
+                          alt={`Preview ${index + 1}`}
+                          className="max-h-32 max-w-full object-contain mx-auto rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
                     )}
                   </div>
                 ))}
