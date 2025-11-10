@@ -981,6 +981,46 @@ async def delete_logo(filename: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Errore durante l'eliminazione: {str(e)}")
 
+@api_router.post("/upload-property-image")
+async def upload_property_image(file: UploadFile = File(...)):
+    """Upload property image to Cloudinary"""
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400, 
+            detail="Formato file non valido. Sono accettati solo: JPG, PNG, WEBP"
+        )
+    
+    # Validate file size (max 10MB)
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+    
+    if file_size > 10 * 1024 * 1024:  # 10MB
+        raise HTTPException(status_code=400, detail="Il file è troppo grande. Massimo 10MB")
+    
+    try:
+        # Upload to Cloudinary
+        upload_result = cloudinary.uploader.upload(
+            file.file,
+            folder="real_estate_properties",
+            resource_type="image",
+            transformation=[
+                {'width': 1200, 'height': 800, 'crop': 'limit'},
+                {'quality': 'auto'},
+                {'fetch_format': 'auto'}
+            ]
+        )
+        
+        return {
+            "success": True,
+            "url": upload_result['secure_url'],
+            "public_id": upload_result['public_id']
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore durante l'upload: {str(e)}")
+
 @api_router.get("/")
 async def root():
     return {"message": "Real Estate WhatsApp Bot API"}
