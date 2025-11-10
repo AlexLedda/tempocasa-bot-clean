@@ -493,18 +493,26 @@ async def delete_valuation(valuation_id: str):
         raise HTTPException(status_code=404, detail="Valutazione non trovata")
     return {"message": "Valutazione eliminata"}
 
-# WhatsApp webhook endpoint
+# WhatsApp webhook endpoint - Twilio format (Form data)
 @api_router.post("/whatsapp/webhook")
-async def whatsapp_webhook(webhook: WhatsAppWebhook):
+async def whatsapp_webhook(
+    From: str = Form(...),
+    Body: str = Form(...),
+    MessageSid: Optional[str] = Form(None)
+):
+    # Extract phone number (remove "whatsapp:" prefix if present)
+    phone_number = From.replace("whatsapp:", "")
+    message = Body
+    
     # Check if client has previous messages (only respond to new contacts)
-    existing_messages = await db.messages.count_documents({"client_phone": webhook.phone_number})
+    existing_messages = await db.messages.count_documents({"client_phone": phone_number})
     
     # If client has already contacted us, save message but don't respond
     if existing_messages > 0:
         # Just save the incoming message
         msg = MessageCreate(
-            client_phone=webhook.phone_number,
-            message=webhook.message,
+            client_phone=phone_number,
+            message=message,
             direction="incoming"
         )
         await create_message(msg)
@@ -516,49 +524,54 @@ async def whatsapp_webhook(webhook: WhatsAppWebhook):
     
     # New contact - proceed with normal flow
     msg = MessageCreate(
-        client_phone=webhook.phone_number,
-        message=webhook.message,
+        client_phone=phone_number,
+        message=message,
         direction="incoming"
     )
     await create_message(msg)
     
     # Get or create client
-    client = await db.clients.find_one({"phone": webhook.phone_number})
+    client = await db.clients.find_one({"phone": phone_number})
     if not client:
         new_client = ClientCreate(
-            name=f"Cliente {webhook.phone_number[-4:]}",
+            name=f"Cliente {phone_number[-4:]}",
             surname="",
-            phone=webhook.phone_number,
+            phone=phone_number,
             profile_completed=False
         )
         await create_client(new_client)
-        client = await db.clients.find_one({"phone": webhook.phone_number})
+        client = await db.clients.find_one({"phone": phone_number})
     
     # Get AI response with client context
     try:
-        ai_response = await get_ai_response(webhook.message, webhook.phone_number, client)
+        ai_response = await get_ai_response(message, phone_number, client)
         
         # Check if AI wants to update client profile
         if ai_response.get("update_client"):
             update_data = ai_response["update_client"]
             await db.clients.update_one(
-                {"phone": webhook.phone_number},
+                {"phone": phone_number},
                 {"$set": update_data}
             )
         
         # Save AI response
         response_msg = MessageCreate(
-            client_phone=webhook.phone_number,
+            client_phone=phone_number,
             message=ai_response["response"],
             direction="outgoing",
             client_name=client.get('name') if client else None
         )
         await create_message(response_msg)
         
-        return {"reply": ai_response["response"], "success": True}
+        # Return response in Twilio format (TwiML)
+        from fastapi.responses import Response
+        twiml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{ai_response["response"]}</Message></Response>'
+        return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         logging.error(f"Error processing message: {e}")
-        return {"reply": "Scusa, c'è stato un errore. Un nostro agente ti contatterà presto.", "success": False}
+        from fastapi.responses import Response
+        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Scusa, c\'è stato un errore. Un nostro agente ti contatterà presto.</Message></Response>'
+        return Response(content=twiml, media_type="application/xml")
 
 # AI Chat endpoint
 async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
