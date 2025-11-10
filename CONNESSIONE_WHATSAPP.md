@@ -46,7 +46,7 @@ Se vuoi che funzioni nell'ambiente Emergent, contatta il supporto per:
 Puoi testare il bot senza WhatsApp usando curl:
 
 ```bash
-curl -X POST "https://realtyai-manager.preview.emergentagent.com/api/whatsapp/webhook" \
+curl -X POST "https://propbot-dash.preview.emergentagent.com/api/whatsapp/webhook" \
   -H "Content-Type: application/json" \
   -d '{
     "phone_number": "3931234567",
