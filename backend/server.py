@@ -496,14 +496,25 @@ async def delete_valuation(valuation_id: str):
 
 # WhatsApp webhook endpoint - Twilio format (Form data)
 @api_router.post("/whatsapp/webhook")
-async def whatsapp_webhook(
-    From: str = Form(...),
-    Body: str = Form(...),
-    MessageSid: Optional[str] = Form(None)
-):
-    # Extract phone number (remove "whatsapp:" prefix if present)
-    phone_number = From.replace("whatsapp:", "")
-    message = Body
+async def whatsapp_webhook(request: Request):
+    # Log raw request data for debugging
+    try:
+        form_data = await request.form()
+        logging.info(f"Twilio webhook received: {dict(form_data)}")
+        
+        # Extract Twilio parameters
+        phone_number = form_data.get("From", "")
+        message = form_data.get("Body", "")
+        
+        if not phone_number or not message:
+            logging.error(f"Missing required fields. From: {phone_number}, Body: {message}")
+            return {"error": "Missing required fields"}
+        
+        # Extract phone number (remove "whatsapp:" prefix if present)
+        phone_number = phone_number.replace("whatsapp:", "")
+    except Exception as e:
+        logging.error(f"Error parsing webhook data: {e}")
+        return {"error": "Invalid request data"}
     
     # Check if client has previous messages (only respond to new contacts)
     existing_messages = await db.messages.count_documents({"client_phone": phone_number})
