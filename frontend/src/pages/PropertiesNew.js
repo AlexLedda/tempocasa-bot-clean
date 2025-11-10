@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { API } from "../App";
 import { toast } from "sonner";
-import { Building2, Plus, X, Save, Trash2, Edit } from "lucide-react";
+import { Building2, Plus, X, Save, Trash2, Edit, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
