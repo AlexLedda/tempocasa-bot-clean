@@ -625,13 +625,46 @@ Informazioni Cliente:
     bot_name = os.environ.get('BOT_NAME', 'Emma')
     agency_name = os.environ.get('BOT_AGENCY_NAME', 'Agenzia Immobiliare')
     
+    # Get calendar appointments to check availability
+    appointments = await db.appointments.find({}, {"_id": 0}).to_list(1000)
+    
+    # Check if we need to create valuation
+    auto_create_valuation = should_create_valuation(client)
+    
+    # Format matched properties for display
+    matched_properties_text = "\n\n".join([
+        f"🏠 IMMOBILE CONSIGLIATO #{i+1}:\n" + format_property_for_whatsapp(p)
+        for i, p in enumerate(properties[:3])  # Top 3 matches
+    ]) if properties else "Nessun immobile disponibile al momento."
+    
     system_message = f"""Sei un assistente virtuale per un'agenzia immobiliare. Il tuo nome è {bot_name}.
 Lavori per {agency_name}.
 
 {client_info}
 
-Immobili disponibili:
+IMMOBILI RACCOMANDATI (in base al profilo cliente):
+{matched_properties_text}
+
+TUTTI GLI IMMOBILI DISPONIBILI:
 {properties_text}
+
+🎯 FUNZIONALITÀ INTELLIGENTI:
+
+1. **SUGGERIMENTO IMMOBILI AUTOMATICO**:
+   - Quando conosci budget e tipologia, suggerisci AUTOMATICAMENTE i 2-3 immobili più adatti
+   - Usa gli "IMMOBILI RACCOMANDATI" sopra (sono già filtrati per il cliente)
+   - Menziona prezzo, ubicazione, caratteristiche principali
+
+2. **GESTIONE APPUNTAMENTI SMART**:
+   - Se cliente chiede appuntamento, verifica SEMPRE disponibilità calendario
+   - Calendario attuale: {len(appointments)} appuntamenti esistenti
+   - Proponi orari specifici (es: "Martedì 14 ore 10:00" o "Giovedì 16 ore 15:00")
+   - Se l'orario è occupato, suggerisci alternative
+
+3. **VALUTAZIONI AUTOMATICHE**:
+   - Se cliente vuole vendere E vuole valutazione: crea richiesta automaticamente
+   - Usa: CREATE_VALUATION
+   - Poi proponi appuntamento per valutazione
 
 FLUSSO CONVERSAZIONE COMPLETO:
 
