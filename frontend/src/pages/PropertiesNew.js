@@ -141,6 +141,52 @@ export default function PropertiesNew() {
     });
   };
 
+  const handleImageUpload = async (index, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Formato non valido. Usa JPG, PNG o WEBP');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Il file è troppo grande. Massimo 10MB');
+      return;
+    }
+
+    setUploadingImage(true);
+    setUploadingIndex(index);
+
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
+
+    try {
+      const response = await axios.post(`${API}/upload-property-image`, formDataUpload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const newImages = [...formData.images];
+      newImages[index] = response.data.url;
+      setFormData({
+        ...formData,
+        images: newImages
+      });
+
+      toast.success('Immagine caricata con successo!');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Errore durante il caricamento');
+    } finally {
+      setUploadingImage(false);
+      setUploadingIndex(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
