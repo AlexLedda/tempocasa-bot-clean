@@ -494,27 +494,59 @@ async def delete_valuation(valuation_id: str):
         raise HTTPException(status_code=404, detail="Valutazione non trovata")
     return {"message": "Valutazione eliminata"}
 
-# WhatsApp webhook endpoint - Twilio format (Form data)
+# WhatsApp webhook endpoint - Accept any content type
 @api_router.post("/whatsapp/webhook")
+@api_router.get("/whatsapp/webhook")  # Also accept GET for testing
 async def whatsapp_webhook(request: Request):
-    # Log raw request data for debugging
     try:
-        form_data = await request.form()
-        logging.info(f"Twilio webhook received: {dict(form_data)}")
+        # Log everything about the request
+        logging.info(f"=== WEBHOOK REQUEST START ===")
+        logging.info(f"Method: {request.method}")
+        logging.info(f"Headers: {dict(request.headers)}")
+        logging.info(f"Query params: {dict(request.query_params)}")
         
-        # Extract Twilio parameters
-        phone_number = form_data.get("From", "")
-        message = form_data.get("Body", "")
+        # Try to get form data
+        try:
+            form_data = await request.form()
+            logging.info(f"Form data: {dict(form_data)}")
+            phone_number = form_data.get("From", "")
+            message = form_data.get("Body", "")
+        except Exception as form_error:
+            logging.info(f"No form data: {form_error}")
+            # Try JSON
+            try:
+                json_data = await request.json()
+                logging.info(f"JSON data: {json_data}")
+                phone_number = json_data.get("phone_number", "")
+                message = json_data.get("message", "")
+            except Exception as json_error:
+                logging.info(f"No JSON data: {json_error}")
+                # Try raw body
+                body = await request.body()
+                logging.info(f"Raw body: {body.decode()}")
+                return Response(
+                    content='<?xml version="1.0" encoding="UTF-8"?><Response><Message>Webhook ricevuto (test mode)</Message></Response>',
+                    media_type="application/xml"
+                )
+        
+        logging.info(f"=== WEBHOOK REQUEST END ===")
         
         if not phone_number or not message:
             logging.error(f"Missing required fields. From: {phone_number}, Body: {message}")
-            return {"error": "Missing required fields"}
+            return Response(
+                content='<?xml version="1.0" encoding="UTF-8"?><Response><Message>Dati mancanti</Message></Response>',
+                media_type="application/xml"
+            )
         
         # Extract phone number (remove "whatsapp:" prefix if present)
         phone_number = phone_number.replace("whatsapp:", "")
+        
     except Exception as e:
-        logging.error(f"Error parsing webhook data: {e}")
-        return {"error": "Invalid request data"}
+        logging.error(f"Error parsing webhook data: {e}", exc_info=True)
+        return Response(
+            content='<?xml version="1.0" encoding="UTF-8"?><Response><Message>Errore nel webhook</Message></Response>',
+            media_type="application/xml"
+        )
     
     # Check if client has previous messages (only respond to new contacts)
     existing_messages = await db.messages.count_documents({"client_phone": phone_number})
