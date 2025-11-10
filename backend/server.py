@@ -562,8 +562,30 @@ async def whatsapp_webhook(webhook: WhatsAppWebhook):
 
 # AI Chat endpoint
 async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
+    from ai_helpers import (
+        filter_properties_by_criteria,
+        format_property_for_whatsapp,
+        check_calendar_availability,
+        extract_property_preferences,
+        parse_date_from_text,
+        should_create_valuation,
+        format_calendar_suggestion
+    )
+    
     # Get all available properties
-    properties = await db.properties.find({"status": "disponibile"}, {"_id": 0}).to_list(100)
+    all_properties = await db.properties.find({"status": "disponibile"}, {"_id": 0}).to_list(100)
+    
+    # Filter properties based on client preferences
+    prefs = extract_property_preferences(client)
+    matched_properties = filter_properties_by_criteria(
+        all_properties,
+        property_type=prefs.get('property_type'),
+        max_budget=prefs.get('max_budget'),
+        min_bedrooms=prefs.get('min_bedrooms'),
+        location=prefs.get('location')
+    )
+    
+    properties = matched_properties if matched_properties else all_properties[:5]
     
     # Build context for AI
     properties_text = "\n\n".join([
