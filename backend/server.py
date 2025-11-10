@@ -870,7 +870,17 @@ Perfetto! Ho registrato la richiesta di valutazione per il suo immobile a Roma C
                 appointment_date=appt_date_str,
                 notes=create_appointment.get('notes', '')
             )
-            await create_appointment_endpoint(appt)
+            # Call the appointment creation endpoint directly
+            prop = await db.properties.find_one({"id": appt.property_id}, {"_id": 0})
+            if prop:
+                appointment_dict = appt.model_dump()
+                appointment_dict['property_title'] = prop['title']
+                appointment_dict['appointment_date'] = datetime.fromisoformat(appt.appointment_date)
+                appointment_obj = Appointment(**appointment_dict)
+                doc = appointment_obj.model_dump()
+                doc['appointment_date'] = doc['appointment_date'].isoformat()
+                doc['created_at'] = doc['created_at'].isoformat()
+                await db.appointments.insert_one(doc)
         except Exception as e:
             logging.error(f"Error creating appointment: {e}")
     
@@ -884,7 +894,15 @@ Perfetto! Ho registrato la richiesta di valutazione per il suo immobile a Roma C
                 property_type=create_valuation.get('property_type'),
                 notes=create_valuation.get('notes', '')
             )
-            await create_valuation_endpoint(val)
+            valuation_dict = val.model_dump()
+            if valuation_dict.get('appointment_date'):
+                valuation_dict['appointment_date'] = datetime.fromisoformat(val.appointment_date)
+            valuation_obj = Valuation(**valuation_dict)
+            doc = valuation_obj.model_dump()
+            doc['created_at'] = doc['created_at'].isoformat()
+            if doc.get('appointment_date'):
+                doc['appointment_date'] = doc['appointment_date'].isoformat()
+            await db.valuations.insert_one(doc)
         except Exception as e:
             logging.error(f"Error creating valuation: {e}")
     
