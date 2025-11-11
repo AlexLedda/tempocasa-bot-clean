@@ -9,6 +9,25 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+// Zone predefinite per Tarquinia
+const ZONE_TARQUINIA = [
+  "Tarquinia Centro",
+  "Tarquinia Lido",
+  "Tarquinia Porto Clementino",
+  "Tarquinia Marina Velca",
+  "Tarquinia Periferia Nord",
+  "Tarquinia Periferia Sud",
+  "Tarquinia Zona Industriale",
+  "Tarquinia Campagna",
+  "Civitavecchia Centro",
+  "Civitavecchia Periferia",
+  "Montalto di Castro",
+  "Tuscania",
+  "Canino",
+  "Viterbo Centro",
+  "Altro"
+];
+
 export default function PropertiesNew() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
