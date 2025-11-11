@@ -548,25 +548,35 @@ async def whatsapp_webhook(request: Request):
             media_type="application/xml"
         )
     
-    # Check if client has previous messages (only respond to new contacts)
+    # Check if client has previous messages
     existing_messages = await db.messages.count_documents({"client_phone": phone_number})
     
-    # If client has already contacted us, save message but don't respond
+    # If client exists, check if message is a property query
     if existing_messages > 0:
-        # Just save the incoming message
-        msg = MessageCreate(
-            client_phone=phone_number,
-            message=message,
-            direction="incoming"
-        )
-        await create_message(msg)
-        return {
-            "reply": None,
-            "success": True,
-            "note": "Cliente esistente - messaggio salvato senza risposta automatica"
-        }
+        # Get all properties to check if message contains property-related info
+        properties_cursor = db.properties.find({"status": "disponibile"}, {"_id": 0})
+        properties = await properties_cursor.to_list(length=100)
+        
+        from ai_helpers import is_property_query
+        
+        # If message is NOT a property query, just save and don't respond
+        if not is_property_query(message, properties):
+            msg = MessageCreate(
+                client_phone=phone_number,
+                message=message,
+                direction="incoming"
+            )
+            await create_message(msg)
+            logging.info(f"Cliente esistente - messaggio non è query immobiliare: {message}")
+            return Response(
+                content='<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+                media_type="application/xml"
+            )
+        
+        # Message is a property query - proceed with AI response
+        logging.info(f"Cliente esistente - query immobiliare rilevata: {message}")
     
-    # New contact - proceed with normal flow
+    # New contact or property query - proceed with normal flow
     msg = MessageCreate(
         client_phone=phone_number,
         message=message,
