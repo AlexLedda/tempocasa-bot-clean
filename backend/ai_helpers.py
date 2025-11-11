@@ -235,3 +235,59 @@ def format_calendar_suggestion(available_times: List[datetime]) -> str:
         formatted_times.append(f"📅 {day_name} {time.strftime('%d/%m')} alle {time.strftime('%H:%M')}")
     
     return "\n".join(formatted_times)
+
+
+
+def is_property_query(message: str, properties: List[Dict]) -> bool:
+    """
+    Determina se il messaggio è una query immobiliare valida.
+    Ritorna True se il messaggio contiene:
+    - Codice immobile
+    - Prezzo
+    - Zona/Location
+    """
+    message_lower = message.lower().strip()
+    
+    # 1. Controlla se contiene un codice immobile (es: IMM001, A123, PROP-456)
+    # Pattern: lettere seguite da numeri o alfanumerico con trattini
+    import re
+    code_patterns = [
+        r'\b[A-Z]{2,}\d+\b',  # IMM001, PROP123
+        r'\b[A-Z]\d{3,}\b',   # A123, B456
+        r'\b[A-Z]+-\d+\b'     # IMM-001, PROP-123
+    ]
+    for pattern in code_patterns:
+        if re.search(pattern, message, re.IGNORECASE):
+            return True
+    
+    # 2. Controlla se contiene un prezzo
+    # Pattern: numeri eventualmente seguiti da k, €, euro, mila, mln
+    price_patterns = [
+        r'\d+k\b',              # 150k, 200k
+        r'\d+mila\b',           # 150mila
+        r'\d+\s*€',             # 150000€, 150.000 €
+        r'€\s*\d+',             # €150000
+        r'\d+\s*euro',          # 150000 euro
+        r'\d{5,}',              # 150000 (almeno 5 cifre)
+    ]
+    for pattern in price_patterns:
+        if re.search(pattern, message_lower):
+            return True
+    
+    # 3. Controlla se contiene una zona/location degli immobili
+    if properties:
+        for prop in properties:
+            location = prop.get('location', '').lower()
+            if location and location in message_lower:
+                return True
+    
+    # 4. Parole chiave comuni per zone/località
+    location_keywords = [
+        'tarquinia', 'roma', 'lido', 'centro', 'mare', 'collina',
+        'periferia', 'città', 'paese', 'zona', 'quartiere', 'via'
+    ]
+    for keyword in location_keywords:
+        if keyword in message_lower:
+            return True
+    
+    return False
