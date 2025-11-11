@@ -88,10 +88,13 @@ export default function PropertiesNew() {
 
   const handleEdit = (property) => {
     setFormData({
+      reference: property.reference || "",
       title: property.title,
       description: property.description,
       price: property.price.toString(),
       location: property.location,
+      street: property.street || "",
+      street_number: property.street_number || "",
       bedrooms: property.bedrooms.toString(),
       bathrooms: property.bathrooms.toString(),
       square_meters: property.square_meters.toString(),
