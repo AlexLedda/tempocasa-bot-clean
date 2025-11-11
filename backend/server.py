@@ -47,10 +47,13 @@ api_router = APIRouter(prefix="/api")
 class Property(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    reference: Optional[str] = None  # Codice annuncio (es: IMM001, A123)
     title: str
     description: str
     price: float
-    location: str
+    location: str  # Zona (Tarquinia Centro, Lido, etc)
+    street: Optional[str] = None  # Via
+    street_number: Optional[str] = None  # Civico
     bedrooms: int
     bathrooms: int
     square_meters: float
@@ -60,10 +63,13 @@ class Property(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class PropertyCreate(BaseModel):
+    reference: Optional[str] = None
     title: str
     description: str
     price: float
     location: str
+    street: Optional[str] = None
+    street_number: Optional[str] = None
     bedrooms: int
     bathrooms: int
     square_meters: float
