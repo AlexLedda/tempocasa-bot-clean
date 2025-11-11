@@ -269,11 +269,17 @@ def is_property_query(message: str, properties: List[Dict]) -> bool:
         r'€\s*\d+',             # €150000
         r'\d+\s*euro',          # 150000 euro
         r'\d{5,}',              # 150000 (almeno 5 cifre)
-        r'\b\d{2,4}\b',         # 150, 200, 1500 (in contesto immobiliare = migliaia)
     ]
     for pattern in price_patterns:
         if re.search(pattern, message_lower):
             return True
+    
+    # Numeri brevi (2-4 cifre) solo se preceduti da parole chiave di prezzo
+    if re.search(r'(prezzo|budget|costa|spesa|circa|massimo|max|fino a|entro)\s*\d{2,4}\b', message_lower):
+        return True
+    # O se il messaggio contiene sia numero che parola chiave casa/appartamento
+    if re.search(r'\b\d{2,4}\b', message_lower) and any(word in message_lower for word in ['casa', 'appartamento', 'immobile', 'villa']):
+        return True
     
     # 3. Controlla se contiene una zona/location degli immobili
     if properties:
