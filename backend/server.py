@@ -557,30 +557,47 @@ async def whatsapp_webhook(request: Request):
     # Check if client has previous messages
     existing_messages = await db.messages.count_documents({"client_phone": phone_number})
     
-    # If client exists, check if message is a property query
+    # If client exists, check if we're in an active conversation
     if existing_messages > 0:
-        # Get all properties to check if message contains property-related info
-        properties_cursor = db.properties.find({"status": "disponibile"}, {"_id": 0})
-        properties = await properties_cursor.to_list(length=100)
+        # Check last bot message timestamp (within last 10 minutes = active conversation)
+        from datetime import datetime, timedelta, timezone
+        ten_minutes_ago = datetime.now(timezone.utc) - timedelta(minutes=10)
         
-        from ai_helpers import is_property_query
+        last_bot_message = await db.messages.find_one(
+            {
+                "client_phone": phone_number,
+                "direction": "outgoing",
+                "timestamp": {"$gte": ten_minutes_ago}
+            },
+            sort=[("timestamp", -1)]
+        )
         
-        # If message is NOT a property query, just save and don't respond
-        if not is_property_query(message, properties):
-            msg = MessageCreate(
-                client_phone=phone_number,
-                message=message,
-                direction="incoming"
-            )
-            await create_message(msg)
-            logging.info(f"Cliente esistente - messaggio non è query immobiliare: {message}")
-            return Response(
-                content='<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
-                media_type="application/xml"
-            )
-        
-        # Message is a property query - proceed with AI response
-        logging.info(f"Cliente esistente - query immobiliare rilevata: {message}")
+        # If bot sent a message in last 10 minutes, it's an active conversation - always respond
+        if last_bot_message:
+            logging.info(f"Cliente esistente - conversazione attiva (ultimo msg bot: {last_bot_message.get('timestamp')})")
+        else:
+            # Not in active conversation - check if message is a property query
+            properties_cursor = db.properties.find({"status": "disponibile"}, {"_id": 0})
+            properties = await properties_cursor.to_list(length=100)
+            
+            from ai_helpers import is_property_query
+            
+            # If message is NOT a property query, just save and don't respond
+            if not is_property_query(message, properties):
+                msg = MessageCreate(
+                    client_phone=phone_number,
+                    message=message,
+                    direction="incoming"
+                )
+                await create_message(msg)
+                logging.info(f"Cliente esistente - messaggio non è query immobiliare: {message}")
+                return Response(
+                    content='<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+                    media_type="application/xml"
+                )
+            
+            # Message is a property query - proceed with AI response
+            logging.info(f"Cliente esistente - query immobiliare rilevata: {message}")
     
     # New contact or property query - proceed with normal flow
     msg = MessageCreate(
