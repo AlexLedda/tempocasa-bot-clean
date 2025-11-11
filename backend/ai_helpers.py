@@ -122,9 +122,9 @@ def extract_property_preferences(client: Dict) -> Dict:
     """
     Estrae preferenze immobile dal profilo cliente
     """
-    looking_for = client.get('looking_for', '').lower()
+    looking_for = (client.get('looking_for') or '').lower()
     budget = client.get('budget', 0)
-    location_pref = client.get('location_preference', '')
+    location_pref = client.get('location_preference') or ''
     
     # Determina tipo immobile da "looking_for"
     property_type = None
