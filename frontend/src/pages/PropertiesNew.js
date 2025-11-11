@@ -17,10 +17,13 @@ export default function PropertiesNew() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState(null);
   const [formData, setFormData] = useState({
+    reference: "",
     title: "",
     description: "",
     price: "",
     location: "",
+    street: "",
+    street_number: "",
     bedrooms: "",
     bathrooms: "",
     square_meters: "",
