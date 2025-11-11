@@ -249,12 +249,12 @@ export default function PropertiesNew() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="title">Titolo *</Label>
+                  <Label htmlFor="reference">Riferimento (Codice Annuncio)</Label>
                   <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
+                    id="reference"
+                    value={formData.reference}
+                    onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
+                    placeholder="es: IMM001, A123, PROP-456"
                   />
                 </div>
 
@@ -276,23 +276,60 @@ export default function PropertiesNew() {
                 </div>
 
                 <div>
+                  <Label htmlFor="title">Titolo *</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="price">Prezzo (€) *</Label>
                   <Input
                     id="price"
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    placeholder="150000"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="location">Ubicazione *</Label>
-                  <Input
+                  <Label htmlFor="location">Zona *</Label>
+                  <select
                     id="location"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     required
+                  >
+                    <option value="">Seleziona zona...</option>
+                    {ZONE_TARQUINIA.map(zone => (
+                      <option key={zone} value={zone}>{zone}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="street">Via</Label>
+                  <Input
+                    id="street"
+                    value={formData.street}
+                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                    placeholder="Via Roma"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="street_number">Civico</Label>
+                  <Input
+                    id="street_number"
+                    value={formData.street_number}
+                    onChange={(e) => setFormData({ ...formData, street_number: e.target.value })}
+                    placeholder="123"
                   />
                 </div>
 
