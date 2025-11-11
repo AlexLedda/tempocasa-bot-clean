@@ -302,20 +302,41 @@ export default function PropertiesNew() {
                   />
                 </div>
 
-                <div>
+                <div className="relative">
                   <Label htmlFor="location">Zona *</Label>
-                  <select
+                  <Input
                     id="location"
                     value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    onChange={(e) => {
+                      setFormData({ ...formData, location: e.target.value });
+                      setShowZoneSuggestions(true);
+                    }}
+                    onFocus={() => setShowZoneSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowZoneSuggestions(false), 200)}
+                    placeholder="es: Tarquinia Centro, Lido, etc..."
                     required
-                  >
-                    <option value="">Seleziona zona...</option>
-                    {ZONE_TARQUINIA.map(zone => (
-                      <option key={zone} value={zone}>{zone}</option>
-                    ))}
-                  </select>
+                  />
+                  {showZoneSuggestions && getFilteredZones().length > 0 && formData.location && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {getFilteredZones().map(zone => (
+                        <div
+                          key={zone}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                          onClick={() => {
+                            setFormData({ ...formData, location: zone });
+                            setShowZoneSuggestions(false);
+                          }}
+                        >
+                          📍 {zone}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {availableZones.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      💡 Digita o seleziona dalle zone già usate
+                    </p>
+                  )}
                 </div>
 
                 <div>
