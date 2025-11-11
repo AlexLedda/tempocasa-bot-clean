@@ -19,25 +19,6 @@ const formatPrice = (price) => {
   }).format(price);
 };
 
-// Zone predefinite per Tarquinia
-const ZONE_TARQUINIA = [
-  "Tarquinia Centro",
-  "Tarquinia Lido",
-  "Tarquinia Porto Clementino",
-  "Tarquinia Marina Velca",
-  "Tarquinia Periferia Nord",
-  "Tarquinia Periferia Sud",
-  "Tarquinia Zona Industriale",
-  "Tarquinia Campagna",
-  "Civitavecchia Centro",
-  "Civitavecchia Periferia",
-  "Montalto di Castro",
-  "Tuscania",
-  "Canino",
-  "Viterbo Centro",
-  "Altro"
-];
-
 export default function PropertiesNew() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +26,8 @@ export default function PropertiesNew() {
   const [editingId, setEditingId] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState(null);
+  const [availableZones, setAvailableZones] = useState([]);
+  const [showZoneSuggestions, setShowZoneSuggestions] = useState(false);
   const [formData, setFormData] = useState({
     reference: "",
     title: "",
