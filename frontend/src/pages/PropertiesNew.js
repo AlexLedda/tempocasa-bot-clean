@@ -519,9 +519,19 @@ export default function PropertiesNew() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
+                  {property.reference && (
+                    <div className="text-xs font-mono text-gray-500 mb-1">
+                      Rif: {property.reference}
+                    </div>
+                  )}
                   <CardTitle className="text-xl">{property.title}</CardTitle>
                   <CardDescription className="mt-1">
-                    {property.location} · {property.property_type}
+                    📍 {property.location} · {property.property_type}
+                    {property.street && (
+                      <span className="block mt-1 text-xs">
+                        {property.street}{property.street_number && `, ${property.street_number}`}
+                      </span>
+                    )}
                   </CardDescription>
                 </div>
                 <span className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -535,14 +545,14 @@ export default function PropertiesNew() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-blue-600 mb-3">
-                €{property.price.toLocaleString()}
+                {formatPrice(property.price)}
               </p>
               <p className="text-sm text-gray-600 mb-4 line-clamp-2">
                 {property.description}
               </p>
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                <span>🛏️ {property.bedrooms}</span>
-                <span>🚿 {property.bathrooms}</span>
+                <span>🛏️ {property.bedrooms} cam</span>
+                <span>🚿 {property.bathrooms} bagni</span>
                 <span>📐 {property.square_meters}m²</span>
               </div>
               <div className="flex gap-2">
