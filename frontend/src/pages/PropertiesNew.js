@@ -108,10 +108,13 @@ export default function PropertiesNew() {
 
   const resetForm = () => {
     setFormData({
+      reference: "",
       title: "",
       description: "",
       price: "",
       location: "",
+      street: "",
+      street_number: "",
       bedrooms: "",
       bathrooms: "",
       square_meters: "",
