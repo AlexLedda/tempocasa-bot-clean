@@ -52,11 +52,23 @@ export default function PropertiesNew() {
     try {
       const response = await axios.get(`${API}/properties`);
       setProperties(response.data);
+      
+      // Estrai zone uniche dagli immobili esistenti
+      const zones = [...new Set(response.data.map(p => p.location).filter(Boolean))];
+      setAvailableZones(zones.sort());
     } catch (error) {
       toast.error("Errore nel caricamento degli immobili");
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Filtra zone in base all'input
+  const getFilteredZones = () => {
+    if (!formData.location) return availableZones;
+    return availableZones.filter(zone => 
+      zone.toLowerCase().includes(formData.location.toLowerCase())
+    );
   };
 
   const handleSubmit = async (e) => {
