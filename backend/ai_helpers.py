@@ -269,6 +269,7 @@ def is_property_query(message: str, properties: List[Dict]) -> bool:
         r'€\s*\d+',             # €150000
         r'\d+\s*euro',          # 150000 euro
         r'\d{5,}',              # 150000 (almeno 5 cifre)
+        r'\b\d{2,4}\b',         # 150, 200, 1500 (in contesto immobiliare = migliaia)
     ]
     for pattern in price_patterns:
         if re.search(pattern, message_lower):
