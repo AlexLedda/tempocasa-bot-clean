@@ -511,7 +511,7 @@ async def whatsapp_webhook(request: Request):
         logging.info(f"Headers: {dict(request.headers)}")
         logging.info(f"Query params: {dict(request.query_params)}")
         
-        # Try to get form data
+        # Try to get form data (Twilio format)
         try:
             form_data = await request.form()
             logging.info(f"Form data: {dict(form_data)}")
@@ -519,12 +519,21 @@ async def whatsapp_webhook(request: Request):
             message = form_data.get("Body", "")
         except Exception as form_error:
             logging.info(f"No form data: {form_error}")
-            # Try JSON
+            # Try JSON (WATI/other providers format)
             try:
                 json_data = await request.json()
                 logging.info(f"JSON data: {json_data}")
-                phone_number = json_data.get("phone_number", "")
-                message = json_data.get("message", "")
+                
+                # WATI format
+                if "waId" in json_data or "from" in json_data:
+                    phone_number = json_data.get("waId") or json_data.get("from", "")
+                    message = json_data.get("text") or json_data.get("message", "")
+                    logging.info(f"Detected WATI format")
+                # Generic format
+                else:
+                    phone_number = json_data.get("phone_number", "")
+                    message = json_data.get("message", "")
+                    
             except Exception as json_error:
                 logging.info(f"No JSON data: {json_error}")
                 # Try raw body
