@@ -649,16 +649,34 @@ async def whatsapp_webhook(request: Request):
         )
         await create_message(response_msg)
         
-        # Return response (compatible with both Twilio and WATI)
-        # WATI will send the message via its own API, we just confirm receipt
-        logging.info(f"AI Response ready: {ai_response['response'][:100]}...")
+        # Check request origin and return appropriate response
+        user_agent = request.headers.get("user-agent", "").lower()
+        content_type = request.headers.get("content-type", "").lower()
         
-        # Return success - WATI doesn't use TwiML, so return simple JSON
-        return {"success": True, "message": ai_response["response"]}
+        # WATI sends JSON - send response via WATI API
+        if "application/json" in content_type or "wati" in user_agent:
+            # For WATI, we need to send message via their API
+            # Store response to send via WATI API separately
+            logging.info(f"WATI webhook detected - response: {ai_response['response'][:100]}...")
+            
+            # Send message via WATI API (will implement next)
+            await send_wati_message(phone_number, ai_response["response"])
+            
+            return {"success": True}
+        else:
+            # Twilio format (TwiML)
+            twiml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{ai_response["response"]}</Message></Response>'
+            return Response(content=twiml, media_type="application/xml")
         
     except Exception as e:
         logging.error(f"Error processing message: {e}")
-        return {"success": False, "error": str(e)}
+        content_type = request.headers.get("content-type", "").lower()
+        
+        if "application/json" in content_type:
+            return {"success": False, "error": str(e)}
+        else:
+            twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Scusa, c\'è stato un errore. Un nostro agente ti contatterà presto.</Message></Response>'
+            return Response(content=twiml, media_type="application/xml")
 
 # AI Chat endpoint
 async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
