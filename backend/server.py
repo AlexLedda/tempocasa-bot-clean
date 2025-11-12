@@ -674,6 +674,48 @@ async def whatsapp_webhook(request: Request):
         
         if "application/json" in content_type:
             return {"success": False, "error": str(e)}
+
+
+# Send message via WATI API
+async def send_wati_message(phone_number: str, message: str):
+    """Send WhatsApp message via WATI API"""
+    import aiohttp
+    
+    wati_api_url = os.environ.get("WATI_API_URL", "")
+    wati_api_token = os.environ.get("WATI_API_TOKEN", "")
+    
+    if not wati_api_url or not wati_api_token:
+        logging.error("WATI API credentials not configured")
+        return False
+    
+    headers = {
+        "Authorization": f"Bearer {wati_api_token}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "whatsappNumber": phone_number,
+        "text": message
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{wati_api_url}/api/v1/sendSessionMessage/{phone_number}",
+                headers=headers,
+                json=payload
+            ) as response:
+                if response.status == 200:
+                    logging.info(f"WATI message sent successfully to {phone_number}")
+                    return True
+                else:
+                    error_text = await response.text()
+                    logging.error(f"WATI API error: {response.status} - {error_text}")
+                    return False
+    except Exception as e:
+        logging.error(f"Error sending WATI message: {e}")
+        return False
+
         else:
             twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Scusa, c\'è stato un errore. Un nostro agente ti contatterà presto.</Message></Response>'
             return Response(content=twiml, media_type="application/xml")
