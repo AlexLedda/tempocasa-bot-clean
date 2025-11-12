@@ -649,13 +649,16 @@ async def whatsapp_webhook(request: Request):
         )
         await create_message(response_msg)
         
-        # Return response in Twilio format (TwiML)
-        twiml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{ai_response["response"]}</Message></Response>'
-        return Response(content=twiml, media_type="application/xml")
+        # Return response (compatible with both Twilio and WATI)
+        # WATI will send the message via its own API, we just confirm receipt
+        logging.info(f"AI Response ready: {ai_response['response'][:100]}...")
+        
+        # Return success - WATI doesn't use TwiML, so return simple JSON
+        return {"success": True, "message": ai_response["response"]}
+        
     except Exception as e:
         logging.error(f"Error processing message: {e}")
-        twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Scusa, c\'è stato un errore. Un nostro agente ti contatterà presto.</Message></Response>'
-        return Response(content=twiml, media_type="application/xml")
+        return {"success": False, "error": str(e)}
 
 # AI Chat endpoint
 async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
