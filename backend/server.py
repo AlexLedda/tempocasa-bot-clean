@@ -716,10 +716,6 @@ async def send_wati_message(phone_number: str, message: str):
         logging.error(f"Error sending WATI message: {e}")
         return False
 
-        else:
-            twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Scusa, c\'è stato un errore. Un nostro agente ti contatterà presto.</Message></Response>'
-            return Response(content=twiml, media_type="application/xml")
-
 # AI Chat endpoint
 async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
     from ai_helpers import (
