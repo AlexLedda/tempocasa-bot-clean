@@ -1241,7 +1241,7 @@ async def update_settings(settings: BotSettings):
 
 @api_router.post("/upload-logo")
 async def upload_logo(file: UploadFile = File(...)):
-    """Upload logo image"""
+    """Upload logo image to Cloudinary"""
     # Validate file type
     allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml"]
     if file.content_type not in allowed_types:
@@ -1251,35 +1251,48 @@ async def upload_logo(file: UploadFile = File(...)):
         )
     
     # Validate file size (max 5MB)
-    file.file.seek(0, 2)  # Go to end of file
-    file_size = file.file.tell()  # Get size
-    file.file.seek(0)  # Go back to start
+    contents = await file.read()
+    file_size = len(contents)
     
     if file_size > 5 * 1024 * 1024:  # 5MB
         raise HTTPException(status_code=400, detail="Il file è troppo grande. Massimo 5MB")
     
-    # Generate unique filename
-    file_extension = file.filename.split(".")[-1]
-    unique_filename = f"{uuid.uuid4()}.{file_extension}"
-    file_path = UPLOAD_DIR / unique_filename
+    # Check Cloudinary configuration
+    if not all([
+        os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        os.environ.get('CLOUDINARY_API_KEY'),
+        os.environ.get('CLOUDINARY_API_SECRET')
+    ]):
+        raise HTTPException(
+            status_code=500, 
+            detail="Cloudinary non configurato. Aggiungi CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET su Render."
+        )
     
-    # Save file
+    # Upload to Cloudinary
     try:
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        # Upload with unique public_id for logos
+        upload_result = cloudinary.uploader.upload(
+            contents,
+            folder="logos",
+            public_id=f"logo_{uuid.uuid4().hex[:8]}",
+            overwrite=True,
+            resource_type="image"
+        )
+        
+        logo_url = upload_result.get('secure_url')
+        
+        return {
+            "success": True,
+            "filename": upload_result.get('public_id'),
+            "url": logo_url
+        }
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Errore durante il salvataggio: {str(e)}")
-    
-    # Return the public URL
-    # Note: This assumes the backend is accessible at the REACT_APP_BACKEND_URL
-    backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
-    logo_url = f"{backend_url}/uploads/{unique_filename}"
-    
-    return {
-        "success": True,
-        "filename": unique_filename,
-        "url": logo_url
-    }
+        logging.error(f"Cloudinary upload error: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Errore durante l'upload su Cloudinary: {str(e)}"
+        )
 
 @api_router.delete("/upload-logo/{filename}")
 async def delete_logo(filename: str):
