@@ -71,7 +71,7 @@ Assicurati di avere tutti questi file:
 
 **FASTAPI_URL**:
 ```
-https://propbot-dash.preview.emergentagent.com
+https://agenzia-bot.preview.emergentagent.com
 ```
 
 **PORT**:

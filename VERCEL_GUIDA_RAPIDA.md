@@ -62,7 +62,7 @@ git push
    
    ```
    Name:  REACT_APP_BACKEND_URL
-   Value: https://propbot-dash.preview.emergentagent.com
+   Value: https://agenzia-bot.preview.emergentagent.com
    ```
    
    **Seleziona:** Production, Preview, Development (tutte e 3)
@@ -179,7 +179,7 @@ Dopo il deploy avrai:
 
 ```
 📱 Frontend    → Vercel (https://tuo-bot.vercel.app)
-🔧 Backend     → Emergent (https://propbot-dash.preview.emergentagent.com)
+🔧 Backend     → Emergent (https://agenzia-bot.preview.emergentagent.com)
 💬 Bot WhatsApp → Railway (https://whatsapp...up.railway.app)
 🗄️ Database    → MongoDB su Emergent
 ```

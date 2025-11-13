@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // IMPORTANTE: Usa il backend Emergent
-const FASTAPI_URL = process.env.FASTAPI_URL || 'https://propbot-dash.preview.emergentagent.com';
+const FASTAPI_URL = process.env.FASTAPI_URL || 'https://agenzia-bot.preview.emergentagent.com';
 
 let sock = null;
 let qrCode = null;
