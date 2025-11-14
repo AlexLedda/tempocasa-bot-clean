@@ -111,16 +111,13 @@ export default function Login() {
           {/* Credentials Info */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-800 font-medium mb-1">
-              📝 Credenziali di default:
+              📝 Credenziali admin:
             </p>
             <p className="text-xs text-blue-600 font-mono">
               Email: admin@tempocasa.it
             </p>
             <p className="text-xs text-blue-600 font-mono">
-              Password: Admin123!
-            </p>
-            <p className="text-xs text-blue-600 mt-2">
-              ⚠️ Cambia la password dopo il primo accesso
+              Password: Corneto1.
             </p>
           </div>
 
