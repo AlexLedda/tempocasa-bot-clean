@@ -114,7 +114,7 @@ export default function Login() {
               📝 Credenziali admin:
             </p>
             <p className="text-xs text-blue-600 font-mono">
-              Email: admin@tempocasa.it
+              Username: admin
             </p>
             <p className="text-xs text-blue-600 font-mono">
               Password: Corneto1.
