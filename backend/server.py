@@ -9,7 +9,7 @@ import logging
 import shutil
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone
 from emergentintegrations.llm.chat import LlmChat, UserMessage
@@ -17,6 +17,12 @@ import httpx
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from cloudinary_helpers import (
+    get_optimized_url, 
+    get_property_image_variants,
+    get_responsive_urls,
+    delete_image
+)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
