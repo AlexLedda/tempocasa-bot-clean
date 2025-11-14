@@ -255,18 +255,30 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
-        <Layout settings={settings}>
+        <AuthProvider>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/properties" element={<Properties />} />
-            <Route path="/clients" element={<Clients />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/valuations" element={<Valuations />} />
-            <Route path="/bot-settings" element={<BotSettings />} />
-            <Route path="/whatsapp-setup" element={<WhatsAppSetup />} />
+            {/* Public Route */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* Protected Routes */}
+            <Route path="/*" element={
+              <ProtectedRoute>
+                <Layout settings={settings}>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/properties" element={<Properties />} />
+                    <Route path="/clients" element={<Clients />} />
+                    <Route path="/messages" element={<Messages />} />
+                    <Route path="/appointments" element={<Appointments />} />
+                    <Route path="/valuations" element={<Valuations />} />
+                    <Route path="/bot-settings" element={<BotSettings />} />
+                    <Route path="/whatsapp-setup" element={<WhatsAppSetup />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            } />
           </Routes>
-        </Layout>
+        </AuthProvider>
       </BrowserRouter>
       <Toaster position="top-right" richColors />
     </div>
