@@ -266,13 +266,13 @@ async def register(user_data: UserCreate):
 @api_router.post("/auth/login", response_model=Token, tags=["auth"])
 async def login(credentials: UserLogin):
     """Login utente"""
-    # Find user
-    user_data = await db.users.find_one({"email": credentials.email}, {"_id": 0})
+    # Find user by username
+    user_data = await db.users.find_one({"username": credentials.username}, {"_id": 0})
     
     if not user_data:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email o password incorretti",
+            detail="Username o password incorretti",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -288,7 +288,7 @@ async def login(credentials: UserLogin):
     if not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email o password incorretti",
+            detail="Username o password incorretti",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -301,13 +301,13 @@ async def login(credentials: UserLogin):
     
     # Update last login
     await db.users.update_one(
-        {"email": user.email},
+        {"username": user.username},
         {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
     )
     
     # Create access token
     access_token = create_access_token(
-        data={"sub": user.email, "user_id": user.id}
+        data={"sub": user.username, "user_id": user.id}
     )
     
     return Token(
