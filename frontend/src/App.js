@@ -74,6 +74,32 @@ export function applyAccentColor(color) {
   root.style.setProperty('--accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
 }
 
+
+// Logout Button Component
+function LogoutButton() {
+  const { logout, user } = require('./contexts/AuthContext').useAuth();
+  
+  return (
+    <button
+      onClick={() => {
+        if (window.confirm('Vuoi disconnetterti?')) {
+          logout();
+          toast.success('Disconnesso con successo');
+        }
+      }}
+      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+    >
+      <LogOut className="w-5 h-5" />
+      <div className="flex-1 text-left">
+        <span className="font-medium block">Disconnetti</span>
+        {user && (
+          <span className="text-xs text-gray-500">{user.email}</span>
+        )}
+      </div>
+    </button>
+  );
+}
+
 function Layout({ children, settings }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
