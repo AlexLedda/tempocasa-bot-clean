@@ -228,15 +228,16 @@ from auth import (
 async def register(user_data: UserCreate):
     """Registra nuovo utente"""
     # Check if user already exists
-    existing_user = await db.users.find_one({"email": user_data.email})
+    existing_user = await db.users.find_one({"username": user_data.username})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email già registrata"
+            detail="Username già registrato"
         )
     
     # Create new user
     user = User(
+        username=user_data.username,
         email=user_data.email,
         full_name=user_data.full_name,
         role=user_data.role,
@@ -253,7 +254,7 @@ async def register(user_data: UserCreate):
     
     # Create access token
     access_token = create_access_token(
-        data={"sub": user.email, "user_id": user.id}
+        data={"sub": user.username, "user_id": user.id}
     )
     
     return Token(
