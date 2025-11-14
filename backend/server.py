@@ -1353,24 +1353,95 @@ async def upload_property_image(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Il file è troppo grande. Massimo 10MB")
     
     try:
-        # Upload to Cloudinary
+        # Upload originale to Cloudinary con ottimizzazioni avanzate
         upload_result = cloudinary.uploader.upload(
             file.file,
             folder="real_estate_properties",
             resource_type="image",
-            transformation=[
-                {'width': 1200, 'height': 800, 'crop': 'limit'},
-                {'quality': 'auto'},
-                {'fetch_format': 'auto'}
-            ]
+            # Ottimizzazioni complete
+            eager=[
+                # Thumbnail - per liste (300x200)
+                {
+                    'width': 300,
+                    'height': 200,
+                    'crop': 'fill',
+                    'gravity': 'auto',  # Focus automatico su parti importanti
+                    'quality': 'auto:eco',  # Qualità economica per thumbnail
+                    'fetch_format': 'auto',
+                    'flags': 'progressive'
+                },
+                # Medium - per card (800x600)
+                {
+                    'width': 800,
+                    'height': 600,
+                    'crop': 'fill',
+                    'gravity': 'auto',
+                    'quality': 'auto:good',
+                    'fetch_format': 'auto',
+                    'flags': 'progressive'
+                },
+                # Large - per dettaglio/hero (1200x800)
+                {
+                    'width': 1200,
+                    'height': 800,
+                    'crop': 'fill',
+                    'gravity': 'auto',
+                    'quality': 'auto:best',
+                    'fetch_format': 'auto',
+                    'flags': 'progressive',
+                    'dpr': 'auto'
+                }
+            ],
+            # Opzioni globali
+            strip_exif=True,  # Rimuove metadati EXIF (privacy + dimensioni)
+            colors=True,  # Estrae colori dominanti
+            faces=True,  # Rilevamento volti (utile per foto interni)
+            quality_analysis=True,
+            eager_async=False,  # Genera subito tutte le versioni
+            overwrite=False,  # Non sovrascrivere se esiste
+            unique_filename=True  # Nome file unico automatico
+        )
+        
+        # Genera URL ottimizzati per ogni versione
+        base_url = upload_result['secure_url']
+        public_id = upload_result['public_id']
+        
+        # URL con transformations on-the-fly
+        thumbnail_url = cloudinary.CloudinaryImage(public_id).build_url(
+            width=300, height=200, crop='fill', gravity='auto',
+            quality='auto:eco', fetch_format='auto'
+        )
+        
+        medium_url = cloudinary.CloudinaryImage(public_id).build_url(
+            width=800, height=600, crop='fill', gravity='auto',
+            quality='auto:good', fetch_format='auto'
+        )
+        
+        large_url = cloudinary.CloudinaryImage(public_id).build_url(
+            width=1200, height=800, crop='fill', gravity='auto',
+            quality='auto:best', fetch_format='auto', dpr='auto'
         )
         
         return {
             "success": True,
-            "url": upload_result['secure_url'],
-            "public_id": upload_result['public_id']
+            "url": base_url,  # URL originale (compatibilità)
+            "public_id": public_id,
+            "urls": {
+                "original": base_url,
+                "thumbnail": thumbnail_url,  # 300x200
+                "medium": medium_url,        # 800x600
+                "large": large_url           # 1200x800
+            },
+            "metadata": {
+                "width": upload_result.get('width'),
+                "height": upload_result.get('height'),
+                "format": upload_result.get('format'),
+                "bytes": upload_result.get('bytes'),
+                "colors": upload_result.get('colors', [])[:3] if upload_result.get('colors') else []
+            }
         }
     except Exception as e:
+        logging.error(f"Cloudinary upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Errore durante l'upload: {str(e)}")
 
 @api_router.get("/")
