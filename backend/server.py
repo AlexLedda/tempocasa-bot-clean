@@ -215,6 +215,161 @@ class AIResponse(BaseModel):
     response: str
     properties_mentioned: List[str] = []
 
+
+# ==================== AUTHENTICATION ENDPOINTS ====================
+from auth import (
+    User, UserCreate, UserLogin, UserResponse, Token,
+    get_password_hash, verify_password, create_access_token,
+    get_current_user, get_current_active_user, get_current_admin_user,
+    user_to_response
+)
+
+@api_router.post("/auth/register", response_model=Token, tags=["auth"])
+async def register(user_data: UserCreate):
+    """Registra nuovo utente"""
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email già registrata"
+        )
+    
+    # Create new user
+    user = User(
+        email=user_data.email,
+        full_name=user_data.full_name,
+        role=user_data.role,
+        hashed_password=get_password_hash(user_data.password)
+    )
+    
+    # Save to database
+    user_dict = user.model_dump()
+    user_dict['created_at'] = user_dict['created_at'].isoformat()
+    if user_dict.get('last_login'):
+        user_dict['last_login'] = user_dict['last_login'].isoformat()
+    
+    await db.users.insert_one(user_dict)
+    
+    # Create access token
+    access_token = create_access_token(
+        data={"sub": user.email, "user_id": user.id}
+    )
+    
+    return Token(
+        access_token=access_token,
+        user=user_to_response(user)
+    )
+
+
+@api_router.post("/auth/login", response_model=Token, tags=["auth"])
+async def login(credentials: UserLogin):
+    """Login utente"""
+    # Find user
+    user_data = await db.users.find_one({"email": credentials.email}, {"_id": 0})
+    
+    if not user_data:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o password incorretti",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Convert datetime strings
+    if isinstance(user_data.get('created_at'), str):
+        user_data['created_at'] = datetime.fromisoformat(user_data['created_at'])
+    if user_data.get('last_login') and isinstance(user_data.get('last_login'), str):
+        user_data['last_login'] = datetime.fromisoformat(user_data['last_login'])
+    
+    user = User(**user_data)
+    
+    # Verify password
+    if not verify_password(credentials.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o password incorretti",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Check if active
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Utente disattivato"
+        )
+    
+    # Update last login
+    await db.users.update_one(
+        {"email": user.email},
+        {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    # Create access token
+    access_token = create_access_token(
+        data={"sub": user.email, "user_id": user.id}
+    )
+    
+    return Token(
+        access_token=access_token,
+        user=user_to_response(user)
+    )
+
+
+@api_router.get("/auth/me", response_model=UserResponse, tags=["auth"])
+async def get_me(current_user: User = Depends(get_current_active_user)):
+    """Ottieni informazioni utente corrente"""
+    return user_to_response(current_user)
+
+
+@api_router.get("/auth/users", response_model=List[UserResponse], tags=["auth"])
+async def get_users(current_user: User = Depends(get_current_admin_user)):
+    """Ottieni lista utenti (solo admin)"""
+    users = await db.users.find({}, {"_id": 0}).to_list(100)
+    
+    result = []
+    for user_data in users:
+        if isinstance(user_data.get('created_at'), str):
+            user_data['created_at'] = datetime.fromisoformat(user_data['created_at'])
+        if user_data.get('last_login') and isinstance(user_data.get('last_login'), str):
+            user_data['last_login'] = datetime.fromisoformat(user_data['last_login'])
+        
+        user = User(**user_data)
+        result.append(user_to_response(user))
+    
+    return result
+
+
+@api_router.put("/auth/users/{user_id}/toggle", response_model=UserResponse, tags=["auth"])
+async def toggle_user_status(
+    user_id: str,
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Attiva/disattiva utente (solo admin)"""
+    user_data = await db.users.find_one({"id": user_id}, {"_id": 0})
+    
+    if not user_data:
+        raise HTTPException(status_code=404, detail="Utente non trovato")
+    
+    # Toggle active status
+    new_status = not user_data.get('is_active', True)
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"is_active": new_status}}
+    )
+    
+    # Get updated user
+    updated_user_data = await db.users.find_one({"id": user_id}, {"_id": 0})
+    
+    if isinstance(updated_user_data.get('created_at'), str):
+        updated_user_data['created_at'] = datetime.fromisoformat(updated_user_data['created_at'])
+    if updated_user_data.get('last_login') and isinstance(updated_user_data.get('last_login'), str):
+        updated_user_data['last_login'] = datetime.fromisoformat(updated_user_data['last_login'])
+    
+    user = User(**updated_user_data)
+    return user_to_response(user)
+
+# ==================== END AUTHENTICATION ENDPOINTS ====================
+
 # Properties endpoints
 @api_router.post("/properties", response_model=Property)
 async def create_property(prop: PropertyCreate):
