@@ -57,7 +57,8 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     """User response (without password)"""
     id: str
-    email: EmailStr
+    username: str
+    email: Optional[EmailStr] = None
     full_name: str
     role: str
     is_active: bool
