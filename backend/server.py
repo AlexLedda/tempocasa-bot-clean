@@ -777,9 +777,14 @@ Informazioni Cliente:
 - Conversazione Conclusa: {"Sì" if conversation_completed else "No"}
 """
     
-    # Get bot configuration
-    bot_name = os.environ.get('BOT_NAME', 'Emma')
-    agency_name = os.environ.get('BOT_AGENCY_NAME', 'Agenzia Immobiliare')
+    # Get bot configuration from MongoDB settings
+    settings = await db.settings.find_one({"id": "default_settings"}, {"_id": 0})
+    if settings:
+        bot_name = settings.get('bot_name', 'Elettra')
+        agency_name = settings.get('agency_name', 'Tempocasa Tarquinia')
+    else:
+        bot_name = os.environ.get('BOT_NAME', 'Elettra')
+        agency_name = os.environ.get('BOT_AGENCY_NAME', 'Tempocasa Tarquinia')
     
     # Get calendar appointments to check availability
     appointments = await db.appointments.find({}, {"_id": 0}).to_list(1000)
