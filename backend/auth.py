@@ -50,7 +50,7 @@ class UserCreate(BaseModel):
 
 class UserLogin(BaseModel):
     """User login model"""
-    email: EmailStr
+    username: str
     password: str
 
 
