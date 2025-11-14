@@ -1219,7 +1219,7 @@ async def update_settings(settings: BotSettings):
 
 @api_router.post("/upload-logo")
 async def upload_logo(file: UploadFile = File(...)):
-    """Upload logo image to Cloudinary"""
+    """Upload logo image to Cloudinary and update settings"""
     # Validate file type
     allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml"]
     if file.content_type not in allowed_types:
@@ -1246,6 +1246,17 @@ async def upload_logo(file: UploadFile = File(...)):
             detail="Cloudinary non configurato. Aggiungi CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET su Render."
         )
     
+    # Get existing settings to delete old logo
+    existing_settings = await db.settings.find_one({"id": "default_settings"})
+    
+    # Delete old logo from Cloudinary if exists
+    if existing_settings and existing_settings.get('logo_public_id'):
+        try:
+            cloudinary.uploader.destroy(existing_settings['logo_public_id'])
+            logging.info(f"Deleted old logo: {existing_settings['logo_public_id']}")
+        except Exception as e:
+            logging.warning(f"Could not delete old logo: {e}")
+    
     # Upload to Cloudinary
     try:
         # Upload with unique public_id for logos
@@ -1258,10 +1269,24 @@ async def upload_logo(file: UploadFile = File(...)):
         )
         
         logo_url = upload_result.get('secure_url')
+        logo_public_id = upload_result.get('public_id')
+        
+        # Update settings in MongoDB with new logo
+        await db.settings.update_one(
+            {"id": "default_settings"},
+            {
+                "$set": {
+                    "logo_url": logo_url,
+                    "logo_public_id": logo_public_id,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+            },
+            upsert=True
+        )
         
         return {
             "success": True,
-            "filename": upload_result.get('public_id'),
+            "filename": logo_public_id,
             "url": logo_url
         }
         
