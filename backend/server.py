@@ -1450,6 +1450,59 @@ async def upload_property_image(file: UploadFile = File(...)):
         logging.error(f"Cloudinary upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Errore durante l'upload: {str(e)}")
 
+
+# Cloudinary optimization endpoints
+@api_router.get("/cloudinary/optimize/{public_id:path}")
+async def get_optimized_image(
+    public_id: str,
+    width: Optional[int] = None,
+    height: Optional[int] = None,
+    quality: str = "auto:good",
+    format: str = "auto"
+):
+    """Get optimized URL for an image"""
+    try:
+        url = get_optimized_url(
+            public_id,
+            width=width,
+            height=height,
+            quality=quality,
+            format=format
+        )
+        return {"url": url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/cloudinary/variants/{public_id:path}")
+async def get_image_variants(public_id: str):
+    """Get all optimized variants for a property image"""
+    try:
+        variants = get_property_image_variants(public_id)
+        return {"variants": variants}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/cloudinary/responsive/{public_id:path}")
+async def get_responsive_image_urls(public_id: str, base_width: int = 800):
+    """Get responsive URLs for srcset"""
+    try:
+        urls = get_responsive_urls(public_id, base_width=base_width)
+        return {"responsive_urls": urls}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/cloudinary/image/{public_id:path}")
+async def delete_cloudinary_image(public_id: str):
+    """Delete an image from Cloudinary"""
+    try:
+        success = delete_image(public_id)
+        if success:
+            return {"success": True, "message": "Immagine eliminata"}
+        else:
+            raise HTTPException(status_code=500, detail="Impossibile eliminare l'immagine")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/")
 async def root():
     return {"message": "Real Estate WhatsApp Bot API"}
