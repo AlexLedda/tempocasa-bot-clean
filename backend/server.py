@@ -1262,15 +1262,32 @@ async def upload_logo(file: UploadFile = File(...)):
         except Exception as e:
             logging.warning(f"Could not delete old logo: {e}")
     
-    # Upload to Cloudinary
+    # Upload to Cloudinary with optimizations
     try:
-        # Upload with unique public_id for logos
+        # Upload with unique public_id for logos and advanced transformations
         upload_result = cloudinary.uploader.upload(
             contents,
             folder="logos",
             public_id=f"logo_{uuid.uuid4().hex[:8]}",
             overwrite=True,
-            resource_type="image"
+            resource_type="image",
+            # Ottimizzazioni logo
+            transformation=[
+                {
+                    'width': 300,
+                    'height': 300,
+                    'crop': 'limit',  # Mantiene aspect ratio
+                    'quality': 'auto:best',  # Qualità automatica ottimale
+                    'fetch_format': 'auto',  # WebP/AVIF automatico
+                    'flags': 'progressive',  # Progressive loading
+                    'dpr': 'auto'  # Device pixel ratio automatico
+                }
+            ],
+            # Rimuove metadati per ridurre dimensioni
+            strip_exif=True,
+            colors=True,  # Analizza colori dominanti
+            faces=False,  # Non serve face detection per logo
+            quality_analysis=True  # Analisi qualità
         )
         
         logo_url = upload_result.get('secure_url')
