@@ -93,7 +93,7 @@ function LogoutButton() {
       <div className="flex-1 text-left">
         <span className="font-medium block">Disconnetti</span>
         {user && (
-          <span className="text-xs text-gray-500">{user.email}</span>
+          <span className="text-xs text-gray-500">@{user.username}</span>
         )}
       </div>
     </button>
