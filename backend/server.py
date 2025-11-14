@@ -1139,104 +1139,82 @@ async def get_stats():
     }
 
 class BotSettings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default="default_settings")
     bot_name: str = "Emma"
     agency_name: str = "Agenzia Immobiliare"
     primary_color: str = "#3b82f6"
     secondary_color: str = "#10b981"
     accent_color: str = "#f59e0b"
     logo_url: str = ""
+    logo_public_id: str = ""  # Cloudinary public_id per eliminare vecchi logo
     auto_respond_new_only: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 @api_router.get("/settings")
 async def get_settings():
-    """Get bot settings"""
-    return {
-        "bot_name": os.environ.get('BOT_NAME', 'Emma'),
-        "agency_name": os.environ.get('BOT_AGENCY_NAME', 'Agenzia Immobiliare'),
-        "primary_color": os.environ.get('PRIMARY_COLOR', '#3b82f6'),
-        "secondary_color": os.environ.get('SECONDARY_COLOR', '#10b981'),
-        "accent_color": os.environ.get('ACCENT_COLOR', '#f59e0b'),
-        "logo_url": os.environ.get('LOGO_URL', ''),
-        "auto_respond_new_only": True
-    }
+    """Get bot settings from MongoDB"""
+    # Try to get settings from MongoDB
+    settings = await db.settings.find_one({"id": "default_settings"}, {"_id": 0})
+    
+    if settings:
+        # Convert datetime strings back to datetime objects if needed
+        if isinstance(settings.get('created_at'), str):
+            settings['created_at'] = datetime.fromisoformat(settings['created_at'])
+        if isinstance(settings.get('updated_at'), str):
+            settings['updated_at'] = datetime.fromisoformat(settings['updated_at'])
+        return settings
+    
+    # If no settings in DB, create default settings
+    default_settings = BotSettings(
+        bot_name=os.environ.get('BOT_NAME', 'Elettra'),
+        agency_name=os.environ.get('BOT_AGENCY_NAME', 'Tempocasa Tarquinia'),
+        primary_color=os.environ.get('PRIMARY_COLOR', '#179306')
+    )
+    
+    # Save to MongoDB
+    settings_dict = default_settings.model_dump()
+    settings_dict['created_at'] = settings_dict['created_at'].isoformat()
+    settings_dict['updated_at'] = settings_dict['updated_at'].isoformat()
+    await db.settings.insert_one(settings_dict)
+    
+    return default_settings.model_dump()
 
 @api_router.put("/settings")
 async def update_settings(settings: BotSettings):
-    """Update bot settings"""
-    # Update .env file
-    env_path = ROOT_DIR / '.env'
-    env_lines = []
+    """Update bot settings in MongoDB"""
+    # Get existing settings to check for logo change
+    existing = await db.settings.find_one({"id": "default_settings"})
     
-    if env_path.exists():
-        with open(env_path, 'r') as f:
-            env_lines = f.readlines()
+    # If logo changed and there's an old logo on Cloudinary, delete it
+    if existing and existing.get('logo_public_id'):
+        if settings.logo_url != existing.get('logo_url'):
+            try:
+                # Delete old logo from Cloudinary
+                cloudinary.uploader.destroy(existing['logo_public_id'])
+                logging.info(f"Deleted old logo: {existing['logo_public_id']}")
+            except Exception as e:
+                logging.error(f"Error deleting old logo: {e}")
     
-    # Update or add settings
-    updated = {
-        'BOT_NAME': False, 
-        'BOT_AGENCY_NAME': False, 
-        'PRIMARY_COLOR': False,
-        'SECONDARY_COLOR': False,
-        'ACCENT_COLOR': False,
-        'LOGO_URL': False
-    }
+    # Update timestamp
+    settings.updated_at = datetime.now(timezone.utc)
     
-    for i, line in enumerate(env_lines):
-        if line.startswith('BOT_NAME='):
-            env_lines[i] = f'BOT_NAME="{settings.bot_name}"\n'
-            updated['BOT_NAME'] = True
-        elif line.startswith('BOT_AGENCY_NAME='):
-            env_lines[i] = f'BOT_AGENCY_NAME="{settings.agency_name}"\n'
-            updated['BOT_AGENCY_NAME'] = True
-        elif line.startswith('PRIMARY_COLOR='):
-            env_lines[i] = f'PRIMARY_COLOR="{settings.primary_color}"\n'
-            updated['PRIMARY_COLOR'] = True
-        elif line.startswith('SECONDARY_COLOR='):
-            env_lines[i] = f'SECONDARY_COLOR="{settings.secondary_color}"\n'
-            updated['SECONDARY_COLOR'] = True
-        elif line.startswith('ACCENT_COLOR='):
-            env_lines[i] = f'ACCENT_COLOR="{settings.accent_color}"\n'
-            updated['ACCENT_COLOR'] = True
-        elif line.startswith('LOGO_URL='):
-            env_lines[i] = f'LOGO_URL="{settings.logo_url}"\n'
-            updated['LOGO_URL'] = True
+    # Prepare for MongoDB
+    settings_dict = settings.model_dump()
+    settings_dict['created_at'] = settings_dict['created_at'].isoformat()
+    settings_dict['updated_at'] = settings_dict['updated_at'].isoformat()
     
-    # Add if not found
-    if not updated['BOT_NAME']:
-        env_lines.append(f'BOT_NAME="{settings.bot_name}"\n')
-    if not updated['BOT_AGENCY_NAME']:
-        env_lines.append(f'BOT_AGENCY_NAME="{settings.agency_name}"\n')
-    if not updated['PRIMARY_COLOR']:
-        env_lines.append(f'PRIMARY_COLOR="{settings.primary_color}"\n')
-    if not updated['SECONDARY_COLOR']:
-        env_lines.append(f'SECONDARY_COLOR="{settings.secondary_color}"\n')
-    if not updated['ACCENT_COLOR']:
-        env_lines.append(f'ACCENT_COLOR="{settings.accent_color}"\n')
-    if not updated['LOGO_URL']:
-        env_lines.append(f'LOGO_URL="{settings.logo_url}"\n')
-    
-    # Write back
-    with open(env_path, 'w') as f:
-        f.writelines(env_lines)
-    
-    # Update environment variables for current session
-    os.environ['BOT_NAME'] = settings.bot_name
-    os.environ['BOT_AGENCY_NAME'] = settings.agency_name
-    os.environ['PRIMARY_COLOR'] = settings.primary_color
-    os.environ['SECONDARY_COLOR'] = settings.secondary_color
-    os.environ['ACCENT_COLOR'] = settings.accent_color
-    os.environ['LOGO_URL'] = settings.logo_url
+    # Upsert to MongoDB (update if exists, insert if not)
+    await db.settings.update_one(
+        {"id": "default_settings"},
+        {"$set": settings_dict},
+        upsert=True
+    )
     
     return {
         "message": "Impostazioni aggiornate con successo",
-        "settings": {
-            "bot_name": settings.bot_name,
-            "agency_name": settings.agency_name,
-            "primary_color": settings.primary_color,
-            "secondary_color": settings.secondary_color,
-            "accent_color": settings.accent_color,
-            "logo_url": settings.logo_url
-        }
+        "settings": settings.model_dump()
     }
 
 @api_router.post("/upload-logo")
