@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -18,14 +18,14 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      toast.error('Inserisci email e password');
+    if (!username || !password) {
+      toast.error('Inserisci username e password');
       return;
     }
 
     setLoading(true);
 
-    const result = await login(email, password);
+    const result = await login(username, password);
 
     if (result.success) {
       toast.success('Login effettuato con successo!');
