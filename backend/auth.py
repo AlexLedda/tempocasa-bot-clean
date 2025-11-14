@@ -29,7 +29,8 @@ class User(BaseModel):
     """User model"""
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: secrets.token_urlsafe(16))
-    email: EmailStr
+    username: str  # Username per login (es: "admin")
+    email: Optional[EmailStr] = None  # Email opzionale
     full_name: str
     role: str = "agent"  # admin, agent, viewer
     is_active: bool = True
