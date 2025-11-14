@@ -108,13 +108,13 @@ def decode_access_token(token: str) -> Optional[TokenData]:
     """Decodifica JWT token"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
+        username: str = payload.get("sub")
         user_id: str = payload.get("user_id")
         
-        if email is None:
+        if username is None:
             return None
         
-        return TokenData(email=email, user_id=user_id)
+        return TokenData(username=username, user_id=user_id)
     except JWTError:
         return None
 
