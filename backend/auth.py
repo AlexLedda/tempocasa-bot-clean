@@ -140,7 +140,7 @@ async def get_current_user(
     token = credentials.credentials
     token_data = decode_access_token(token)
     
-    if token_data is None or token_data.email is None:
+    if token_data is None or token_data.username is None:
         raise credentials_exception
     
     # Get database connection
@@ -151,7 +151,7 @@ async def get_current_user(
         db = client[os.environ['DB_NAME']]
     
     # Find user in database
-    user = await db.users.find_one({"email": token_data.email}, {"_id": 0})
+    user = await db.users.find_one({"username": token_data.username}, {"_id": 0})
     
     if user is None:
         raise credentials_exception
