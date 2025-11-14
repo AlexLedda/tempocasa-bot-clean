@@ -165,13 +165,17 @@ function Layout({ children, settings }) {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-blue-100">
+          <div className="p-4 border-t border-blue-100 space-y-3">
+            {/* Bot Status */}
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
               <p className="text-sm font-semibold mb-1">Bot WhatsApp Attivo</p>
               <p className="text-xs opacity-90">
                 {settings?.bot_name ? `${settings.bot_name} gestisce i clienti` : "Gestisci i tuoi clienti automaticamente"}
               </p>
             </div>
+            
+            {/* Logout Button - Inserted by auth integration */}
+            <LogoutButton />
           </div>
         </div>
       </div>
