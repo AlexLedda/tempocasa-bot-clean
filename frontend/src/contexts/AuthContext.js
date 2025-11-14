@@ -72,9 +72,10 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (email, password, fullName, role = 'agent') => {
+  const register = async (username, password, fullName, email = null, role = 'agent') => {
     try {
       const response = await axios.post(`${API}/auth/register`, {
+        username,
         email,
         password,
         full_name: fullName,
