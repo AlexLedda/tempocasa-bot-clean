@@ -75,7 +75,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """JWT Token data"""
-    email: Optional[str] = None
+    username: Optional[str] = None
     user_id: Optional[str] = None
 
 
