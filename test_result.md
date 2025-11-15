@@ -107,63 +107,90 @@ user_problem_statement: "Sviluppo schermate principali per l'app mobile React Na
 backend:
   - task: "API Appuntamenti - GET /api/appointments"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "API già esistente nel backend, necessita verifica funzionamento"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: API funziona correttamente. Restituisce lista appuntamenti con formato corretto, campi obbligatori presenti (id, client_name, property_title, appointment_date, status). Formato date valido ISO."
 
   - task: "API Appuntamenti - POST /api/appointments"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "API già esistente nel backend, necessita verifica per creazione appuntamenti"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: API funziona perfettamente. Creazione appuntamento con dati validi (client_name: Mario Rossi, client_phone: +39 333 1234567, property_id, appointment_date, notes) restituisce oggetto completo con tutti i campi necessari incluso property_title automatico."
 
   - task: "API Appuntamenti - PUT /api/appointments/{id}"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "API già esistente nel backend, necessita verifica per aggiornamento"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: API aggiornamento stato funziona correttamente. Testati cambi stato: confermato → completato → cancellato. Endpoint accetta parametro 'status' e restituisce conferma aggiornamento."
 
   - task: "API Appuntamenti - DELETE /api/appointments/{id}"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "API già esistente nel backend, necessita verifica per eliminazione"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: API eliminazione funziona correttamente. Appuntamento eliminato con successo e verificato che non sia più presente nella lista. Restituisce conferma eliminazione."
 
   - task: "API Properties - GET /api/properties"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "API necessaria per selezione proprietà nel form appuntamenti"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: API funziona correttamente. Restituisce lista proprietà con tutti i campi necessari (id, title, price, location, bedrooms, bathrooms, square_meters, property_type). Perfetta per popolare selector proprietà."
+
+  - task: "API Appuntamenti - GET /api/appointments/{id}"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ ENDPOINT MANCANTE: GET /api/appointments/{id} non implementato nel backend (HTTP 405 Method Not Allowed). Questo endpoint è opzionale per il dettaglio singolo appuntamento ma potrebbe essere utile per le schermate mobile."
 
 frontend:
   - task: "Schermata Lista Appuntamenti"
