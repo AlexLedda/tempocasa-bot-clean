@@ -1713,6 +1713,84 @@ async def delete_cloudinary_image(public_id: str):
 async def root():
     return {"message": "Real Estate WhatsApp Bot API"}
 
+# Health Check Endpoint
+@api_router.get("/health")
+async def health_check():
+    """
+    Endpoint per verificare lo stato del sistema
+    """
+    try:
+        # Test MongoDB connection
+        await db.command("ping")
+        db_status = "healthy"
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)}"
+    
+    return {
+        "status": "healthy" if db_status == "healthy" else "degraded",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "services": {
+            "database": db_status,
+            "api": "healthy"
+        }
+    }
+
+# System Stats Endpoint (protetto, solo per admin)
+@api_router.get("/stats/system")
+async def get_system_stats(current_user = Depends(get_current_user)):
+    """
+    Statistiche del sistema (solo admin)
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Access forbidden")
+    
+    try:
+        # Conta documenti per collezione
+        stats = {
+            "properties": await db.properties.count_documents({}),
+            "clients": await db.clients.count_documents({}),
+            "appointments": await db.appointments.count_documents({}),
+            "valuations": await db.valuations.count_documents({}),
+            "users": await db.users.count_documents({}),
+            "conversations": await db.bot_conversations.count_documents({}) if "bot_conversations" in await db.list_collection_names() else 0,
+        }
+        
+        # Statistiche recenti (ultimi 7 giorni)
+        from datetime import timedelta
+        week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+        
+        recent_stats = {
+            "new_clients_week": await db.clients.count_documents({"created_at": {"$gte": week_ago}}),
+            "new_appointments_week": await db.appointments.count_documents({"created_at": {"$gte": week_ago}}),
+            "new_valuations_week": await db.valuations.count_documents({"created_at": {"$gte": week_ago}}),
+        }
+        
+        return {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "totals": stats,
+            "recent": recent_stats
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Bot Learning Insights Endpoint (protetto, solo per admin)
+@api_router.get("/stats/bot-insights")
+async def get_bot_insights(current_user = Depends(get_current_user)):
+    """
+    Insights dal sistema di apprendimento del bot
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Access forbidden")
+    
+    try:
+        from bot_learning import BotLearningSystem
+        learning_system = BotLearningSystem(db)
+        
+        insights = await learning_system.generate_insights_report()
+        return insights
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
