@@ -181,16 +181,19 @@ backend:
         comment: "✅ TESTATO: API funziona correttamente. Restituisce lista proprietà con tutti i campi necessari (id, title, price, location, bedrooms, bathrooms, square_meters, property_type). Perfetta per popolare selector proprietà."
 
   - task: "API Appuntamenti - GET /api/appointments/{id}"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ ENDPOINT MANCANTE: GET /api/appointments/{id} non implementato nel backend (HTTP 405 Method Not Allowed). Questo endpoint è opzionale per il dettaglio singolo appuntamento ma potrebbe essere utile per le schermate mobile."
+      - working: true
+        agent: "main"
+        comment: "✅ IMPLEMENTATO: Aggiunto endpoint GET /api/appointments/{id} nel backend con gestione date e conversione corretta. Backend riavviato con successo."
 
 frontend:
   - task: "Schermata Lista Appuntamenti"
