@@ -12,7 +12,7 @@ import { COLORS } from '../constants/colors';
 import DashboardScreen from '../screens/agent/DashboardScreen';
 import AppointmentsStackNavigator from './AppointmentsStackNavigator';
 import ClientsStackNavigator from './ClientsStackNavigator';
-import ValuationsScreen from '../screens/agent/ValuationsScreen';
+import ValuationsStackNavigator from './ValuationsStackNavigator';
 import MoreScreen from '../screens/agent/MoreScreen';
 
 const Tab = createBottomTabNavigator();
