@@ -78,8 +78,8 @@ const AgentNavigator = () => {
       />
       <Tab.Screen 
         name="Clienti" 
-        component={ClientsScreen}
-        options={{ title: 'Clienti' }}
+        component={ClientsStackNavigator}
+        options={{ title: 'Clienti', headerShown: false }}
       />
       <Tab.Screen 
         name="Valutazioni" 
