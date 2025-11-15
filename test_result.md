@@ -272,3 +272,5 @@ agent_communication:
     message: "Implementate tutte le schermate per gestione appuntamenti mobile. Necessario testare prima le API backend e poi l'integrazione mobile. Le API dovrebbero già essere funzionanti, serve solo verifica."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETATO: 5/6 API funzionano perfettamente! Tutte le operazioni CRUD principali per appuntamenti sono operative. Solo GET /api/appointments/{id} mancante (opzionale). Le API sono pronte per l'integrazione mobile. Creato /app/backend_test.py per test automatici futuri."
+  - agent: "main"
+    message: "✅ Aggiunto endpoint GET /api/appointments/{id} nel backend. Ora richiedo testing automatico frontend per verificare l'integrazione completa delle schermate mobile appuntamenti."
