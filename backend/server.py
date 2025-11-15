@@ -565,6 +565,20 @@ async def get_appointments(status: Optional[str] = None):
     
     return appointments
 
+@api_router.get("/appointments/{appointment_id}", response_model=Appointment)
+async def get_appointment(appointment_id: str):
+    appointment = await db.appointments.find_one({"id": appointment_id}, {"_id": 0})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appuntamento non trovato")
+    
+    # Convert string dates to datetime objects if needed
+    if isinstance(appointment.get('appointment_date'), str):
+        appointment['appointment_date'] = datetime.fromisoformat(appointment['appointment_date'])
+    if isinstance(appointment.get('created_at'), str):
+        appointment['created_at'] = datetime.fromisoformat(appointment['created_at'])
+    
+    return appointment
+
 @api_router.put("/appointments/{appointment_id}")
 async def update_appointment_status(appointment_id: str, status: str):
     result = await db.appointments.update_one(
