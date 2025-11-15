@@ -92,7 +92,7 @@ const AppointmentsScreen = ({ navigation }) => {
               </Chip>
             </View>
 
-            {item.property_reference && (
+            {item.property_title && (
               <View style={styles.propertyInfo}>
                 <MaterialCommunityIcons
                   name="home"
@@ -100,7 +100,7 @@ const AppointmentsScreen = ({ navigation }) => {
                   color={COLORS.light.textSecondary}
                 />
                 <Text style={styles.propertyText}>
-                  Proprietà: {item.property_reference}
+                  Proprietà: {item.property_title}
                 </Text>
               </View>
             )}
