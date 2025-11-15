@@ -126,6 +126,9 @@ const AppointmentsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Appuntamenti</Text>
+      </View>
       <Searchbar
         placeholder="Cerca appuntamenti..."
         onChangeText={setSearchQuery}
