@@ -11,7 +11,7 @@ import { COLORS } from '../constants/colors';
 // Agent Screens
 import DashboardScreen from '../screens/agent/DashboardScreen';
 import AppointmentsStackNavigator from './AppointmentsStackNavigator';
-import ClientsScreen from '../screens/agent/ClientsScreen';
+import ClientsStackNavigator from './ClientsStackNavigator';
 import ValuationsScreen from '../screens/agent/ValuationsScreen';
 import MoreScreen from '../screens/agent/MoreScreen';
 
