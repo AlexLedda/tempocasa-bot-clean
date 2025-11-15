@@ -114,6 +114,9 @@ const ValuationsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Valutazioni</Text>
+      </View>
       <Searchbar
         placeholder="Cerca valutazioni..."
         onChangeText={setSearchQuery}
