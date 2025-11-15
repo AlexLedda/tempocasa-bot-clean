@@ -264,8 +264,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Frontend mobile testing - schermate appuntamenti"
-    - "Integrazione API backend con mobile app"
+    - "Schermata Lista Appuntamenti"
+    - "Schermata Dettaglio Appuntamento"
+    - "Schermata Form Appuntamento (Create/Edit)"
+    - "Componente PropertyPickerModal"
+    - "Stack Navigator Appuntamenti"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
