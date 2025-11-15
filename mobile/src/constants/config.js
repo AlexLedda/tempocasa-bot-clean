@@ -10,7 +10,7 @@ const ENV = {
     debug: true,
   },
   prod: {
-    apiUrl: 'https://real-estate-whatsapp-bot-8ujx.onrender.com',
+    apiUrl: 'https://proptech-suite-8.preview.emergentagent.com',
     debug: false,
   },
 };
