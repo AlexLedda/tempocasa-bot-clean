@@ -97,6 +97,9 @@ const ClientsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Clienti</Text>
+      </View>
       <Searchbar
         placeholder="Cerca clienti..."
         onChangeText={setSearchQuery}
