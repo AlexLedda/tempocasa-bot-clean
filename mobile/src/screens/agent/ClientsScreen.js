@@ -23,7 +23,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 import { apiClient } from '../../services/api';
 
-const ClientsScreen = () => {
+const ClientsScreen = ({ navigation }) => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
