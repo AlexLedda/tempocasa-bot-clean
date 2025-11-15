@@ -156,9 +156,7 @@ const AppointmentsScreen = ({ navigation }) => {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => {
-          // TODO: Navigate to create appointment
-        }}
+        onPress={() => navigation.navigate('AppointmentForm', {})}
         color="#ffffff"
       />
     </View>
