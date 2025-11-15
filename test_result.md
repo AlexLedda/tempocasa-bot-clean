@@ -261,8 +261,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "API Appuntamenti - tutte le operazioni CRUD"
-    - "API Properties - GET per selezione"
+    - "Frontend mobile testing - schermate appuntamenti"
+    - "Integrazione API backend con mobile app"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
