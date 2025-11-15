@@ -23,10 +23,6 @@
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#179306"
-      },
       "package": "com.tempocasa.tarquinia.pro",
       "versionCode": 1,
       "permissions": [
