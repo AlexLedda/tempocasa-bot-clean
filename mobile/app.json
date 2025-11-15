@@ -33,8 +33,7 @@
         "VIBRATE"
       ]
     },
-    "web": {
-    },
+    "web": {},
     "plugins": [
       [
         "expo-notifications",
@@ -47,7 +46,8 @@
         {
           "photosPermission": "Questa app ha bisogno di accedere alle tue foto per caricare immagini delle proprietà."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "apiBaseUrl": "https://proptech-suite-8.preview.emergentagent.com",
