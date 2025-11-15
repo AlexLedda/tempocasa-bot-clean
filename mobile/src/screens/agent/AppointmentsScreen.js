@@ -56,7 +56,7 @@ const AppointmentsScreen = ({ navigation }) => {
 
   const filteredAppointments = appointments.filter(apt =>
     apt.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    apt.property_reference?.toLowerCase().includes(searchQuery.toLowerCase())
+    apt.property_title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const AppointmentCard = ({ item }) => {
