@@ -79,7 +79,7 @@ const AppointmentsScreen = ({ navigation }) => {
                 <View style={styles.headerText}>
                   <Text style={styles.clientName}>{item.client_name}</Text>
                   <Text style={styles.date}>
-                    {item.date && format(new Date(item.date), 'PPP', { locale: it })}
+                    {item.appointment_date && format(new Date(item.appointment_date), 'PPP', { locale: it })}
                   </Text>
                 </View>
               </View>
