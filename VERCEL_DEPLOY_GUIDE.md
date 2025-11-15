@@ -88,7 +88,7 @@ git push
    
    | Name | Value |
    |------|-------|
-   | `REACT_APP_BACKEND_URL` | `https://agenzia-bot.preview.emergentagent.com` |
+   | `REACT_APP_BACKEND_URL` | `https://proptech-suite-8.preview.emergentagent.com` |
 
 5. **Deploy:**
    - Click **"Deploy"**
@@ -207,7 +207,7 @@ Dopo il deploy avrai:
 
 ```
 📱 Frontend React → https://tuo-bot.vercel.app
-🔧 Backend FastAPI → https://agenzia-bot.preview.emergentagent.com
+🔧 Backend FastAPI → https://proptech-suite-8.preview.emergentagent.com
 💬 Bot WhatsApp → https://whatsapp-real-estate-bot-production-ab46.up.railway.app
 🗄️ MongoDB → Emergent (interno)
 ```

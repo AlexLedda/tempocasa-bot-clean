@@ -1,73 +1,120 @@
 <analysis>
-The trajectory documents the iterative development and debugging of a real estate WhatsApp bot and an accompanying admin dashboard. The initial task was to configure Twilio for the bot. This led to a cascade of complex issues, starting with a  error, which was traced to a data format mismatch between Twilio's form data and the FastAPI backend's expected JSON. Subsequent fixes revealed deeper infrastructure problems, including a critical MongoDB connection failure due to using an internal Railway URL on an external Render service. This was resolved by migrating the database to MongoDB Atlas.
+My analysis of the trajectory indicates a comprehensive, multi-stage development process, evolving from a web-based real estate dashboard and WhatsApp bot to the creation of a new native mobile application. The initial phase focused on building and stabilizing the web platform, which involved deploying a FastAPI backend and a React frontend to Render, migrating the database to MongoDB Atlas, and fixing critical bugs related to asset persistence (Cloudinary uploads) and environment configuration.
 
-Further debugging involved fixing authentication errors (), resolving code deployment and synchronization failures with GitHub, and configuring Render's build process for private Python packages. The bot's conversational logic was progressively refined, moving from a simple reply-once model to a state-aware system that handles ongoing conversations and recognizes specific real estate queries.
+A significant portion of the work involved implementing major new features on the web platform. This included a complete refactoring of the settings management system to use MongoDB instead of ephemeral  files, advanced optimization of Cloudinary image handling, and the implementation of a robust, JWT-based authentication system from scratch for the admin dashboard. The authentication logic was further refined to switch from email-based to username-based login per the user's request.
 
-The user then requested significant frontend enhancements to the property management page, which were implemented. The final phase involved migrating the WhatsApp provider from Twilio to WATI for better production features and fixing a bug where the logo upload feature was not using Cloudinary, instead saving to Render's ephemeral file system. The last action taken was to correct this bug and instruct the user on deploying the fix.
+The most recent phase pivoted to creating a new React Native (Expo) mobile app, Tempocasa Tarquinia Pro, for real estate agents. This involved scaffolding the entire project structure, including navigation, authentication context, API services, and placeholder screens. A substantial amount of time was dedicated to assisting the user with setting up their local development environment on macOS, troubleshooting a cascade of issues including GitHub authentication (PAT), npm <command>
+
+Usage:
+
+npm install        install all the dependencies in your project
+npm install <foo>  add the <foo> dependency to your project
+npm test           run this project's tests
+npm run <foo>      run the script named <foo>
+npm <command> -h   quick help on <command>
+npm -l             display usage info for all commands
+npm help <term>    search for help on <term>
+npm help npm       more involved overview
+
+All commands:
+
+    access, adduser, audit, bugs, cache, ci, completion,
+    config, dedupe, deprecate, diff, dist-tag, docs, doctor,
+    edit, exec, explain, explore, find-dupes, fund, get, help,
+    help-search, hook, init, install, install-ci-test,
+    install-test, link, ll, login, logout, ls, org, outdated,
+    owner, pack, ping, pkg, prefix, profile, prune, publish,
+    query, rebuild, repo, restart, root, run-script, sbom,
+    search, set, shrinkwrap, star, stars, start, stop, team,
+    test, token, uninstall, unpublish, unstar, update, version,
+    view, whoami
+
+Specify configs in the ini-formatted file:
+    /root/.npmrc
+or on the command line via: npm <command> --key=value
+
+More configuration info: npm help config
+Configuration fields: npm help 7 config
+
+npm@10.8.2 /usr/lib/node_modules/npm dependency conflicts (), file system permissions (), and system limits (), which was resolved by installing .
+
+The user's primary language is Italian, and all communication should continue in Italian.
 </analysis>
 
 <product_requirements>
-The project's goal is to build a sophisticated AI-powered real estate solution, comprising a management dashboard and an intelligent WhatsApp bot. The dashboard must support full CRUD (Create, Read, Update, Delete) operations for properties, clients, appointments, and valuations. A key feature is dynamic branding, allowing the agency to customize the application's logo and color scheme.
+The primary goal is to develop a comprehensive real estate management suite. This consists of three main components:
 
-The WhatsApp bot, Elettra, is the core interactive component. It must engage with potential clients, understand their needs (e.g., property type, budget, location), suggest relevant properties from the database, check for appointment availability, and save new client information.
+1.  **Web-Based Admin Dashboard:** A secure, multi-user platform for real estate agents to perform full CRUD operations on properties, clients, appointments, and property valuations. It must allow for agency-specific branding, including a customizable logo and color scheme.
 
-The architecture has evolved to ensure scalability and reliability. It uses Render for backend hosting, Vercel for the frontend, MongoDB Atlas for the database, and Cloudinary for image/asset storage. The WhatsApp integration has been migrated from the initial, unstable Baileys to Twilio, and is currently being transitioned to WATI for more robust production capabilities, eliminating the need for sandbox join commands by end-users. The system must be stable, responsive, and provide a seamless experience for both the real estate agents using the dashboard and the clients interacting with the bot.
+2.  **AI WhatsApp Bot (Elettra):** An intelligent, conversational bot that engages with prospective clients via WhatsApp. It is responsible for understanding client needs, suggesting properties from the database, checking agent availability, and capturing new lead information. The integration is being migrated to WATI for production stability.
+
+3.  **Native Mobile App (Tempocasa Tarquinia Pro):** A new iOS and Android application built with React Native and Expo. The primary user is the real estate agent, who needs to manage appointments, clients, and valuations on the go. A secondary client-facing version is a future possibility.
+
+The entire system is built on a modern tech stack (FastAPI, React, MongoDB Atlas, Cloudinary) and is designed with an API-first approach to support both web and mobile clients from a single backend.
 </product_requirements>
 
 <key_technical_concepts>
 - **Backend:** FastAPI (Python), Pydantic
-- **Frontend:** React.js, Tailwind CSS
-- **Database:** MongoDB (hosted on MongoDB Atlas)
-- **WhatsApp Integration:** Twilio API, transitioning to WATI API
-- **AI/LLM:** Anthropic Claude (via  library)
-- **Asset Storage:** Cloudinary for image and logo uploads
-- **Deployment & Hosting:** Render (Backend), Vercel (Frontend), GitHub Actions (CI/CD for frontend)
-- **Core Concepts:** REST APIs, Webhooks, Environment Variable Management, Asynchronous programming.
+- **Frontend (Web):** React.js, Tailwind CSS
+- **Frontend (Mobile):** React Native, Expo, React Navigation
+- **Database:** MongoDB (via MongoDB Atlas)
+- **Authentication:** JWT,  with 
+- **Asset Storage:** Cloudinary API
+- **Deployment:** Render (Backend & Frontend), GitHub
+- **WhatsApp API:** WATI
+- **Local Dev Tools:** Node.js, npm, Homebrew, Watchman
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a monorepo structure with distinct frontend and backend services, connected via REST APIs, and a CI/CD pipeline for the frontend.
+The project is a monorepo containing three distinct applications: , , and the new  app.
 
 
 
 -   ****
-    -   **Importance:** This is the main FastAPI application file. It defines all API endpoints, data models (using Pydantic), database connections, and the core application logic. It contains the crucial  endpoint, which was recently updated to be provider-agnostic, handling requests from both Twilio and WATI by inspecting the incoming data format.
-    -   **Summary of Changes:** It has undergone extensive modifications. A major recent fix was applied to the  endpoint, which was incorrectly writing to the local filesystem. It was updated to upload logos to Cloudinary, ensuring persistence across deployments, mirroring the functionality of the property image upload. Other changes include adding a  function and logic to handle active conversations in the webhook.
+    -   **Importance:** This is the core FastAPI application. It defines all API endpoints, including the recently added authentication routes (, ) and protected data routes.
+    -   **Changes:** It was heavily modified to integrate the  logic, move settings storage from  to MongoDB, and implement advanced Cloudinary image transformations. It now serves as the single source of truth for both web and mobile clients.
 
 -   ****
-    -   **Importance:** This file modularizes all logic related to the AI, including generating prompts, parsing responses, and helper functions to determine user intent.
-    -   **Summary of Changes:** It was recently updated to include , a function that uses regex to intelligently detect if a user's message is a specific query about a property (by code, price, or zone) or a generic part of a conversation. This prevents the bot from stopping mid-conversation. It was also patched to prevent a  call on a  value.
+    -   **Importance:** A new file that encapsulates all authentication logic. It contains functions for password hashing/verification, JWT token creation and decoding, and Pydantic models for users.
+    -   **Changes:** Created from scratch to secure the application. It was later modified to support username-based login instead of email.
 
 -   ****
-    -   **Importance:** This is the React component for the property management page, containing the form to create and edit properties and the list of existing properties.
-    -   **Summary of Changes:** The page was significantly enhanced based on user requests. New input fields for , , and  were added. The  (zona) field was converted from a static dropdown to a dynamic, free-text input with an auto-suggest datalist populated from existing properties, offering greater flexibility. A currency formatting function was also added to display prices correctly (e.g., €150,000 instead of 150).
+    -   **Importance:** The main component for the React web application. It sets up the application's routing.
+    -   **Changes:** Significantly refactored to wrap the application in an  and use a  component, ensuring that users must log in to access the dashboard.
 
--   ****
-    -   **Importance:** This new GitHub Actions workflow file automates frontend deployments.
-    -   **Summary of Changes:** It was created to solve an issue where Vercel was not automatically deploying on new git pushes. The workflow is triggered on any push to the  branch that affects the  directory. It calls a Vercel Deploy Hook URL (stored as a GitHub secret) to initiate a new build and deployment, ensuring the frontend is always up-to-date.
+-   ** & **
+    -   **Importance:** These new files implement the user-facing login page and the global state management for authentication.
+    -   **Changes:** Created to handle the entire login flow, storing the JWT token, and making user data available throughout the web app.
 
--   ****
-    -   **Importance:** This shell script defines the build process for the backend on Render.
-    -   **Summary of Changes:** It was confirmed to exist and its usage was enforced in Render's Build Command settings (). This was necessary to correctly install the private  package from a custom index URL, resolving a  error during deployment.
+-   ** (New Directory)**
+    -   **Importance:** This directory contains the entire source code for the new Tempocasa Tarquinia Pro React Native application, built with Expo.
+    -   **Changes:** The whole directory and its internal structure (, , , , etc.) were newly created to bootstrap the mobile app. It includes placeholder screens and foundational logic for authentication and API communication, ready for feature development.
 </code_architecture>
 
 <pending_tasks>
--   Finalize the WATI migration by adding the  and  as environment variables on Render.
--   Complete the Facebook Business Manager approval process to fully enable the production WhatsApp number.
--   Test the recently fixed logo upload functionality on the live frontend.
--   Perform a full, end-to-end test of the WhatsApp bot using the new WATI production number to ensure the conversation logic and API integrations are working correctly.
+-   Complete the paused WATI WhatsApp number change process.
+-   Develop the main feature screens for the React Native app (Appointments, Clients, Valuations), which are currently placeholders.
+-   Implement push notifications for the mobile app.
+-   Guide the user through creating Apple Developer and Google Play Console accounts for future app store deployment.
+-   Perform a full end-to-end test of the entire system (Web, Backend, Bot, Mobile).
 </pending_tasks>
 
 <current_work>
-The most recent task was debugging and fixing the logo upload feature. The user reported that after configuring Cloudinary and redeploying, uploading a logo still resulted in an error and the logo was not displayed.
+The most recent task involved troubleshooting the user's local development environment to run the newly created React Native mobile app. The process was a deep dive into macOS-specific command-line issues. The AI successfully guided the user through a sequence of problems:
 
-Through analysis, the AI engineer discovered the root cause: the  endpoint in  was never updated to use Cloudinary. It was still attempting to save the uploaded file to Render's local, ephemeral filesystem (), which is erased on every deploy, causing the upload to fail or be lost.
+1.  **GitHub Authentication:** The user's  command failed because GitHub no longer supports password authentication. This was resolved by guiding the user to create a Personal Access Token (PAT) and use it instead of their password.
 
-To resolve this, the AI engineer modified the  function. The corrected logic now takes the , reads its content, and uses  to send it to Cloudinary. It then returns the secure URL from Cloudinary, which is consistent with how property images are handled.
+2.  **NPM Dependencies:** The  command failed with  errors. This was fixed by using the  flag.
 
-The code was patched locally, and the user was instructed to deploy this critical fix to Render by using the Save to GitHub button, which would trigger the CI/CD pipeline. The user has been told to test the upload functionality again after the deployment is complete. The work is currently paused, awaiting the user's confirmation of the deployment and the test result.
+3.  **NPM Cache Permissions:** The installation then failed with an  error, indicating a permissions issue with the npm cache folder. This was solved by running  to fix the ownership.
+
+4.  **System File Limit:** After a successful installation,  failed with an  error. The AI identified this as a macOS system limit and recommended installing , a file watcher from Facebook, which is the standard solution in the React Native ecosystem.
+
+5.  **Homebrew Path Issue:** The  command failed because  was not in the system's PATH. The AI provided the correct commands to add Homebrew's path to the user's  file.
+
+The last action taken was the successful installation of . The immediate next step is to verify that this fixes the  error.
 </current_work>
 
 <optional_next_step>
-After you confirm the deployment is complete, please test the logo upload functionality again from the Impostazioni Bot page. I will await your feedback to confirm the fix is working as expected.
+Run  in the  directory to confirm that  has resolved the  error and that the Metro bundler now starts correctly.
 </optional_next_step>

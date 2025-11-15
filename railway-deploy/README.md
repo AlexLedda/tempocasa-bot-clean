@@ -71,7 +71,7 @@ Assicurati di avere tutti questi file:
 
 **FASTAPI_URL**:
 ```
-https://agenzia-bot.preview.emergentagent.com
+https://proptech-suite-8.preview.emergentagent.com
 ```
 
 **PORT**:

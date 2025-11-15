@@ -20,7 +20,7 @@ https://www.twilio.com/try-twilio
 ### 3. Configura Webhook
 Nel pannello Twilio, imposta webhook:
 ```
-https://agenzia-bot.preview.emergentagent.com/api/twilio/webhook
+https://proptech-suite-8.preview.emergentagent.com/api/twilio/webhook
 ```
 
 ### 4. Aggiorna Backend
