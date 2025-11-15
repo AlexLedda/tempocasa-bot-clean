@@ -159,6 +159,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.light.surface,
   },
+  header: {
+    backgroundColor: COLORS.primary,
+    padding: 16,
+    paddingTop: 48,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
