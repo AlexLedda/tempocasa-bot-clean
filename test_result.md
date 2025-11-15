@@ -101,3 +101,145 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Sviluppo schermate principali per l'app mobile React Native 'Tempocasa Tarquinia Pro'. Focus su gestione Appuntamenti con funzionalità CRUD complete, inclusa selezione proprietà dal database."
+
+backend:
+  - task: "API Appuntamenti - GET /api/appointments"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "API già esistente nel backend, necessita verifica funzionamento"
+
+  - task: "API Appuntamenti - POST /api/appointments"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "API già esistente nel backend, necessita verifica per creazione appuntamenti"
+
+  - task: "API Appuntamenti - PUT /api/appointments/{id}"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "API già esistente nel backend, necessita verifica per aggiornamento"
+
+  - task: "API Appuntamenti - DELETE /api/appointments/{id}"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "API già esistente nel backend, necessita verifica per eliminazione"
+
+  - task: "API Properties - GET /api/properties"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "API necessaria per selezione proprietà nel form appuntamenti"
+
+frontend:
+  - task: "Schermata Lista Appuntamenti"
+    implemented: true
+    working: false
+    file: "/app/mobile/src/screens/agent/AppointmentsScreen.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Aggiornata per navigazione verso dettaglio e form. Necessita test su dispositivo mobile"
+
+  - task: "Schermata Dettaglio Appuntamento"
+    implemented: true
+    working: false
+    file: "/app/mobile/src/screens/agent/AppointmentDetailScreen.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Nuova schermata creata con visualizzazione dettagli, cambio stato, modifica ed eliminazione"
+
+  - task: "Schermata Form Appuntamento (Create/Edit)"
+    implemented: true
+    working: false
+    file: "/app/mobile/src/screens/agent/AppointmentFormScreen.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Nuova schermata con form completo, validazione, date picker e selezione proprietà"
+
+  - task: "Componente PropertyPickerModal"
+    implemented: true
+    working: false
+    file: "/app/mobile/src/components/PropertyPickerModal.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Nuovo componente modale per selezionare proprietà dal database con ricerca"
+
+  - task: "Stack Navigator Appuntamenti"
+    implemented: true
+    working: false
+    file: "/app/mobile/src/navigation/AppointmentsStackNavigator.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Nuovo stack navigator per gestire navigazione tra lista, dettaglio e form"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "API Appuntamenti - tutte le operazioni CRUD"
+    - "API Properties - GET per selezione"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Implementate tutte le schermate per gestione appuntamenti mobile. Necessario testare prima le API backend e poi l'integrazione mobile. Le API dovrebbero già essere funzionanti, serve solo verifica."
