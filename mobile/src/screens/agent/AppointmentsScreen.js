@@ -63,7 +63,10 @@ const AppointmentsScreen = ({ navigation }) => {
     const statusColor = getColorByStatus(item.status);
     
     return (
-      <TouchableOpacity activeOpacity={0.7}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('AppointmentDetail', { appointmentId: item.id })}
+      >
         <Card style={styles.card}>
           <Card.Content>
             <View style={styles.cardHeader}>
