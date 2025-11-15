@@ -74,7 +74,7 @@ const ValuationsScreen = ({ navigation }) => {
                 />
                 <View style={styles.headerText}>
                   <Text style={styles.clientName}>{item.client_name}</Text>
-                  <Text style={styles.address}>{item.address}</Text>
+                  <Text style={styles.address}>{item.property_location}</Text>
                 </View>
               </View>
               <Chip
