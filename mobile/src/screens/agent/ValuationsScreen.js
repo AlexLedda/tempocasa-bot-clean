@@ -52,7 +52,7 @@ const ValuationsScreen = ({ navigation }) => {
 
   const filteredValuations = valuations.filter(val =>
     val.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    val.address?.toLowerCase().includes(searchQuery.toLowerCase())
+    val.property_location?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const ValuationCard = ({ item }) => {
