@@ -1779,7 +1779,7 @@ async def get_bot_insights(current_user = Depends(get_current_user)):
     """
     Insights dal sistema di apprendimento del bot
     """
-    if current_user.get("role") != "admin":
+    if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Access forbidden")
     
     try:
