@@ -46,6 +46,42 @@ db = client[os.environ['DB_NAME']]
 # Create the main app without a prefix
 app = FastAPI()
 
+# Rate Limiting Middleware (semplice implementazione)
+from collections import defaultdict
+from time import time
+
+# Dictionary per tracciare richieste per IP
+request_counts = defaultdict(list)
+RATE_LIMIT = 100  # max richieste
+RATE_WINDOW = 60  # in secondi
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """
+    Rate limiting: max 100 richieste al minuto per IP
+    """
+    client_ip = request.client.host
+    current_time = time()
+    
+    # Pulisci vecchie richieste
+    request_counts[client_ip] = [
+        req_time for req_time in request_counts[client_ip]
+        if current_time - req_time < RATE_WINDOW
+    ]
+    
+    # Controlla limite
+    if len(request_counts[client_ip]) >= RATE_LIMIT:
+        return Response(
+            content="Rate limit exceeded. Try again later.",
+            status_code=429
+        )
+    
+    # Aggiungi richiesta corrente
+    request_counts[client_ip].append(current_time)
+    
+    response = await call_next(request)
+    return response
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
