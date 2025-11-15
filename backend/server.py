@@ -1741,7 +1741,7 @@ async def get_system_stats(current_user = Depends(get_current_user)):
     """
     Statistiche del sistema (solo admin)
     """
-    if current_user.get("role") != "admin":
+    if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Access forbidden")
     
     try:
