@@ -56,7 +56,10 @@ const ClientsScreen = ({ navigation }) => {
   );
 
   const ClientCard = ({ item }) => (
-    <TouchableOpacity activeOpacity={0.7}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => navigation.navigate('ClientDetail', { clientPhone: item.phone })}
+    >
       <Card style={styles.card}>
         <Card.Content>
           <View style={styles.cardContent}>
