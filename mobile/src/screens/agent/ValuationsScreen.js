@@ -144,7 +144,7 @@ const ValuationsScreen = ({ navigation }) => {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => {}}
+        onPress={() => navigation.navigate('ValuationForm', {})}
         color="#ffffff"
       />
     </View>
