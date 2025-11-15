@@ -127,7 +127,7 @@ const ClientsScreen = ({ navigation }) => {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => {}}
+        onPress={() => navigation.navigate('ClientForm', {})}
         color="#ffffff"
       />
     </View>
