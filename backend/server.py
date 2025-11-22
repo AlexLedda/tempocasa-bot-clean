@@ -808,6 +808,7 @@ async def process_whatsapp_message(phone_number: str, message_text: str, message
     Processa un messaggio WhatsApp in arrivo e genera risposta AI
     """
     from whatsapp_cloud_api import get_whatsapp_client
+    from bot_messages import get_welcome_message
     
     # Check if client has previous messages
     existing_messages = await db.messages.count_documents({"client_phone": phone_number})
@@ -822,42 +823,41 @@ async def process_whatsapp_message(phone_number: str, message_text: str, message
             {
                 "client_phone": phone_number,
                 "direction": "outgoing",
-                "timestamp": {"$gte": ten_minutes_ago}
+                "timestamp": {"$gte": ten_minutes_ago.isoformat()}
             },
             sort=[("timestamp", -1)]
         )
         
         # If bot sent a message in last 10 minutes, it's an active conversation - always respond
         if last_bot_message:
-            logging.info(f"Cliente esistente - conversazione attiva (ultimo msg bot: {last_bot_message.get('timestamp')})")
+            logging.info(f"Cliente esistente - conversazione attiva")
         else:
             # Not in active conversation - check if message is a property query
             properties_cursor = db.properties.find({"status": "disponibile"}, {"_id": 0})
             properties = await properties_cursor.to_list(length=100)
             
-            from ai_helpers import is_property_query
+            # Simple property query check
+            property_keywords = ["casa", "appartamento", "villa", "immobile", "vendita", "affitto", "prezzo", "budget", "cerco"]
+            is_property_query = any(keyword in message_text.lower() for keyword in property_keywords)
             
             # If message is NOT a property query, just save and don't respond
-            if not is_property_query(message, properties):
+            if not is_property_query:
                 msg = MessageCreate(
                     client_phone=phone_number,
-                    message=message,
+                    message=message_text,
                     direction="incoming"
                 )
                 await create_message(msg)
-                logging.info(f"Cliente esistente - messaggio non è query immobiliare: {message}")
-                return Response(
-                    content='<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
-                    media_type="application/xml"
-                )
+                logging.info(f"Cliente esistente - messaggio non è query immobiliare: {message_text}")
+                return
             
             # Message is a property query - proceed with AI response
-            logging.info(f"Cliente esistente - query immobiliare rilevata: {message}")
+            logging.info(f"Cliente esistente - query immobiliare rilevata: {message_text}")
     
     # New contact or property query - proceed with normal flow
     msg = MessageCreate(
         client_phone=phone_number,
-        message=message,
+        message=message_text,
         direction="incoming"
     )
     await create_message(msg)
@@ -876,7 +876,7 @@ async def process_whatsapp_message(phone_number: str, message_text: str, message
     
     # Get AI response with client context
     try:
-        ai_response = await get_ai_response(message, phone_number, client)
+        ai_response = await get_ai_response(message_text, phone_number, client)
         
         # Check if AI wants to update client profile
         if ai_response.get("update_client"):
@@ -886,7 +886,7 @@ async def process_whatsapp_message(phone_number: str, message_text: str, message
                 {"$set": update_data}
             )
         
-        # Save AI response
+        # Save AI response to database
         response_msg = MessageCreate(
             client_phone=phone_number,
             message=ai_response["response"],
@@ -895,31 +895,25 @@ async def process_whatsapp_message(phone_number: str, message_text: str, message
         )
         await create_message(response_msg)
         
-        # Check request origin and return appropriate response
-        user_agent = request.headers.get("user-agent", "").lower()
-        content_type = request.headers.get("content-type", "").lower()
-        
-        # WATI sends JSON - send response via WATI API
-        if "application/json" in content_type or "wati" in user_agent:
-            # For WATI, we need to send message via their API
-            # Store response to send via WATI API separately
-            logging.info(f"WATI webhook detected - response: {ai_response['response'][:100]}...")
+        # Send response via WhatsApp Cloud API
+        try:
+            whatsapp_client = get_whatsapp_client()
+            result = whatsapp_client.send_message(
+                to=phone_number,
+                message=ai_response["response"],
+                preview_url=True
+            )
+            logging.info(f"Message sent to {phone_number}: {result}")
             
-            # Send message via WATI API (will implement next)
-            await send_wati_message(phone_number, ai_response["response"])
-            
-            return {"success": True}
-        else:
-            # Twilio format (TwiML)
-            twiml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{ai_response["response"]}</Message></Response>'
-            return Response(content=twiml, media_type="application/xml")
+            # Mark original message as read
+            if message_id:
+                whatsapp_client.mark_message_as_read(message_id)
+                
+        except Exception as send_error:
+            logging.error(f"Error sending WhatsApp message: {send_error}", exc_info=True)
         
     except Exception as e:
-        logging.error(f"Error processing message: {e}")
-        content_type = request.headers.get("content-type", "").lower()
-        
-        if "application/json" in content_type:
-            return {"success": False, "error": str(e)}
+        logging.error(f"Error processing message: {e}", exc_info=True)
 
 
 # Send message via WATI API
