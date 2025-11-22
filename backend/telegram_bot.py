@@ -48,9 +48,11 @@ class TelegramBot:
         
         payload = {
             "chat_id": chat_id,
-            "text": text,
-            "parse_mode": parse_mode
+            "text": text
         }
+        
+        if parse_mode:
+            payload["parse_mode"] = parse_mode
         
         if reply_markup:
             payload["reply_markup"] = reply_markup
