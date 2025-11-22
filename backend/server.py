@@ -916,45 +916,25 @@ async def process_whatsapp_message(phone_number: str, message_text: str, message
         logging.error(f"Error processing message: {e}", exc_info=True)
 
 
-# Send message via WATI API
-async def send_wati_message(phone_number: str, message: str):
-    """Send WhatsApp message via WATI API"""
-    import aiohttp
-    
-    wati_api_url = os.environ.get("WATI_API_URL", "")
-    wati_api_token = os.environ.get("WATI_API_TOKEN", "")
-    
-    if not wati_api_url or not wati_api_token:
-        logging.error("WATI API credentials not configured")
-        return False
-    
-    headers = {
-        "Authorization": f"Bearer {wati_api_token}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "whatsappNumber": phone_number,
-        "text": message
-    }
+# Test endpoint per inviare messaggi WhatsApp
+@api_router.post("/whatsapp/send-test")
+async def send_test_whatsapp_message(phone: str, message: str):
+    """
+    Endpoint per testare l'invio di messaggi WhatsApp
+    """
+    from whatsapp_cloud_api import get_whatsapp_client
     
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{wati_api_url}/api/v1/sendSessionMessage/{phone_number}",
-                headers=headers,
-                json=payload
-            ) as response:
-                if response.status == 200:
-                    logging.info(f"WATI message sent successfully to {phone_number}")
-                    return True
-                else:
-                    error_text = await response.text()
-                    logging.error(f"WATI API error: {response.status} - {error_text}")
-                    return False
+        whatsapp_client = get_whatsapp_client()
+        result = whatsapp_client.send_message(
+            to=phone,
+            message=message,
+            preview_url=True
+        )
+        return {"success": True, "result": result}
     except Exception as e:
-        logging.error(f"Error sending WATI message: {e}")
-        return False
+        logging.error(f"Error sending test message: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # AI Chat endpoint
 async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
