@@ -801,6 +801,13 @@ async def whatsapp_webhook(request: Request):
     except Exception as e:
         logging.error(f"Error processing webhook: {e}", exc_info=True)
         return {"status": "error", "message": str(e)}
+
+
+async def process_whatsapp_message(phone_number: str, message_text: str, message_id: str = None):
+    """
+    Processa un messaggio WhatsApp in arrivo e genera risposta AI
+    """
+    from whatsapp_cloud_api import get_whatsapp_client
     
     # Check if client has previous messages
     existing_messages = await db.messages.count_documents({"client_phone": phone_number})
