@@ -57,12 +57,15 @@ class TelegramBot:
         
         try:
             response = requests.post(url, json=payload)
+            logger.info(f"Telegram API Response: Status {response.status_code}, Body: {response.text[:500]}")
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
             logger.error(f"Error sending Telegram message: {e}")
             if hasattr(e, 'response') and e.response:
-                logger.error(f"Response: {e.response.text}")
+                logger.error(f"Response status: {e.response.status_code}")
+                logger.error(f"Response body: {e.response.text}")
+                logger.error(f"Payload sent: {payload}")
             raise
     
     def send_photo(
