@@ -75,6 +75,9 @@ class WhatsAppCloudAPI:
             return response.json()
         except requests.exceptions.RequestException as e:
             logger.error(f"Error sending WhatsApp message: {e}")
+            logger.error(f"Response body: {response.text if response else 'No response'}")
+            logger.error(f"Request URL: {url}")
+            logger.error(f"Request payload: {payload}")
             raise
     
     def send_template_message(
