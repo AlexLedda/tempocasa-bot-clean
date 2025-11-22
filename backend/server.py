@@ -1071,9 +1071,12 @@ async def process_telegram_message(chat_id: str, user_id: str, message_text: str
         # Send response via Telegram
         try:
             telegram_bot = get_telegram_bot()
+            # Rimuovi caratteri che potrebbero causare problemi con Markdown
+            safe_response = ai_response["response"].replace("*", "").replace("_", "")
             result = telegram_bot.send_message(
                 chat_id=chat_id,
-                text=ai_response["response"]
+                text=safe_response,
+                parse_mode=None  # Disabilita Markdown per evitare errori
             )
             logging.info(f"Telegram message sent to {chat_id}: {result}")
                 
