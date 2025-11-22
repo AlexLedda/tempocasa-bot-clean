@@ -712,9 +712,33 @@ async def delete_valuation(valuation_id: str):
         raise HTTPException(status_code=404, detail="Valutazione non trovata")
     return {"message": "Valutazione eliminata"}
 
-# WhatsApp webhook endpoint - Accept any content type
+# ==================== WHATSAPP CLOUD API WEBHOOK ====================
+
+@api_router.get("/whatsapp/webhook")
+async def verify_webhook(request: Request):
+    """
+    Webhook verification per Meta WhatsApp Cloud API
+    Meta invia una richiesta GET per verificare il webhook
+    """
+    # Get query parameters
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+    
+    verify_token = os.environ.get("WHATSAPP_VERIFY_TOKEN", "tempocasa_webhook_verify_2024")
+    
+    logging.info(f"Webhook verification request - mode: {mode}, token: {token}")
+    
+    # Check if mode and token are correct
+    if mode == "subscribe" and token == verify_token:
+        logging.info("Webhook verified successfully!")
+        return Response(content=challenge, media_type="text/plain")
+    else:
+        logging.error(f"Webhook verification failed - token mismatch")
+        raise HTTPException(status_code=403, detail="Verification failed")
+
+
 @api_router.post("/whatsapp/webhook")
-@api_router.get("/whatsapp/webhook")  # Also accept GET for testing
 async def whatsapp_webhook(request: Request):
     try:
         # Log everything about the request
