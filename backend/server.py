@@ -936,6 +936,193 @@ async def send_test_whatsapp_message(phone: str, message: str):
         logging.error(f"Error sending test message: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ==================== TELEGRAM BOT WEBHOOK ====================
+
+@api_router.post("/telegram/webhook")
+async def telegram_webhook(request: Request):
+    """
+    Riceve messaggi da Telegram Bot API
+    """
+    try:
+        body = await request.json()
+        logging.info(f"=== TELEGRAM WEBHOOK ===")
+        logging.info(f"Payload: {body}")
+        
+        # Verifica se c'è un messaggio
+        if "message" in body:
+            message = body["message"]
+            chat_id = str(message["chat"]["id"])
+            user_id = str(message["from"]["id"])
+            username = message["from"].get("username", "")
+            first_name = message["from"].get("first_name", "User")
+            
+            # Supporta solo messaggi di testo per ora
+            if "text" in message:
+                text = message["text"]
+                
+                logging.info(f"Message from {first_name} (@{username}): {text}")
+                
+                # Processa il messaggio
+                await process_telegram_message(chat_id, user_id, text, first_name)
+        
+        return {"ok": True}
+        
+    except Exception as e:
+        logging.error(f"Error processing Telegram webhook: {e}", exc_info=True)
+        return {"ok": False, "error": str(e)}
+
+
+async def process_telegram_message(chat_id: str, user_id: str, message_text: str, user_name: str):
+    """
+    Processa un messaggio Telegram in arrivo e genera risposta AI
+    """
+    from telegram_bot import get_telegram_bot
+    from bot_messages import get_welcome_message
+    
+    # Usa user_id come identificatore cliente (invece del telefono)
+    client_identifier = f"telegram_{user_id}"
+    
+    # Check if client has previous messages
+    existing_messages = await db.messages.count_documents({"client_phone": client_identifier})
+    
+    # If client exists, check if we're in an active conversation
+    if existing_messages > 0:
+        # Check last bot message timestamp (within last 10 minutes = active conversation)
+        from datetime import datetime, timedelta, timezone
+        ten_minutes_ago = datetime.now(timezone.utc) - timedelta(minutes=10)
+        
+        last_bot_message = await db.messages.find_one(
+            {
+                "client_phone": client_identifier,
+                "direction": "outgoing",
+                "timestamp": {"$gte": ten_minutes_ago.isoformat()}
+            },
+            sort=[("timestamp", -1)]
+        )
+        
+        # If bot sent a message in last 10 minutes, it's an active conversation - always respond
+        if last_bot_message:
+            logging.info(f"Cliente esistente - conversazione attiva")
+        else:
+            # Not in active conversation - check if message is a property query
+            properties_cursor = db.properties.find({"status": "disponibile"}, {"_id": 0})
+            properties = await properties_cursor.to_list(length=100)
+            
+            # Simple property query check
+            property_keywords = ["casa", "appartamento", "villa", "immobile", "vendita", "affitto", "prezzo", "budget", "cerco"]
+            is_property_query = any(keyword in message_text.lower() for keyword in property_keywords)
+            
+            # If message is NOT a property query, just save and don't respond
+            if not is_property_query:
+                msg = MessageCreate(
+                    client_phone=client_identifier,
+                    message=message_text,
+                    direction="incoming"
+                )
+                await create_message(msg)
+                logging.info(f"Cliente esistente - messaggio non è query immobiliare: {message_text}")
+                return
+            
+            # Message is a property query - proceed with AI response
+            logging.info(f"Cliente esistente - query immobiliare rilevata: {message_text}")
+    
+    # New contact or property query - proceed with normal flow
+    msg = MessageCreate(
+        client_phone=client_identifier,
+        message=message_text,
+        direction="incoming"
+    )
+    await create_message(msg)
+    
+    # Get or create client
+    client = await db.clients.find_one({"phone": client_identifier})
+    if not client:
+        new_client = ClientCreate(
+            name=user_name,
+            surname="",
+            phone=client_identifier,
+            profile_completed=False
+        )
+        await create_client(new_client)
+        client = await db.clients.find_one({"phone": client_identifier})
+    
+    # Get AI response with client context
+    try:
+        ai_response = await get_ai_response(message_text, client_identifier, client)
+        
+        # Check if AI wants to update client profile
+        if ai_response.get("update_client"):
+            update_data = ai_response["update_client"]
+            await db.clients.update_one(
+                {"phone": client_identifier},
+                {"$set": update_data}
+            )
+        
+        # Save AI response to database
+        response_msg = MessageCreate(
+            client_phone=client_identifier,
+            message=ai_response["response"],
+            direction="outgoing",
+            client_name=client.get('name') if client else None
+        )
+        await create_message(response_msg)
+        
+        # Send response via Telegram
+        try:
+            telegram_bot = get_telegram_bot()
+            result = telegram_bot.send_message(
+                chat_id=chat_id,
+                text=ai_response["response"]
+            )
+            logging.info(f"Telegram message sent to {chat_id}: {result}")
+                
+        except Exception as send_error:
+            logging.error(f"Error sending Telegram message: {send_error}", exc_info=True)
+        
+    except Exception as e:
+        logging.error(f"Error processing Telegram message: {e}", exc_info=True)
+
+
+@api_router.get("/telegram/set-webhook")
+async def set_telegram_webhook():
+    """
+    Configura il webhook Telegram
+    """
+    from telegram_bot import get_telegram_bot
+    
+    try:
+        telegram_bot = get_telegram_bot()
+        webhook_url = f"{os.environ.get('REACT_APP_BACKEND_URL', 'https://whatsapp-realty-1.preview.emergentagent.com')}/api/telegram/webhook"
+        
+        result = telegram_bot.set_webhook(webhook_url)
+        
+        return {
+            "success": True,
+            "webhook_url": webhook_url,
+            "result": result
+        }
+    except Exception as e:
+        logging.error(f"Error setting Telegram webhook: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/telegram/webhook-info")
+async def get_telegram_webhook_info():
+    """
+    Ottieni info sul webhook Telegram
+    """
+    from telegram_bot import get_telegram_bot
+    
+    try:
+        telegram_bot = get_telegram_bot()
+        result = telegram_bot.get_webhook_info()
+        return result
+    except Exception as e:
+        logging.error(f"Error getting webhook info: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # AI Chat endpoint
 async def get_ai_response(message: str, client_phone: str, client: dict) -> dict:
     from ai_helpers import (
