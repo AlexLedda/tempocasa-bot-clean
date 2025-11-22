@@ -71,7 +71,7 @@ Assicurati di avere tutti questi file:
 
 **FASTAPI_URL**:
 ```
-https://proptech-suite-8.preview.emergentagent.com
+https://whatsapp-realty-1.preview.emergentagent.com
 ```
 
 **PORT**:

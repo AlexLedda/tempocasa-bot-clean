@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 # URL del backend dal frontend/.env
-BASE_URL = "https://proptech-suite-8.preview.emergentagent.com/api"
+BASE_URL = "https://whatsapp-realty-1.preview.emergentagent.com/api"
 
 class AppointmentAPITester:
     def __init__(self):
