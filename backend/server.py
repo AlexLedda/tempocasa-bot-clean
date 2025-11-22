@@ -740,64 +740,67 @@ async def verify_webhook(request: Request):
 
 @api_router.post("/whatsapp/webhook")
 async def whatsapp_webhook(request: Request):
+    """
+    Riceve messaggi da WhatsApp Cloud API
+    """
     try:
-        # Log everything about the request
-        logging.info(f"=== WEBHOOK REQUEST START ===")
-        logging.info(f"Method: {request.method}")
-        logging.info(f"Headers: {dict(request.headers)}")
-        logging.info(f"Query params: {dict(request.query_params)}")
+        # Parse WhatsApp Cloud API webhook payload
+        body = await request.json()
+        logging.info(f"=== WHATSAPP CLOUD API WEBHOOK ===")
+        logging.info(f"Payload: {body}")
         
-        # Try to get form data (Twilio format)
-        try:
-            form_data = await request.form()
-            logging.info(f"Form data: {dict(form_data)}")
-            phone_number = form_data.get("From", "")
-            message = form_data.get("Body", "")
-        except Exception as form_error:
-            logging.info(f"No form data: {form_error}")
-            # Try JSON (WATI/other providers format)
-            try:
-                json_data = await request.json()
-                logging.info(f"JSON data: {json_data}")
+        # Verifica struttura payload Meta
+        if body.get("object") != "whatsapp_business_account":
+            logging.warning(f"Invalid webhook object: {body.get('object')}")
+            return {"status": "ignored"}
+        
+        # Estrai entry
+        entries = body.get("entry", [])
+        if not entries:
+            logging.warning("No entries in webhook")
+            return {"status": "no_entries"}
+        
+        # Processa ogni entry
+        for entry in entries:
+            changes = entry.get("changes", [])
+            for change in changes:
+                value = change.get("value", {})
                 
-                # WATI format
-                if "waId" in json_data or "from" in json_data:
-                    phone_number = json_data.get("waId") or json_data.get("from", "")
-                    message = json_data.get("text") or json_data.get("message", "")
-                    logging.info(f"Detected WATI format")
-                # Generic format
-                else:
-                    phone_number = json_data.get("phone_number", "")
-                    message = json_data.get("message", "")
+                # Verifica se ci sono messaggi
+                messages = value.get("messages", [])
+                if not messages:
+                    logging.info("No messages in this change")
+                    continue
+                
+                # Processa ogni messaggio
+                for msg in messages:
+                    # Estrai info messaggio
+                    message_id = msg.get("id")
+                    from_number = msg.get("from")  # Numero mittente
+                    message_type = msg.get("type")  # text, image, etc
+                    timestamp = msg.get("timestamp")
                     
-            except Exception as json_error:
-                logging.info(f"No JSON data: {json_error}")
-                # Try raw body
-                body = await request.body()
-                logging.info(f"Raw body: {body.decode()}")
-                return Response(
-                    content='<?xml version="1.0" encoding="UTF-8"?><Response><Message>Webhook ricevuto (test mode)</Message></Response>',
-                    media_type="application/xml"
-                )
+                    # Supportiamo solo messaggi di testo per ora
+                    if message_type != "text":
+                        logging.info(f"Unsupported message type: {message_type}")
+                        continue
+                    
+                    text_body = msg.get("text", {}).get("body", "")
+                    
+                    if not from_number or not text_body:
+                        logging.warning(f"Missing from or text: {from_number}, {text_body}")
+                        continue
+                    
+                    logging.info(f"Message from {from_number}: {text_body}")
+                    
+                    # Processa il messaggio
+                    await process_whatsapp_message(from_number, text_body, message_id)
         
-        logging.info(f"=== WEBHOOK REQUEST END ===")
-        
-        if not phone_number or not message:
-            logging.error(f"Missing required fields. From: {phone_number}, Body: {message}")
-            return Response(
-                content='<?xml version="1.0" encoding="UTF-8"?><Response><Message>Dati mancanti</Message></Response>',
-                media_type="application/xml"
-            )
-        
-        # Extract phone number (remove "whatsapp:" prefix if present)
-        phone_number = phone_number.replace("whatsapp:", "")
+        return {"status": "ok"}
         
     except Exception as e:
-        logging.error(f"Error parsing webhook data: {e}", exc_info=True)
-        return Response(
-            content='<?xml version="1.0" encoding="UTF-8"?><Response><Message>Errore nel webhook</Message></Response>',
-            media_type="application/xml"
-        )
+        logging.error(f"Error processing webhook: {e}", exc_info=True)
+        return {"status": "error", "message": str(e)}
     
     # Check if client has previous messages
     existing_messages = await db.messages.count_documents({"client_phone": phone_number})
