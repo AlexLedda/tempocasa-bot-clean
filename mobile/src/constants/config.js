@@ -10,7 +10,7 @@ const ENV = {
     debug: true,
   },
   prod: {
-    apiUrl: 'https://whatsapp-realty-1.preview.emergentagent.com',
+    apiUrl: 'https://rebot-tarquinia.preview.emergentagent.com',
     debug: false,
   },
 };

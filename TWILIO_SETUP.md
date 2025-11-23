@@ -20,7 +20,7 @@ https://www.twilio.com/try-twilio
 ### 3. Configura Webhook
 Nel pannello Twilio, imposta webhook:
 ```
-https://whatsapp-realty-1.preview.emergentagent.com/api/twilio/webhook
+https://rebot-tarquinia.preview.emergentagent.com/api/twilio/webhook
 ```
 
 ### 4. Aggiorna Backend

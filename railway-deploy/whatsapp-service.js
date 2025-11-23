@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // IMPORTANTE: URL del tuo backend Emergent
-const FASTAPI_URL = process.env.FASTAPI_URL || 'https://whatsapp-realty-1.preview.emergentagent.com';
+const FASTAPI_URL = process.env.FASTAPI_URL || 'https://rebot-tarquinia.preview.emergentagent.com';
 const PORT = process.env.PORT || 3001;
 
 let sock = null;

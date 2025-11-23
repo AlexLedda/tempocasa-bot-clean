@@ -226,6 +226,6 @@ test_plan:
 
 agent_communication:
   - agent: "user"
-    message: "Richiesto test della nuova pagina 'Telegram Bot' nel dashboard web. URL: https://whatsapp-realty-1.preview.emergentagent.com, login: admin/Corneto1. Verificare statistiche, lista conversazioni, dettagli e funzionalità di risposta."
+    message: "Richiesto test della nuova pagina 'Telegram Bot' nel dashboard web. URL: https://rebot-tarquinia.preview.emergentagent.com, login: admin/Corneto1. Verificare statistiche, lista conversazioni, dettagli e funzionalità di risposta."
   - agent: "testing"
     message: "✅ TESTING COMPLETATO CON SUCCESSO: Pagina Telegram Bot completamente funzionante! Tutti gli elementi richiesti testati: login funzionante, navigazione corretta, statistiche caricate (4 conversazioni, lead scoring), lista conversazioni con 4 elementi, dettagli conversazione con messaggi e input per rispondere, filtri operativi. RISOLTO: Bug backend nel calculate_lead_score per budget=None. Screenshots salvati: telegram_bot_complete.png e telegram_conversation_details_complete.png. La pagina è pronta per l'uso!"

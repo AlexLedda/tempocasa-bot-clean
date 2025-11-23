@@ -50,7 +50,7 @@
       "expo-font"
     ],
     "extra": {
-      "apiBaseUrl": "https://whatsapp-realty-1.preview.emergentagent.com",
+      "apiBaseUrl": "https://rebot-tarquinia.preview.emergentagent.com",
       "eas": {
         "projectId": "your-project-id"
       }

@@ -114,7 +114,7 @@ Ogni sera alle 20:00, ricevi un report automatico con:
 Il report è configurato per essere chiamato automaticamente.
 Puoi anche richiederlo manualmente visitando:
 ```
-https://whatsapp-realty-1.preview.emergentagent.com/api/telegram/daily-report
+https://rebot-tarquinia.preview.emergentagent.com/api/telegram/daily-report
 ```
 
 ---
@@ -182,7 +182,7 @@ Mostra statistiche in tempo reale:
 - **Bot:** @tempocasa_elettra_bot
 - **Token:** 8027008474:AAFgNsiIQ2KuaeqfrNSvUz5iLL_gvFiB-RQ
 - **Admin ID:** 393343900206 (Alessandro)
-- **Webhook:** https://whatsapp-realty-1.preview.emergentagent.com/api/telegram/webhook
+- **Webhook:** https://rebot-tarquinia.preview.emergentagent.com/api/telegram/webhook
 
 ### Database Collections:
 - `clients` - Profili clienti

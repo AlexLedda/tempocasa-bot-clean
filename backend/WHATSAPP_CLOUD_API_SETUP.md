@@ -81,7 +81,7 @@ Nel dashboard vedrai:
 
 **URL Callback:**
 ```
-https://whatsapp-realty-1.preview.emergentagent.com/api/whatsapp/webhook
+https://rebot-tarquinia.preview.emergentagent.com/api/whatsapp/webhook
 ```
 
 **Token di Verifica:** (crea uno casuale, es: `tempocasa_verify_2024`)
@@ -236,7 +236,7 @@ async def process_message(message: str, phone_number: str, learning_system) -> s
 
 2. **Test webhook manuale:**
    ```bash
-   curl "https://whatsapp-realty-1.preview.emergentagent.com/api/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=tempocasa_verify_2024&hub.challenge=12345"
+   curl "https://rebot-tarquinia.preview.emergentagent.com/api/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=tempocasa_verify_2024&hub.challenge=12345"
    ```
    
    Dovrebbe ritornare: `12345`

@@ -71,7 +71,7 @@ Assicurati di avere tutti questi file:
 
 **FASTAPI_URL**:
 ```
-https://whatsapp-realty-1.preview.emergentagent.com
+https://rebot-tarquinia.preview.emergentagent.com
 ```
 
 **PORT**:
