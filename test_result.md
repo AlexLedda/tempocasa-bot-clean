@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Sviluppo schermate principali per l'app mobile React Native 'Tempocasa Tarquinia Pro'. Focus su gestione Appuntamenti con funzionalità CRUD complete, inclusa selezione proprietà dal database."
+user_problem_statement: "Test della nuova pagina 'Telegram Bot' nel dashboard web. La pagina si trova alla rotta /telegram e mostra conversazioni Telegram del bot con lead scoring, messaggi e possibilità di rispondere."
 
 backend:
   - task: "API Appuntamenti - GET /api/appointments"
