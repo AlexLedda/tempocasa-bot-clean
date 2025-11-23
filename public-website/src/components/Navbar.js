@@ -24,13 +24,17 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center gap-4">
-              <a href="tel:+390766123456" className="flex items-center gap-1 hover:underline">
+              <a href="tel:+390766180585" className="flex items-center gap-1 hover:underline">
                 <Phone className="w-4 h-4" />
-                <span>+39 0766 123456</span>
+                <span>0766 180585</span>
               </a>
-              <a href="mailto:info@tempocasa-tarquinia.it" className="hidden sm:flex items-center gap-1 hover:underline">
+              <a href="tel:+393515290147" className="hidden sm:flex items-center gap-1 hover:underline">
+                <Phone className="w-4 h-4" />
+                <span>351 529 0147</span>
+              </a>
+              <a href="mailto:tarquinia@tempocasa.it" className="hidden md:flex items-center gap-1 hover:underline">
                 <Mail className="w-4 h-4" />
-                <span>info@tempocasa-tarquinia.it</span>
+                <span>tarquinia@tempocasa.it</span>
               </a>
             </div>
             <div className="text-sm">
