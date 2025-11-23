@@ -218,13 +218,17 @@ export default function PropertyDetail() {
               </form>
               <div className="border-t-2 border-gray-100 pt-6 space-y-4">
                 <h4 className="font-bold text-gray-900">Oppure contattaci</h4>
-                <a href="tel:+390766123456" className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <a href="tel:+390766180585" className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <Phone className="w-5 h-5 text-primary-600" />
-                  <span>+39 0766 123456</span>
+                  <span>0766 180585</span>
                 </a>
-                <a href="mailto:info@tempocasa-tarquinia.it" className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <a href="tel:+393515290147" className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Phone className="w-5 h-5 text-primary-600" />
+                  <span>351 529 0147</span>
+                </a>
+                <a href="mailto:tarquinia@tempocasa.it" className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <Mail className="w-5 h-5 text-primary-600" />
-                  <span>info@tempocasa-tarquinia.it</span>
+                  <span>tarquinia@tempocasa.it</span>
                 </a>
                 <a href={`https://t.me/${TELEGRAM_BOT}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition-all">
                   <Send className="w-5 h-5" />
