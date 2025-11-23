@@ -1235,7 +1235,11 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
         # Notifica il cliente
         try:
             telegram_bot.send_message(
-
+                chat_id=target_chat_id,
+                text="🤖 Il bot Elettra è tornato attivo! Posso continuare ad aiutarti."
+            )
+        except:
+            pass
 
 
 @api_router.get("/telegram/daily-report")
