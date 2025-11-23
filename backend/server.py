@@ -907,16 +907,9 @@ async def handle_telegram_command(chat_id: str, user_id: str, command: str, user
             )
     
     elif command == "/valutazione":
-        response = """📊 **VALUTAZIONE GRATUITA**
-
-Vuoi conoscere il valore del tuo immobile?
-
-Ti offriamo una valutazione professionale gratuita e senza impegno!
-
-Per procedere, dimmi:
-1. Dove si trova l'immobile?
-2. Che tipo di immobile è? (appartamento, villa, ecc.)
-3. Quanti mq?"""
+        # Carica template valutazione
+        templates = await db.bot_templates.find_one({}, {"_id": 0})
+        response = templates.get("valutation_message", "Richiedi valutazione gratuita")
         
         telegram_bot.send_message(chat_id=chat_id, text=response)
     
