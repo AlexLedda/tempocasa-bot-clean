@@ -198,15 +198,18 @@ backend:
 frontend:
   - task: "Pagina Telegram Bot - TelegramConversations"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/TelegramConversations.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Nuova pagina Telegram Bot implementata con statistiche, lista conversazioni, dettagli conversazione e possibilità di rispondere. Rotta /telegram configurata nel menu laterale."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO COMPLETAMENTE: Pagina Telegram Bot funziona perfettamente! Login con admin/Corneto1. riuscito, navigazione al menu 'Telegram Bot' funzionante. Statistiche caricate correttamente (4 conversazioni totali, 0 HOT, 0 WARM, 4 COLD). Lista conversazioni visualizzata con 4 elementi (Tempocasa, TestUser, Test, Alessandro). Dettagli conversazione caricati correttamente con score lead, messaggi storici e campo input per rispondere. Filtri HOT/WARM/COLD funzionanti. ISSUE MINORE RISOLTO: Backend aveva bug nel calculate_lead_score con budget=None, risolto cambiando 'budget = client.get('budget', 0)' in 'budget = client.get('budget', 0) or 0'. Tutte le funzionalità testate e operative."
 
 metadata:
   created_by: "main_agent"
