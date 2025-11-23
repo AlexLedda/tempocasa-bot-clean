@@ -13,7 +13,7 @@ export default function Footer() {
           <div>
             <img src={LOGO_URL} alt="Tempocasa Tarquinia" className="h-12 mb-4 brightness-0 invert" />
             <p className="text-sm text-gray-400">
-              La tua agenzia immobiliare di fiducia a Tarquinia. Esperienza, professionalità e passione al tuo servizio.
+              L'agenzia Tempocasa di Tarquinia è diretta dall'esperienza di Alessandro Ledda, Andrea Manfré e Corrado Sassu. Vendita, acquisto e affitto di immobili a Tarquinia.
             </p>
             <div className="flex gap-4 mt-6">
               <a href="#" className="text-gray-400 hover:text-primary-500 transition-colors">
