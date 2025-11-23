@@ -1406,6 +1406,66 @@ async def get_admin_commands():
     Lista comandi admin disponibili
     """
     return {
+
+
+
+async def handle_property_callback(callback_data: str, chat_id: str, user_id: str):
+    """
+    Gestisce callback per azioni su immobili (foto, mappa, PDF)
+    """
+    from telegram_bot import get_telegram_bot
+    from telegram_advanced_features import send_property_location, send_property_pdf
+    import json
+    
+    telegram_bot = get_telegram_bot()
+    
+    # Recupera properties dalla cache
+    cache = await db.telegram_cache.find_one({"chat_id": chat_id, "type": "properties"})
+    if not cache:
+        telegram_bot.send_message(chat_id=chat_id, text="⚠️ Dati scaduti. Richiedi di nuovo la lista immobili.")
+        return
+    
+    properties = json.loads(cache['data'])
+    
+    # Parse callback
+    action, index_str = callback_data.split("_")
+    index = int(index_str)
+    
+    if index >= len(properties):
+        telegram_bot.send_message(chat_id=chat_id, text="⚠️ Immobile non trovato.")
+        return
+    
+    property_data = properties[index]
+    
+    if action == "photo":
+        # Invia tutte le foto
+        images = property_data.get('images', [])
+        if images:
+            for img_url in images[:3]:  # Max 3 foto
+                try:
+                    telegram_bot.send_photo(
+                        chat_id=chat_id,
+                        photo_url=img_url,
+                        caption=f"📸 {property_data['property_type']} - {property_data['location']}"
+                    )
+                except Exception as e:
+                    logging.error(f"Error sending photo: {e}")
+        else:
+            telegram_bot.send_message(chat_id=chat_id, text="📸 Foto non disponibili per questo immobile")
+    
+    elif action == "location":
+        # Invia posizione su mappa
+        await send_property_location(telegram_bot, chat_id, property_data)
+        telegram_bot.send_message(
+            chat_id=chat_id,
+            text=f"📍 Posizione: {property_data['location']}\n\nClicca sulla mappa per aprire in Google Maps!"
+        )
+    
+    elif action == "pdf":
+        # Genera e invia PDF
+        telegram_bot.send_message(chat_id=chat_id, text="📄 Sto generando il PDF...")
+        await send_property_pdf(telegram_bot, chat_id, property_data)
+
         "commands": [
             "/takeover_CHATID - Prendi controllo manuale di una chat",
             "/release_CHATID - Rilascia controllo di una chat",
