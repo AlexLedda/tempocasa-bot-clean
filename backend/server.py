@@ -1195,6 +1195,14 @@ async def process_telegram_message(chat_id: str, user_id: str, message_text: str
     
     # Usa user_id come identificatore cliente (invece del telefono)
     client_identifier = f"telegram_{user_id}"
+
+    # Controlla se l'admin ha preso il controllo di questa chat
+    takeover = await db.telegram_takeovers.find_one({"chat_id": chat_id, "active": True})
+    if takeover:
+        # Admin ha il controllo, il bot non risponde
+        logging.info(f"Chat {chat_id} sotto controllo admin - bot disabilitato")
+        return
+
     
     # Check if client has previous messages
     existing_messages = await db.messages.count_documents({"client_phone": client_identifier})
