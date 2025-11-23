@@ -973,9 +973,11 @@ async def telegram_webhook(request: Request):
             except:
                 pass
             
-            # Gestisci callback speciali (foto, mappa, PDF)
+            # Gestisci callback speciali (foto, mappa, PDF, condividi)
             if callback_data.startswith(("photo_", "location_", "pdf_")):
                 await handle_property_callback(callback_data, chat_id, user_id)
+            elif callback_data.startswith("share_"):
+                await handle_share_callback(callback_data, chat_id, user_id)
             else:
                 # Processa il comando del bottone
                 await process_telegram_message(chat_id, user_id, callback_data, first_name)
