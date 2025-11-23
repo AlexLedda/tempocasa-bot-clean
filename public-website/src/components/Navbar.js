@@ -11,6 +11,7 @@ export default function Navbar() {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Immobili', href: '/immobili' },
+    { name: 'Chi Siamo', href: '/chi-siamo' },
     { name: 'Valutazione', href: '/valutazione' },
     { name: 'Contatti', href: '/contatti' },
   ];
