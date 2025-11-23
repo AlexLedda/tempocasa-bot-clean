@@ -24,8 +24,8 @@ export default function Contact() {
     setTimeout(() => setSubmitted(false), 5000);
   };
 
-  // Coordinate Tarquinia
-  const position = [42.2496, 11.7567];
+  // Coordinate Tarquinia - Viale Luigi Dasti, 6
+  const position = [42.250587, 11.756567];
 
   return (
     <div className="min-h-screen bg-gray-50">
