@@ -1243,6 +1243,168 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
             {"chat_id": target_chat_id},
             {"$set": {"active": False, "ended_at": datetime.now(timezone.utc).isoformat()}}
         )
+
+
+
+@api_router.get("/share/{share_token}")
+async def view_shared_property(share_token: str):
+    """
+    Visualizza immobile condiviso tramite link
+    """
+    # Trova immobile dal token
+    share = await db.property_shares.find_one({"token": share_token})
+    
+    if not share:
+        raise HTTPException(status_code=404, detail="Link non valido o scaduto")
+    
+    # Incrementa contatore views
+    await db.property_shares.update_one(
+        {"token": share_token},
+        {"$inc": {"views": 1}}
+    )
+    
+    # Recupera immobile
+    property_data = await db.properties.find_one({"_id": share["property_id"]}, {"_id": 0})
+    
+    if not property_data:
+        raise HTTPException(status_code=404, detail="Immobile non trovato")
+    
+    # Ritorna HTML con dettagli immobile
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>{property_data['property_type']} - {property_data['location']}</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }}
+            .header {{ background: #179306; color: white; padding: 20px; border-radius: 10px; }}
+            .price {{ font-size: 32px; font-weight: bold; margin: 10px 0; }}
+            .features {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }}
+            .feature {{ background: #f5f5f5; padding: 15px; border-radius: 5px; text-align: center; }}
+            .images {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 20px 0; }}
+            img {{ width: 100%; border-radius: 10px; }}
+            .contact {{ background: #f0f0f0; padding: 20px; border-radius: 10px; margin-top: 20px; }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>{property_data['property_type']}</h1>
+            <h2>{property_data['location']}</h2>
+            <div class="price">€ {property_data['price']:,.0f}</div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>📐 Superficie</h3>
+                <p>{property_data['square_meters']} mq</p>
+            </div>
+            <div class="feature">
+                <h3>🛏️ Camere</h3>
+                <p>{property_data['bedrooms']}</p>
+            </div>
+            <div class="feature">
+                <h3>🚿 Bagni</h3>
+                <p>{property_data['bathrooms']}</p>
+            </div>
+        </div>
+        
+        <h2>Descrizione</h2>
+        <p>{property_data['description']}</p>
+        
+        <div class="images">
+            {"".join([f'<img src="{img}" alt="Foto immobile">' for img in property_data.get('images', [])[:6]])}
+        </div>
+        
+        <div class="contact">
+            <h2>Interessato? Contattaci!</h2>
+            <p>📞 Telefono: +39 0766 xxx xxx</p>
+            <p>📧 Email: info@tempocasa-tarquinia.it</p>
+            <p>🤖 Oppure chatta con il nostro bot: <a href="https://t.me/tempocasa_elettra_bot">@tempocasa_elettra_bot</a></p>
+        </div>
+    </body>
+    </html>
+    """
+    
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(content=html_content)
+
+
+@api_router.get("/telegram/analytics")
+async def get_telegram_analytics():
+    """
+    Analytics avanzati per bot Telegram
+    """
+    from datetime import datetime, timezone, timedelta
+    
+    # Ultimi 30 giorni
+    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    
+    # Totali
+    total_clients = await db.clients.count_documents({"phone": {"$regex": "^telegram_"}})
+    total_messages = await db.messages.count_documents({"client_phone": {"$regex": "^telegram_"}})
+    total_appointments = await db.appointments.count_documents({})
+    
+    # Ultimi 30 giorni
+    recent_clients = await db.clients.count_documents({
+        "phone": {"$regex": "^telegram_"},
+        "created_at": {"$gte": thirty_days_ago}
+    })
+    
+    recent_messages = await db.messages.count_documents({
+        "client_phone": {"$regex": "^telegram_"},
+        "timestamp": {"$gte": thirty_days_ago}
+    })
+    
+    # Lead scoring
+    all_clients = await db.clients.find({"phone": {"$regex": "^telegram_"}}).to_list(1000)
+    
+    hot_count = 0
+    warm_count = 0
+    cold_count = 0
+    
+    for client in all_clients:
+        score_data = calculate_lead_score(client, "")
+        if score_data['score'] >= 70:
+            hot_count += 1
+        elif score_data['score'] >= 40:
+            warm_count += 1
+        else:
+            cold_count += 1
+    
+    # Conversion rate (approssimativo)
+    conversion_rate = (total_appointments / total_clients * 100) if total_clients > 0 else 0
+    
+    # Tempo medio risposta (simulato per ora)
+    avg_response_time = "< 2 minuti"
+    
+    # Immobili più richiesti
+    # TODO: Tracciare richieste per immobile
+    
+    return {
+        "success": True,
+        "period": "Ultimi 30 giorni",
+        "totals": {
+            "clients": total_clients,
+            "messages": total_messages,
+            "appointments": total_appointments
+        },
+        "recent": {
+            "new_clients": recent_clients,
+            "messages": recent_messages
+        },
+        "lead_scoring": {
+            "hot": hot_count,
+            "warm": warm_count,
+            "cold": cold_count
+        },
+        "performance": {
+            "conversion_rate": f"{conversion_rate:.1f}%",
+            "avg_response_time": avg_response_time
+        }
+    }
+
         
         telegram_bot.send_message(
             chat_id=chat_id,
