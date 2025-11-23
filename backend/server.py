@@ -1506,6 +1506,15 @@ async def process_telegram_message(chat_id: str, user_id: str, message_text: str
                 {"phone": client_identifier},
                 {"$set": update_data}
             )
+            # Ricarica client aggiornato
+            client = await db.clients.find_one({"phone": client_identifier})
+        
+        # Calcola lead score e invia notifica se VIP
+        lead_score = calculate_lead_score(client, message_text)
+        
+        # Invia notifica admin se lead è HOT o WARM e è nuovo/primo messaggio
+        if existing_messages <= 1 and lead_score['score'] >= 40:
+            await send_admin_notification(chat_id, user_name, lead_score, message_text)
         
         # Save AI response to database
         response_msg = MessageCreate(
