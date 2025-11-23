@@ -128,7 +128,8 @@ export default function Contact() {
                   <Marker position={position}>
                     <Popup>
                       <strong>Tempocasa Tarquinia</strong><br />
-                      Via Roma 123, Tarquinia (VT)
+                      Viale Luigi Dasti, 6<br />
+                      Tarquinia (VT)
                     </Popup>
                   </Marker>
                 </MapContainer>
