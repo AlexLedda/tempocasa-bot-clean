@@ -213,15 +213,18 @@ frontend:
 
   - task: "Pagina Template Messaggi - MessageTemplates"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/MessageTemplates.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Nuova pagina Template Messaggi implementata con design moderno e professionale. Features: 9 template configurabili (benvenuto, aiuto, contatti, valutazione, nessun immobile, conferma appuntamento, notifica VIP, report giornaliero, takeover), card colorate con icone per ogni template, textarea espandibili con contatore caratteri, pulsante reset per ogni template, pulsante salva globale con indicatore modifiche, box informativa con suggerimenti. Integrata nel menu di navigazione con rotta /templates. Gli endpoint backend /api/bot-templates (GET e PUT) sono già esistenti e funzionanti."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO COMPLETAMENTE: Pagina Template Messaggi Bot funziona perfettamente! Login con admin/Corneto1. riuscito, navigazione al menu 'Template Messaggi' funzionante. Trovati tutti i 9 template configurabili con card colorate (viola, blu, verde, arancio, grigio, teal, giallo, indigo, rosa). Ogni card contiene: icona appropriata, titolo, descrizione, textarea espandibile, contatore caratteri accurato, pulsante 'Ripristina default'. FUNZIONALITÀ TESTATE: ✅ Modifica template (badge 'MODIFICATO' appare correttamente), ✅ Contatore caratteri si aggiorna in tempo reale, ✅ Pulsante 'Salva Modifiche' si attiva (diventa blu) quando ci sono modifiche, ✅ Banner giallo 'Hai modifiche non salvate' appare/scompare correttamente, ✅ Salvataggio funziona (toast di successo, pulsante torna grigio), ✅ Reset template funziona con popup di conferma, ✅ Ricarica scarta modifiche non salvate, ✅ Modifica multipla di template funziona, ✅ Design responsive per mobile, ✅ Box informativa blu con suggerimenti presente, ✅ Persistenza backend verificata (modifiche salvate dopo reload pagina). Tutti i 9 template sono visibili e funzionanti. Integrazione backend /api/bot-templates perfetta. La pagina è pronta per l'uso!"
 
 metadata:
   created_by: "main_agent"
