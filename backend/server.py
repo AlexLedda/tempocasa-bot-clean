@@ -238,15 +238,6 @@ class ValuationCreate(BaseModel):
     appointment_date: Optional[str] = None
     notes: Optional[str] = None
 
-class WhatsAppMessage(BaseModel):
-    phone_number: str
-    message: str
-
-class WhatsAppWebhook(BaseModel):
-    phone_number: str
-    message: str
-    timestamp: Optional[int] = None
-
 class AIResponse(BaseModel):
     response: str
     properties_mentioned: List[str] = []
