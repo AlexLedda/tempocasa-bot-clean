@@ -224,8 +224,8 @@ export default function Home() {
       <section className="py-20 bg-gradient-to-br from-primary-50 to-secondary-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Perché Scegliere Tempocasa</h2>
-            <p className="text-xl text-gray-600">La tua soddisfazione è il nostro successo</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Perché Scegliere Tarquinia</h2>
+            <p className="text-xl text-gray-600">Storia, cultura e qualità della vita nella Maremma Laziale</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
