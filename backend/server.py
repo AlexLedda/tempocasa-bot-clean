@@ -921,16 +921,9 @@ async def handle_telegram_command(chat_id: str, user_id: str, command: str, user
         telegram_bot.send_message(chat_id=chat_id, text=response)
     
     elif command == "/help":
-        response = """ℹ️ **COMANDI DISPONIBILI**
-
-/start - Menu principale
-/appartamenti - Vedi appartamenti disponibili
-/ville - Vedi ville disponibili
-/valutazione - Richiedi valutazione gratuita
-/contatti - Info contatti agenzia
-/help - Mostra questo messaggio
-
-💬 Oppure scrivi liberamente cosa cerchi e ti aiuterò!"""
+        # Carica template help
+        templates = await db.bot_templates.find_one({}, {"_id": 0})
+        response = templates.get("help_message", "Comandi disponibili: /start /appartamenti /ville /contatti")
         
         telegram_bot.send_message(chat_id=chat_id, text=response)
     
