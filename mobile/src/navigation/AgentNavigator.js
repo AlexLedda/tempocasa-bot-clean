@@ -10,6 +10,8 @@ import { COLORS } from '../constants/colors';
 
 // Agent Screens
 import DashboardScreen from '../screens/agent/DashboardScreen';
+import PropertiesStackNavigator from './PropertiesStackNavigator';
+import TelegramStackNavigator from './TelegramStackNavigator';
 import AppointmentsStackNavigator from './AppointmentsStackNavigator';
 import ClientsStackNavigator from './ClientsStackNavigator';
 import ValuationsStackNavigator from './ValuationsStackNavigator';
