@@ -196,80 +196,17 @@ backend:
         comment: "✅ IMPLEMENTATO: Aggiunto endpoint GET /api/appointments/{id} nel backend con gestione date e conversione corretta. Backend riavviato con successo."
 
 frontend:
-  - task: "Schermata Lista Appuntamenti"
+  - task: "Pagina Telegram Bot - TelegramConversations"
     implemented: true
     working: "NA"
-    file: "/app/mobile/src/screens/agent/AppointmentsScreen.js"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: false
-        agent: "main"
-        comment: "Aggiornata per navigazione verso dettaglio e form. Necessita test su dispositivo mobile"
-      - working: "NA"
-        agent: "testing"
-        comment: "❌ TESTING LIMITATO: Metro Bundler funziona (localhost:8081) ma app mobile reindirizza a frontend web. Configurazione corretta trovata: API URL aggiornato, navigation stack presente, componenti implementati. ISSUE: Login API fallisce con net::ERR_ABORTED - possibile problema CORS o configurazione frontend."
-
-  - task: "Schermata Dettaglio Appuntamento"
-    implemented: true
-    working: "NA"
-    file: "/app/mobile/src/screens/agent/AppointmentDetailScreen.js"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: false
-        agent: "main"
-        comment: "Nuova schermata creata con visualizzazione dettagli, cambio stato, modifica ed eliminazione"
-      - working: "NA"
-        agent: "testing"
-        comment: "❌ NON TESTABILE: Schermata implementata correttamente con menu dropdown per stati, pulsanti modifica/elimina, chiamata cliente. Non testabile per problema login API."
-
-  - task: "Schermata Form Appuntamento (Create/Edit)"
-    implemented: true
-    working: "NA"
-    file: "/app/mobile/src/screens/agent/AppointmentFormScreen.js"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: false
-        agent: "main"
-        comment: "Nuova schermata con form completo, validazione, date picker e selezione proprietà"
-      - working: "NA"
-        agent: "testing"
-        comment: "❌ NON TESTABILE: Form implementato con validazione, date/time picker nativi, PropertyPickerModal integrato. Campi: client_name, client_phone, property_id, appointment_date, notes. Non testabile per problema login API."
-
-  - task: "Componente PropertyPickerModal"
-    implemented: true
-    working: "NA"
-    file: "/app/mobile/src/components/PropertyPickerModal.js"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: false
-        agent: "main"
-        comment: "Nuovo componente modale per selezionare proprietà dal database con ricerca"
-      - working: "NA"
-        agent: "testing"
-        comment: "❌ NON TESTABILE: Modale implementata con ricerca per titolo/riferimento/location, card proprietà con dettagli completi. Non testabile per problema login API."
-
-  - task: "Stack Navigator Appuntamenti"
-    implemented: true
-    working: true
-    file: "/app/mobile/src/navigation/AppointmentsStackNavigator.js"
+    file: "/app/frontend/src/pages/TelegramConversations.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: false
+      - working: "NA"
         agent: "main"
-        comment: "Nuovo stack navigator per gestire navigazione tra lista, dettaglio e form"
-      - working: true
-        agent: "testing"
-        comment: "✅ IMPLEMENTAZIONE CORRETTA: Stack navigator configurato correttamente con 3 schermate (AppointmentsList, AppointmentDetail, AppointmentForm). Headers e navigazione impostati correttamente."
+        comment: "Nuova pagina Telegram Bot implementata con statistiche, lista conversazioni, dettagli conversazione e possibilità di rispondere. Rotta /telegram configurata nel menu laterale."
 
 metadata:
   created_by: "main_agent"
