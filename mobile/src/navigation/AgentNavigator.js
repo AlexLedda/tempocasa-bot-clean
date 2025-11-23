@@ -80,19 +80,19 @@ const AgentNavigator = () => {
         options={{ title: 'Dashboard' }}
       />
       <Tab.Screen 
-        name="Appuntamenti" 
-        component={AppointmentsStackNavigator}
-        options={{ title: 'Appuntamenti', headerShown: false }}
+        name="Immobili" 
+        component={PropertiesStackNavigator}
+        options={{ title: 'Immobili', headerShown: false }}
+      />
+      <Tab.Screen 
+        name="Telegram" 
+        component={TelegramStackNavigator}
+        options={{ title: 'Telegram', headerShown: false }}
       />
       <Tab.Screen 
         name="Clienti" 
         component={ClientsStackNavigator}
         options={{ title: 'Clienti', headerShown: false }}
-      />
-      <Tab.Screen 
-        name="Valutazioni" 
-        component={ValuationsStackNavigator}
-        options={{ title: 'Valutazioni', headerShown: false }}
       />
       <Tab.Screen 
         name="Altro" 
