@@ -1170,6 +1170,124 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
         await process_telegram_message(chat_id, user_id, command, user_name)
 
 
+
+
+def calculate_lead_score(client: Dict, message_text: str) -> Dict:
+    """
+    Calcola il punteggio del lead (caldo/tiepido/freddo)
+    
+    Returns:
+        Dict con score (0-100), temperature (hot/warm/cold), reasons
+    """
+    score = 0
+    reasons = []
+    
+    # Budget alto = +30 punti
+    budget = client.get('budget', 0)
+    if budget >= 300000:
+        score += 30
+        reasons.append(f"Budget alto: €{budget:,.0f}")
+    elif budget >= 150000:
+        score += 20
+        reasons.append(f"Budget medio: €{budget:,.0f}")
+    elif budget > 0:
+        score += 10
+        reasons.append(f"Budget: €{budget:,.0f}")
+    
+    # Ha fornito email = +20 punti (più serio)
+    if client.get('email'):
+        score += 20
+        reasons.append("Ha fornito email")
+    
+    # Ha fornito nome completo = +15 punti
+    if client.get('name') and client.get('surname'):
+        score += 15
+        reasons.append("Dati completi")
+    
+    # Needs mortgage = +10 punti (più commitment)
+    if client.get('needs_mortgage'):
+        score += 10
+        reasons.append("Richiede mutuo")
+    
+    # Vuole vendere = +15 punti (ha urgenza)
+    if client.get('needs_to_sell'):
+        score += 15
+        reasons.append("Deve vendere casa")
+    
+    # Profilo completo = +10 punti
+    if client.get('profile_completed'):
+        score += 10
+        reasons.append("Profilo completato")
+    
+    # Parole chiave urgenti nel messaggio
+    urgent_keywords = ['urgente', 'subito', 'velocemente', 'entro', 'presto', 'immediat']
+    if any(keyword in message_text.lower() for keyword in urgent_keywords):
+        score += 20
+        reasons.append("⚡ Urgenza espressa")
+    
+    # Determina temperatura
+    if score >= 70:
+        temperature = "🔥 HOT"
+        emoji = "🔥"
+    elif score >= 40:
+        temperature = "🌡️ WARM"
+        emoji = "🌡️"
+    else:
+        temperature = "❄️ COLD"
+        emoji = "❄️"
+    
+    return {
+        "score": score,
+        "temperature": temperature,
+        "emoji": emoji,
+        "reasons": reasons
+    }
+
+
+async def send_admin_notification(chat_id: str, user_name: str, lead_info: Dict, message_text: str):
+    """
+    Invia notifica all'admin per lead VIP
+    """
+    from telegram_bot import get_telegram_bot
+    
+    admin_id = os.getenv("TELEGRAM_ADMIN_ID")
+    if not admin_id:
+        return
+    
+    telegram_bot = get_telegram_bot()
+    
+    score_data = lead_info
+    
+    notification = f"""🚨 **NUOVO LEAD {score_data['temperature']}!**
+
+👤 **Cliente:** {user_name}
+💯 **Score:** {score_data['score']}/100
+
+📊 **Motivi:**
+"""
+    
+    for reason in score_data['reasons']:
+        notification += f"• {reason}\n"
+    
+    notification += f"""
+💬 **Ultimo messaggio:**
+"{message_text[:150]}..."
+
+🔗 **Azioni:**
+• Scrivi direttamente a @{user_name if user_name != 'User' else 'cliente'}
+• Usa /takeover_{chat_id} per prendere controllo chat
+"""
+    
+    try:
+        telegram_bot.send_message(
+            chat_id=admin_id,
+            text=notification
+        )
+        logging.info(f"Admin notification sent for lead score {score_data['score']}")
+    except Exception as e:
+        logging.error(f"Error sending admin notification: {e}")
+
+
 async def process_telegram_message(chat_id: str, user_id: str, message_text: str, user_name: str):
     """
     Processa un messaggio Telegram in arrivo e genera risposta AI
