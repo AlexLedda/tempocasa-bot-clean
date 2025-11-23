@@ -1581,7 +1581,12 @@ async def get_admin_commands():
     Lista comandi admin disponibili
     """
     return {
-
+        "commands": [
+            "/takeover_CHATID - Prendi controllo manuale di una chat",
+            "/release_CHATID - Rilascia controllo di una chat",
+            "/leads - Mostra statistiche lead HOT/WARM/COLD"
+        ]
+    }
 
 
 async def handle_property_callback(callback_data: str, chat_id: str, user_id: str):
