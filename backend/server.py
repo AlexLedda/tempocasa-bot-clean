@@ -973,8 +973,12 @@ async def telegram_webhook(request: Request):
             except:
                 pass
             
-            # Processa il comando del bottone
-            await process_telegram_message(chat_id, user_id, callback_data, first_name)
+            # Gestisci callback speciali (foto, mappa, PDF)
+            if callback_data.startswith(("photo_", "location_", "pdf_")):
+                await handle_property_callback(callback_data, chat_id, user_id)
+            else:
+                # Processa il comando del bottone
+                await process_telegram_message(chat_id, user_id, callback_data, first_name)
         
         # Verifica se c'è un messaggio
         elif "message" in body:
