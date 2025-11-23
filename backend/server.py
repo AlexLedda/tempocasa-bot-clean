@@ -1646,6 +1646,60 @@ async def handle_property_callback(callback_data: str, chat_id: str, user_id: st
     elif action == "pdf":
         # Genera e invia PDF
         telegram_bot.send_message(chat_id=chat_id, text="📄 Sto generando il PDF...")
+
+
+
+async def handle_share_callback(callback_data: str, chat_id: str, user_id: str):
+    """
+    Gestisce creazione link condivisibile
+    """
+    from telegram_bot import get_telegram_bot
+    from telegram_advanced_features import create_share_link
+    from bson import ObjectId
+    
+    telegram_bot = get_telegram_bot()
+    
+    # Parse callback
+    _, property_id = callback_data.split("_", 1)
+    
+    try:
+        # Recupera immobile
+        property_data = await db.properties.find_one({"_id": ObjectId(property_id)})
+        
+        if not property_data:
+            telegram_bot.send_message(chat_id=chat_id, text="⚠️ Immobile non trovato")
+            return
+        
+        # Crea link condivisibile
+        share_link = await create_share_link(str(property_data['_id']), db)
+        
+        # Invia link
+        message = f"""🔗 **LINK GENERATO!**
+
+📱 Condividi questo link:
+{share_link}
+
+Il link include:
+✅ Foto complete
+✅ Dettagli immobile
+✅ Contatti agenzia
+
+💡 Chiunque può visualizzarlo, anche senza Telegram!"""
+        
+        telegram_bot.send_message(chat_id=chat_id, text=message)
+        
+        # Salva statistiche condivisione
+        await db.telegram_shares.insert_one({
+            "shared_by": user_id,
+            "property_id": str(property_data['_id']),
+            "share_link": share_link,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Error creating share link: {e}")
+        telegram_bot.send_message(chat_id=chat_id, text="❌ Errore nella creazione del link")
+
         await send_property_pdf(telegram_bot, chat_id, property_data)
 
 
