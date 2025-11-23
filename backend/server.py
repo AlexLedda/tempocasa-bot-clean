@@ -1235,6 +1235,149 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
         # Notifica il cliente
         try:
             telegram_bot.send_message(
+
+
+
+@api_router.get("/telegram/daily-report")
+async def send_daily_report():
+    """
+    Genera e invia report giornaliero all'admin
+    Da chiamare via cron ogni sera alle 20:00
+    """
+    from telegram_bot import get_telegram_bot
+    from datetime import datetime, timezone, timedelta
+    
+    admin_id = os.getenv("TELEGRAM_ADMIN_ID")
+    if not admin_id:
+        return {"error": "Admin ID not configured"}
+    
+    telegram_bot = get_telegram_bot()
+    
+    # Data di oggi
+    today = datetime.now(timezone.utc).date()
+    today_start = datetime.combine(today, datetime.min.time()).replace(tzinfo=timezone.utc).isoformat()
+    today_end = datetime.combine(today, datetime.max.time()).replace(tzinfo=timezone.utc).isoformat()
+    
+    # Conta messaggi oggi
+    messages_today = await db.messages.count_documents({
+        "timestamp": {"$gte": today_start, "$lte": today_end},
+        "client_phone": {"$regex": "^telegram_"}
+    })
+    
+    # Nuovi contatti oggi
+    new_clients_today = await db.clients.count_documents({
+        "created_at": {"$gte": today_start, "$lte": today_end},
+        "phone": {"$regex": "^telegram_"}
+    })
+    
+    # Lead HOT oggi
+    all_clients = await db.clients.find({
+        "phone": {"$regex": "^telegram_"},
+        "created_at": {"$gte": today_start, "$lte": today_end}
+    }).to_list(100)
+    
+    hot_leads_today = []
+    warm_leads_today = []
+    
+    for client in all_clients:
+        score_data = calculate_lead_score(client, "")
+        if score_data['score'] >= 70:
+            hot_leads_today.append({
+                "name": client.get('name', 'Unknown'),
+                "score": score_data['score'],
+                "budget": client.get('budget', 0)
+            })
+        elif score_data['score'] >= 40:
+            warm_leads_today.append({
+                "name": client.get('name', 'Unknown'),
+                "score": score_data['score']
+            })
+    
+    # Appuntamenti fissati oggi
+    appointments_today = await db.appointments.count_documents({
+        "date": {"$gte": today_start, "$lte": today_end}
+    })
+    
+    # Genera report
+    report = f"""📊 **REPORT GIORNALIERO TELEGRAM BOT**
+📅 {today.strftime('%d/%m/%Y')}
+
+---
+
+📈 **STATISTICHE GENERALI:**
+💬 Messaggi ricevuti: {messages_today}
+👥 Nuovi contatti: {new_clients_today}
+📅 Appuntamenti fissati: {appointments_today}
+
+---
+
+🔥 **LEAD HOT** ({len(hot_leads_today)}):
+"""
+    
+    if hot_leads_today:
+        for i, lead in enumerate(hot_leads_today[:5], 1):
+            report += f"{i}. {lead['name']} - Score {lead['score']}/100"
+            if lead['budget'] > 0:
+                report += f" - Budget €{lead['budget']:,.0f}"
+            report += "\n"
+    else:
+        report += "Nessun lead HOT oggi\n"
+    
+    report += f"""
+---
+
+🌡️ **LEAD WARM** ({len(warm_leads_today)}):
+"""
+    
+    if warm_leads_today:
+        for i, lead in enumerate(warm_leads_today[:5], 1):
+            report += f"{i}. {lead['name']} - Score {lead['score']}/100\n"
+    else:
+        report += "Nessun lead WARM oggi\n"
+    
+    report += """
+---
+
+💡 **AZIONI CONSIGLIATE:**
+"""
+    
+    if hot_leads_today:
+        report += "• ⚡ Contatta SUBITO i lead HOT!\n"
+    if warm_leads_today:
+        report += "• 📞 Follow-up lead WARM entro domani\n"
+    if appointments_today > 0:
+        report += f"• 📅 Prepara i {appointments_today} appuntamenti di domani\n"
+    
+    if not hot_leads_today and not warm_leads_today and new_clients_today == 0:
+        report += "• 📣 Considera di promuovere il bot sui social!\n"
+    
+    report += f"""
+---
+
+🤖 Bot attivo e funzionante ✅
+"""
+    
+    try:
+        telegram_bot.send_message(
+            chat_id=admin_id,
+            text=report
+        )
+        
+        return {
+            "success": True,
+            "report_sent": True,
+            "stats": {
+                "messages": messages_today,
+                "new_clients": new_clients_today,
+                "hot_leads": len(hot_leads_today),
+                "warm_leads": len(warm_leads_today),
+                "appointments": appointments_today
+            }
+        }
+    except Exception as e:
+        logging.error(f"Error sending daily report: {e}")
+        return {"success": False, "error": str(e)}
+
                 chat_id=target_chat_id,
                 text="🤖 Il bot Elettra è tornato attivo! Posso continuare ad aiutarti."
             )
