@@ -1243,6 +1243,30 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
             {"chat_id": target_chat_id},
             {"$set": {"active": False, "ended_at": datetime.now(timezone.utc).isoformat()}}
         )
+    
+    elif command == "/condividi":
+        # Genera link condivisibile per immobili
+        properties = await db.properties.find({"status": "disponibile"}, {"_id": 1, "property_type": 1, "location": 1}).to_list(5)
+        
+        if not properties:
+            telegram_bot.send_message(chat_id=chat_id, text="Nessun immobile disponibile al momento")
+            return
+        
+        response = "🔗 **CONDIVIDI IMMOBILI**\n\nScegli quale immobile vuoi condividere:\n\n"
+        
+        keyboard = {"inline_keyboard": []}
+        
+        for i, prop in enumerate(properties):
+            response += f"{i+1}. {prop['property_type']} - {prop['location']}\n"
+            keyboard["inline_keyboard"].append([
+                {"text": f"📤 Condividi #{i+1}", "callback_data": f"share_{str(prop['_id'])}"}
+            ])
+        
+        telegram_bot.send_message(chat_id=chat_id, text=response, reply_markup=keyboard)
+    
+    elif command == "/leads":
+        # Delega ai comandi admin
+        await handle_telegram_admin_commands(chat_id, user_id, command, user_name)
 
 
 
