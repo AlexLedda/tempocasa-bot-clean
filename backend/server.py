@@ -1433,21 +1433,6 @@ async def get_telegram_analytics():
         }
     }
 
-        
-        telegram_bot.send_message(
-            chat_id=chat_id,
-            text=f"✅ Hai rilasciato il controllo della chat {target_chat_id}\n\nIl bot risponderà di nuovo automaticamente."
-        )
-        
-        # Notifica il cliente
-        try:
-            telegram_bot.send_message(
-                chat_id=target_chat_id,
-                text="🤖 Il bot Elettra è tornato attivo! Posso continuare ad aiutarti."
-            )
-        except:
-            pass
-
 
 @api_router.get("/telegram/daily-report")
 async def send_daily_report():
