@@ -3,7 +3,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
-import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot, LogOut } from "lucide-react";
+import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot, LogOut, Send } from "lucide-react";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
@@ -15,6 +15,7 @@ import Clients from "./pages/Clients";
 import Valuations from "./pages/Valuations";
 import BotSettings from "./pages/BotSettings";
 import WhatsAppSetup from "./pages/WhatsAppSetup";
+import TelegramConversations from "./pages/TelegramConversations";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
