@@ -443,8 +443,11 @@ async def get_property(property_id: str):
     if not prop:
         raise HTTPException(status_code=404, detail="Immobile non trovato")
     
-    if isinstance(prop['created_at'], str):
+    # Gestisci campo created_at opzionale
+    if prop.get('created_at') and isinstance(prop['created_at'], str):
         prop['created_at'] = datetime.fromisoformat(prop['created_at'])
+    elif not prop.get('created_at'):
+        prop['created_at'] = datetime.now(timezone.utc)
     
     return prop
 
