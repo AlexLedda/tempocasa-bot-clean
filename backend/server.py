@@ -1382,13 +1382,29 @@ async def send_daily_report():
         logging.error(f"Error sending daily report: {e}")
         return {"success": False, "error": str(e)}
 
-                chat_id=target_chat_id,
-                text="🤖 Il bot Elettra è tornato attivo! Posso continuare ad aiutarti."
-            )
-        except:
-            pass
+
+@api_router.get("/telegram/admin-commands")
+async def get_admin_commands():
+    """
+    Lista comandi admin disponibili
+    """
+    return {
+        "commands": [
+            "/takeover_CHATID - Prendi controllo manuale di una chat",
+            "/release_CHATID - Rilascia controllo di una chat",
+            "/leads - Mostra statistiche lead HOT/WARM/COLD"
+        ]
+    }
+
+
+async def handle_telegram_admin_commands(chat_id: str, user_id: str, command: str, user_name: str):
+    """
+    Gestisce comandi admin aggiuntivi
+    """
+    from telegram_bot import get_telegram_bot
+    telegram_bot = get_telegram_bot()
     
-    elif command == "/leads":
+    if command == "/leads":
         # Mostra statistiche lead (solo admin)
         admin_id = os.getenv("TELEGRAM_ADMIN_ID")
         if str(user_id) != str(admin_id):
