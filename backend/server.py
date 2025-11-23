@@ -1057,7 +1057,9 @@ Come posso aiutarti oggi?"""
         )
     
     elif command == "/appartamenti":
-        # Mostra appartamenti disponibili
+        # Mostra appartamenti disponibili con funzionalità avanzate
+        from telegram_advanced_features import send_property_location, send_property_pdf
+        
         properties = await db.properties.find(
             {"property_type": "Appartamento", "status": "disponibile"},
             {"_id": 0}
@@ -1070,18 +1072,29 @@ Come posso aiutarti oggi?"""
                 response += f"   💰 €{p['price']:,.0f} | 🛏️ {p['bedrooms']} camere\n"
                 response += f"   {p['description'][:80]}...\n\n"
             
-            telegram_bot.send_message(chat_id=chat_id, text=response)
+            response += "\n💡 Usa i bottoni per maggiori dettagli!"
             
-            # Invia foto del primo immobile se disponibile
-            if properties[0].get('images') and len(properties[0]['images']) > 0:
-                try:
-                    telegram_bot.send_photo(
-                        chat_id=chat_id,
-                        photo_url=properties[0]['images'][0],
-                        caption=f"🏢 {properties[0]['location']} - €{properties[0]['price']:,.0f}"
-                    )
-                except:
-                    pass
+            # Bottoni per ogni immobile
+            keyboard = {
+                "inline_keyboard": []
+            }
+            
+            for i, p in enumerate(properties[:3], 1):
+                keyboard["inline_keyboard"].append([
+                    {"text": f"📸 Foto #{i}", "callback_data": f"photo_{i-1}"},
+                    {"text": f"📍 Mappa #{i}", "callback_data": f"location_{i-1}"},
+                    {"text": f"📄 PDF #{i}", "callback_data": f"pdf_{i-1}"}
+                ])
+            
+            telegram_bot.send_message(chat_id=chat_id, text=response, reply_markup=keyboard)
+            
+            # Salva properties in cache per i callback
+            import json
+            await db.telegram_cache.update_one(
+                {"chat_id": chat_id, "type": "properties"},
+                {"$set": {"data": json.dumps([dict(p) for p in properties], default=str), "chat_id": chat_id, "type": "properties"}},
+                upsert=True
+            )
         else:
             telegram_bot.send_message(
                 chat_id=chat_id,
