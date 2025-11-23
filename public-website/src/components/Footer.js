@@ -74,18 +74,23 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <MapPin className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                <span>Via Roma 123, 01016 Tarquinia (VT)</span>
+                <span>Viale Luigi Dasti, 6 - 01016 Tarquinia (VT)</span>
               </li>
               <li className="flex items-start gap-2">
                 <Phone className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                <a href="tel:+390766123456" className="hover:text-primary-500">
-                  +39 0766 123456
-                </a>
+                <div className="flex flex-col">
+                  <a href="tel:+390766180585" className="hover:text-primary-500">
+                    0766 180585 (Fisso)
+                  </a>
+                  <a href="tel:+393515290147" className="hover:text-primary-500">
+                    351 529 0147 (Mobile)
+                  </a>
+                </div>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                <a href="mailto:info@tempocasa-tarquinia.it" className="hover:text-primary-500">
-                  info@tempocasa-tarquinia.it
+                <a href="mailto:tarquinia@tempocasa.it" className="hover:text-primary-500">
+                  tarquinia@tempocasa.it
                 </a>
               </li>
               <li className="flex items-start gap-2">
