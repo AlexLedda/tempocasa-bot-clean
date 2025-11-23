@@ -967,6 +967,173 @@ async def telegram_webhook(request: Request):
             try:
                 import requests
                 requests.post(
+
+
+async def handle_telegram_command(chat_id: str, user_id: str, command: str, user_name: str):
+    """
+    Gestisce i comandi Telegram (es: /start, /appartamenti, ecc.)
+    """
+    from telegram_bot import get_telegram_bot
+    
+    telegram_bot = get_telegram_bot()
+    client_identifier = f"telegram_{user_id}"
+    
+    # Ottieni info bot
+    bot_name = os.environ.get('BOT_NAME', 'Elettra')
+    agency_name = os.environ.get('BOT_AGENCY_NAME', 'Tempocasa Tarquinia')
+    
+    if command == "/start":
+        # Messaggio di benvenuto con bottoni
+        welcome_text = f"""👋 Benvenuto! Sono {bot_name}, assistente virtuale di {agency_name}!
+
+🏠 Posso aiutarti a:
+• Cercare la casa dei tuoi sogni
+• Vendere il tuo immobile
+• Richiedere una valutazione gratuita
+• Fissare un appuntamento
+
+Come posso aiutarti oggi?"""
+        
+        # Crea bottoni inline
+        keyboard = {
+            "inline_keyboard": [
+                [
+                    {"text": "🏠 Cerco casa", "callback_data": "cerco_casa"},
+                    {"text": "💰 Voglio vendere", "callback_data": "voglio_vendere"}
+                ],
+                [
+                    {"text": "📊 Valutazione gratuita", "callback_data": "valutazione"},
+                    {"text": "📅 Appuntamento", "callback_data": "appuntamento"}
+                ],
+                [
+                    {"text": "🏢 Vedi appartamenti", "callback_data": "/appartamenti"},
+                    {"text": "🏡 Vedi ville", "callback_data": "/ville"}
+                ],
+                [
+                    {"text": "📞 Contatti agenzia", "callback_data": "/contatti"}
+                ]
+            ]
+        }
+        
+        telegram_bot.send_message(
+            chat_id=chat_id,
+            text=welcome_text,
+            reply_markup=keyboard
+        )
+    
+    elif command == "/appartamenti":
+        # Mostra appartamenti disponibili
+        properties = await db.properties.find(
+            {"property_type": "Appartamento", "status": "disponibile"},
+            {"_id": 0}
+        ).to_list(10)
+        
+        if properties:
+            response = "🏢 **APPARTAMENTI DISPONIBILI**\n\n"
+            for i, p in enumerate(properties[:5], 1):
+                response += f"{i}. {p['location']} - {p['square_meters']}mq\n"
+                response += f"   💰 €{p['price']:,.0f} | 🛏️ {p['bedrooms']} camere\n"
+                response += f"   {p['description'][:80]}...\n\n"
+            
+            telegram_bot.send_message(chat_id=chat_id, text=response)
+            
+            # Invia foto del primo immobile se disponibile
+            if properties[0].get('images') and len(properties[0]['images']) > 0:
+                try:
+                    telegram_bot.send_photo(
+                        chat_id=chat_id,
+                        photo_url=properties[0]['images'][0],
+                        caption=f"🏢 {properties[0]['location']} - €{properties[0]['price']:,.0f}"
+                    )
+                except:
+                    pass
+        else:
+            telegram_bot.send_message(
+                chat_id=chat_id,
+                text="Al momento non ci sono appartamenti disponibili. Ti contatterò appena arriveranno nuove proposte!"
+            )
+    
+    elif command == "/ville":
+        # Mostra ville disponibili
+        properties = await db.properties.find(
+            {"property_type": "Villa", "status": "disponibile"},
+            {"_id": 0}
+        ).to_list(10)
+        
+        if properties:
+            response = "🏡 **VILLE DISPONIBILI**\n\n"
+            for i, p in enumerate(properties[:5], 1):
+                response += f"{i}. {p['location']} - {p['square_meters']}mq\n"
+                response += f"   💰 €{p['price']:,.0f} | 🛏️ {p['bedrooms']} camere\n"
+                response += f"   {p['description'][:80]}...\n\n"
+            
+            telegram_bot.send_message(chat_id=chat_id, text=response)
+            
+            # Invia foto della prima villa se disponibile
+            if properties[0].get('images') and len(properties[0]['images']) > 0:
+                try:
+                    telegram_bot.send_photo(
+                        chat_id=chat_id,
+                        photo_url=properties[0]['images'][0],
+                        caption=f"🏡 {properties[0]['location']} - €{properties[0]['price']:,.0f}"
+                    )
+                except:
+                    pass
+        else:
+            telegram_bot.send_message(
+                chat_id=chat_id,
+                text="Al momento non ci sono ville disponibili. Ti contatterò appena arriveranno nuove proposte!"
+            )
+    
+    elif command == "/valutazione":
+        response = """📊 **VALUTAZIONE GRATUITA**
+
+Vuoi conoscere il valore del tuo immobile?
+
+Ti offriamo una valutazione professionale gratuita e senza impegno!
+
+Per procedere, dimmi:
+1. Dove si trova l'immobile?
+2. Che tipo di immobile è? (appartamento, villa, ecc.)
+3. Quanti mq?"""
+        
+        telegram_bot.send_message(chat_id=chat_id, text=response)
+    
+    elif command == "/contatti":
+        response = f"""📞 **CONTATTI {agency_name.upper()}**
+
+🏢 Agenzia: {agency_name}
+📍 Indirizzo: Tarquinia (VT)
+📞 Telefono: +39 0766 xxx xxx
+📧 Email: info@tempocasa-tarquinia.it
+🌐 Web: www.tempocasa-tarquinia.it
+
+⏰ Orari:
+Lunedì - Sabato: 9:00 - 13:00 | 15:00 - 19:00
+Domenica: Chiuso
+
+Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
+        
+        telegram_bot.send_message(chat_id=chat_id, text=response)
+    
+    elif command == "/help":
+        response = """ℹ️ **COMANDI DISPONIBILI**
+
+/start - Menu principale
+/appartamenti - Vedi appartamenti disponibili
+/ville - Vedi ville disponibili
+/valutazione - Richiedi valutazione gratuita
+/contatti - Info contatti agenzia
+/help - Mostra questo messaggio
+
+💬 Oppure scrivi liberamente cosa cerchi e ti aiuterò!"""
+        
+        telegram_bot.send_message(chat_id=chat_id, text=response)
+    
+    else:
+        # Comando non riconosciuto, gestiscilo come messaggio normale
+        await process_telegram_message(chat_id, user_id, command, user_name)
+
                     f"https://api.telegram.org/bot{os.getenv('TELEGRAM_BOT_TOKEN')}/answerCallbackQuery",
                     json={"callback_query_id": callback["id"]}
                 )
