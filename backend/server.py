@@ -1178,6 +1178,22 @@ async def process_telegram_message(chat_id: str, user_id: str, message_text: str
     from telegram_bot import get_telegram_bot
     from bot_messages import get_welcome_message
     
+    # Gestisci callback da bottoni
+    if message_text.startswith("/"):
+        await handle_telegram_command(chat_id, user_id, message_text, user_name)
+        return
+    
+    # Gestisci testi da bottoni inline
+    if message_text == "cerco_casa":
+        message_text = "Cerco casa"
+    elif message_text == "voglio_vendere":
+        message_text = "Voglio vendere il mio immobile"
+    elif message_text == "valutazione":
+        await handle_telegram_command(chat_id, user_id, "/valutazione", user_name)
+        return
+    elif message_text == "appuntamento":
+        message_text = "Vorrei fissare un appuntamento"
+    
     # Usa user_id come identificatore cliente (invece del telefono)
     client_identifier = f"telegram_{user_id}"
     
