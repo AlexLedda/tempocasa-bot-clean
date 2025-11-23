@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test della nuova pagina 'Telegram Bot' nel dashboard web. La pagina si trova alla rotta /telegram e mostra conversazioni Telegram del bot con lead scoring, messaggi e possibilità di rispondere."
+user_problem_statement: "Implementare sistema di gestione template messaggi bot Telegram. Creare interfaccia web professionale e accattivante per permettere all'utente di modificare i messaggi del bot direttamente dal dashboard, senza dover modificare il codice."
 
 backend:
   - task: "API Appuntamenti - GET /api/appointments"
