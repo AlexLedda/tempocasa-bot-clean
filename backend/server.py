@@ -914,19 +914,9 @@ async def handle_telegram_command(chat_id: str, user_id: str, command: str, user
         telegram_bot.send_message(chat_id=chat_id, text=response)
     
     elif command == "/contatti":
-        response = f"""📞 **CONTATTI {agency_name.upper()}**
-
-🏢 Agenzia: {agency_name}
-📍 Indirizzo: Tarquinia (VT)
-📞 Telefono: +39 0766 xxx xxx
-📧 Email: info@tempocasa-tarquinia.it
-🌐 Web: www.tempocasa-tarquinia.it
-
-⏰ Orari:
-Lunedì - Sabato: 9:00 - 13:00 | 15:00 - 19:00
-Domenica: Chiuso
-
-Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
+        # Carica template contatti
+        templates = await db.bot_templates.find_one({}, {"_id": 0})
+        response = templates.get("contacts_message", f"Contatti {agency_name}")
         
         telegram_bot.send_message(chat_id=chat_id, text=response)
     
