@@ -216,11 +216,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Schermata Lista Appuntamenti"
-    - "Schermata Dettaglio Appuntamento"
-    - "Schermata Form Appuntamento (Create/Edit)"
-    - "Componente PropertyPickerModal"
-    - "Stack Navigator Appuntamenti"
+    - "Pagina Telegram Bot - TelegramConversations"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
