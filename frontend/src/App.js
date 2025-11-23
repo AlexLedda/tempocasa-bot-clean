@@ -111,6 +111,7 @@ function Layout({ children, settings }) {
     { name: "Clienti", href: "/clients", icon: Users },
     { name: "Messaggi", href: "/messages", icon: MessageSquare },
     { name: "Telegram Bot", href: "/telegram", icon: Send },
+    { name: "Template Messaggi", href: "/templates", icon: FileText },
     { name: "Appuntamenti", href: "/appointments", icon: Calendar },
     { name: "Valutazioni", href: "/valuations", icon: ClipboardCheck },
     { name: "Impostazioni Bot", href: "/bot-settings", icon: Bot },
