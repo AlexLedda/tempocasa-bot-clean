@@ -3,12 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { MapPin, Bed, Bath, Square, Home, Calendar, Tag, ArrowLeft, Phone, Mail, Send, Check } from 'lucide-react';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const TELEGRAM_BOT = process.env.REACT_APP_TELEGRAM_BOT;
-
-import L from 'leaflet';
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
