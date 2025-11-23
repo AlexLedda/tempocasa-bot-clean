@@ -43,6 +43,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/chi-siamo" className="text-sm hover:text-primary-500 transition-colors">
+                  Chi Siamo
+                </Link>
+              </li>
+              <li>
                 <Link to="/valutazione" className="text-sm hover:text-primary-500 transition-colors">
                   Richiedi Valutazione
                 </Link>
