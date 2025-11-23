@@ -1691,6 +1691,58 @@ async def handle_telegram_admin_commands(chat_id: str, user_id: str, command: st
     admin_id = os.getenv("TELEGRAM_ADMIN_ID")
     if str(user_id) != str(admin_id):
         return
+
+
+
+# ==================== BOT TEMPLATES MANAGEMENT ====================
+
+@api_router.get("/bot-templates")
+async def get_bot_templates():
+    """
+    Ottieni tutti i template del bot
+    """
+    templates = await db.bot_templates.find_one({}, {"_id": 0})
+    
+    if not templates:
+        raise HTTPException(status_code=404, detail="Template non trovati")
+    
+    return {"success": True, "templates": templates}
+
+
+@api_router.put("/bot-templates")
+async def update_bot_templates(templates: dict):
+    """
+    Aggiorna i template del bot
+    """
+    # Rimuovi _id se presente
+    templates.pop("_id", None)
+    
+    # Aggiorna o crea template
+    result = await db.bot_templates.update_one(
+        {},
+        {"$set": templates},
+        upsert=True
+    )
+    
+    return {
+        "success": True,
+        "message": "Template aggiornati con successo",
+        "modified": result.modified_count > 0 or result.upserted_id is not None
+    }
+
+
+@api_router.get("/bot-templates/{template_key}")
+async def get_single_template(template_key: str):
+    """
+    Ottieni un singolo template
+    """
+    templates = await db.bot_templates.find_one({}, {"_id": 0})
+    
+    if not templates or template_key not in templates:
+        raise HTTPException(status_code=404, detail="Template non trovato")
+    
+    return {"success": True, "template": templates[template_key]}
+
     
     if command == "/leads":
         # Mostra statistiche lead (solo admin)
