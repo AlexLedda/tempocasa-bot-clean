@@ -1169,42 +1169,6 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
         # Comando non riconosciuto, gestiscilo come messaggio normale
         await process_telegram_message(chat_id, user_id, command, user_name)
 
-                    f"https://api.telegram.org/bot{os.getenv('TELEGRAM_BOT_TOKEN')}/answerCallbackQuery",
-                    json={"callback_query_id": callback["id"]}
-                )
-            except:
-                pass
-            
-            # Processa il comando del bottone
-            await process_telegram_message(chat_id, user_id, callback_data, first_name)
-        
-        # Verifica se c'è un messaggio
-        elif "message" in body:
-            message = body["message"]
-            chat_id = str(message["chat"]["id"])
-            user_id = str(message["from"]["id"])
-            username = message["from"].get("username", "")
-            first_name = message["from"].get("first_name", "User")
-            
-            # Supporta solo messaggi di testo per ora
-            if "text" in message:
-                text = message["text"]
-                
-                logging.info(f"Message from {first_name} (@{username}): {text}")
-                
-                # Gestisci comandi
-                if text.startswith("/"):
-                    await handle_telegram_command(chat_id, user_id, text, first_name)
-                else:
-                    # Processa messaggio normale
-                    await process_telegram_message(chat_id, user_id, text, first_name)
-        
-        return {"ok": True}
-        
-    except Exception as e:
-        logging.error(f"Error processing Telegram webhook: {e}", exc_info=True)
-        return {"ok": False, "error": str(e)}
-
 
 async def process_telegram_message(chat_id: str, user_id: str, message_text: str, user_name: str):
     """
