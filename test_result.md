@@ -222,11 +222,5 @@ test_plan:
   test_priority: "high_first"
 
 agent_communication:
-  - agent: "main"
-    message: "Implementate tutte le schermate per gestione appuntamenti mobile. Necessario testare prima le API backend e poi l'integrazione mobile. Le API dovrebbero già essere funzionanti, serve solo verifica."
-  - agent: "testing"
-    message: "✅ BACKEND TESTING COMPLETATO: 5/6 API funzionano perfettamente! Tutte le operazioni CRUD principali per appuntamenti sono operative. Solo GET /api/appointments/{id} mancante (opzionale). Le API sono pronte per l'integrazione mobile. Creato /app/backend_test.py per test automatici futuri."
-  - agent: "main"
-    message: "✅ Aggiunto endpoint GET /api/appointments/{id} nel backend. Ora richiedo testing automatico frontend per verificare l'integrazione completa delle schermate mobile appuntamenti."
-  - agent: "testing"
-    message: "❌ MOBILE TESTING PARZIALE: Metro Bundler attivo su localhost:8081, configurazione mobile corretta, ma app reindirizza a frontend web. PROBLEMA CRITICO: Login API fallisce con net::ERR_ABORTED. Backend APIs funzionano (testato con curl). NECESSARIO: Fix integrazione frontend-backend per completare test mobile. Tutte le schermate mobile sono implementate correttamente ma non testabili per problema login."
+  - agent: "user"
+    message: "Richiesto test della nuova pagina 'Telegram Bot' nel dashboard web. URL: https://whatsapp-realty-1.preview.emergentagent.com, login: admin/Corneto1. Verificare statistiche, lista conversazioni, dettagli e funzionalità di risposta."
