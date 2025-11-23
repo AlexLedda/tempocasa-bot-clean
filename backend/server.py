@@ -798,16 +798,9 @@ async def handle_telegram_command(chat_id: str, user_id: str, command: str, user
     agency_name = os.environ.get('BOT_AGENCY_NAME', 'Tempocasa Tarquinia')
     
     if command == "/start":
-        # Messaggio di benvenuto con bottoni
-        welcome_text = f"""👋 Benvenuto! Sono {bot_name}, assistente virtuale di {agency_name}!
-
-🏠 Posso aiutarti a:
-• Cercare la casa dei tuoi sogni
-• Vendere il tuo immobile
-• Richiedere una valutazione gratuita
-• Fissare un appuntamento
-
-Come posso aiutarti oggi?"""
+        # Carica template messaggio di benvenuto
+        templates = await db.bot_templates.find_one({}, {"_id": 0})
+        welcome_text = templates.get("welcome_message", f"Benvenuto! Sono {bot_name}")
         
         # Crea bottoni inline
         keyboard = {
