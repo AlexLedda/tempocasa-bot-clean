@@ -1404,7 +1404,39 @@ async def handle_telegram_admin_commands(chat_id: str, user_id: str, command: st
     from telegram_bot import get_telegram_bot
     telegram_bot = get_telegram_bot()
     
+    admin_id = os.getenv("TELEGRAM_ADMIN_ID")
+    if str(user_id) != str(admin_id):
+        return
+    
     if command == "/leads":
+        # Mostra statistiche lead (solo admin)
+        
+        # Conta lead per temperatura
+        all_clients = await db.clients.find({"phone": {"$regex": "^telegram_"}}).to_list(1000)
+        
+        hot_leads = []
+        warm_leads = []
+        cold_leads = []
+        
+        for client in all_clients:
+            score_data = calculate_lead_score(client, "")
+            if score_data['score'] >= 70:
+                hot_leads.append(client)
+            elif score_data['score'] >= 40:
+                warm_leads.append(client)
+            else:
+                cold_leads.append(client)
+        
+        response = f"""📊 **STATISTICHE LEAD TELEGRAM**
+
+🔥 **HOT** ({len(hot_leads)}): Lead pronti per chiusura
+🌡️ **WARM** ({len(warm_leads)}): Lead interessati
+❄️ **COLD** ({len(cold_leads)}): Lead da riscaldare
+
+📈 **Totale lead:** {len(all_clients)}
+"""
+        
+        telegram_bot.send_message(chat_id=chat_id, text=response)
         # Delega ai comandi admin
         await handle_telegram_admin_commands(chat_id, user_id, command, user_name)
     
