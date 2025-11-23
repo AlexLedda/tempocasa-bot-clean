@@ -1267,6 +1267,10 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
     elif command == "/leads":
         # Delega ai comandi admin
         await handle_telegram_admin_commands(chat_id, user_id, command, user_name)
+    
+    else:
+        # Comando non riconosciuto, delega ai comandi admin
+        await handle_telegram_admin_commands(chat_id, user_id, command, user_name)
 
 
 
