@@ -1443,6 +1443,210 @@ async def send_daily_report():
     Da chiamare via cron ogni sera alle 20:00
     """
     from telegram_bot import get_telegram_bot
+
+
+
+@api_router.get("/telegram/conversations")
+async def get_telegram_conversations():
+    """
+    Ottieni tutte le conversazioni Telegram con dettagli
+    """
+    # Trova tutti i clienti Telegram
+    clients = await db.clients.find({"phone": {"$regex": "^telegram_"}}).to_list(1000)
+    
+    conversations = []
+    
+    for client in clients:
+        # Ultimo messaggio
+        last_message = await db.messages.find_one(
+            {"client_phone": client['phone']},
+            sort=[("timestamp", -1)]
+        )
+        
+        # Conta messaggi
+        message_count = await db.messages.count_documents({"client_phone": client['phone']})
+        
+        # Calcola lead score
+        lead_score = calculate_lead_score(client, last_message.get('message', '') if last_message else '')
+        
+        # Controlla se c'è takeover attivo
+        chat_id = client['phone'].replace('telegram_', '')
+        takeover = await db.telegram_takeovers.find_one({"chat_id": chat_id, "active": True})
+        
+        conversations.append({
+            "id": str(client.get('_id', '')),
+            "client_id": str(client.get('_id', '')),
+            "chat_id": chat_id,
+            "name": f"{client.get('name', 'Unknown')} {client.get('surname', '')}".strip(),
+            "phone": client['phone'],
+            "last_message": last_message.get('message', '') if last_message else 'Nessun messaggio',
+            "last_message_time": last_message.get('timestamp', '') if last_message else '',
+            "last_message_direction": last_message.get('direction', '') if last_message else '',
+            "message_count": message_count,
+            "lead_score": lead_score['score'],
+            "lead_temperature": lead_score['temperature'],
+            "lead_emoji": lead_score['emoji'],
+            "budget": client.get('budget', 0),
+            "email": client.get('email', ''),
+            "looking_for": client.get('looking_for', ''),
+            "profile_completed": client.get('profile_completed', False),
+            "takeover_active": takeover is not None,
+            "created_at": client.get('created_at', '')
+        })
+    
+    # Ordina per ultimo messaggio
+    conversations.sort(key=lambda x: x['last_message_time'], reverse=True)
+    
+    return {"success": True, "conversations": conversations, "total": len(conversations)}
+
+
+@api_router.get("/telegram/conversation/{client_id}")
+async def get_telegram_conversation_details(client_id: str):
+    """
+    Ottieni dettagli completi di una conversazione specifica
+    """
+    from bson import ObjectId
+    
+    # Trova cliente
+    try:
+        client = await db.clients.find_one({"_id": ObjectId(client_id)})
+    except:
+        raise HTTPException(status_code=404, detail="Cliente non trovato")
+    
+    if not client:
+        raise HTTPException(status_code=404, detail="Cliente non trovato")
+    
+    # Tutti i messaggi
+    messages = await db.messages.find(
+        {"client_phone": client['phone']},
+        {"_id": 0}
+    ).sort("timestamp", 1).to_list(1000)
+    
+    # Lead score
+    last_msg_text = messages[-1]['message'] if messages else ''
+    lead_score = calculate_lead_score(client, last_msg_text)
+    
+    return {
+        "success": True,
+        "client": {
+            "id": str(client['_id']),
+            "name": client.get('name', ''),
+            "surname": client.get('surname', ''),
+            "phone": client.get('phone', ''),
+            "email": client.get('email', ''),
+            "budget": client.get('budget', 0),
+            "looking_for": client.get('looking_for', ''),
+            "needs_mortgage": client.get('needs_mortgage', False),
+            "needs_to_sell": client.get('needs_to_sell', False),
+            "profile_completed": client.get('profile_completed', False),
+            "created_at": client.get('created_at', '')
+        },
+        "messages": messages,
+        "lead_score": lead_score,
+        "total_messages": len(messages)
+    }
+
+
+@api_router.post("/telegram/send-message")
+async def send_message_from_dashboard(chat_id: str, message: str):
+    """
+    Invia messaggio da dashboard web a conversazione Telegram
+    """
+    from telegram_bot import get_telegram_bot
+    
+    telegram_bot = get_telegram_bot()
+    
+    try:
+        result = telegram_bot.send_message(chat_id=chat_id, text=message)
+        
+        # Salva nel database
+        client_identifier = f"telegram_{chat_id}"
+        msg = MessageCreate(
+            client_phone=client_identifier,
+            message=message,
+            direction="outgoing",
+            client_name="Dashboard Admin"
+        )
+        await create_message(msg)
+        
+        return {"success": True, "result": result}
+        
+    except Exception as e:
+        logging.error(f"Error sending message from dashboard: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/telegram/dashboard-stats")
+async def get_telegram_dashboard_stats():
+    """
+    Statistiche per dashboard Telegram
+    """
+    from datetime import datetime, timezone, timedelta
+    
+    # Date
+    now = datetime.now(timezone.utc)
+    today_start = datetime.combine(now.date(), datetime.min.time()).replace(tzinfo=timezone.utc).isoformat()
+    week_ago = (now - timedelta(days=7)).isoformat()
+    month_ago = (now - timedelta(days=30)).isoformat()
+    
+    # Totali
+    total_conversations = await db.clients.count_documents({"phone": {"$regex": "^telegram_"}})
+    total_messages = await db.messages.count_documents({"client_phone": {"$regex": "^telegram_"}})
+    
+    # Oggi
+    new_today = await db.clients.count_documents({
+        "phone": {"$regex": "^telegram_"},
+        "created_at": {"$gte": today_start}
+    })
+    
+    messages_today = await db.messages.count_documents({
+        "client_phone": {"$regex": "^telegram_"},
+        "timestamp": {"$gte": today_start}
+    })
+    
+    # Settimana
+    new_week = await db.clients.count_documents({
+        "phone": {"$regex": "^telegram_"},
+        "created_at": {"$gte": week_ago}
+    })
+    
+    # Lead scoring
+    all_clients = await db.clients.find({"phone": {"$regex": "^telegram_"}}).to_list(1000)
+    
+    hot = sum(1 for c in all_clients if calculate_lead_score(c, '')['score'] >= 70)
+    warm = sum(1 for c in all_clients if 40 <= calculate_lead_score(c, '')['score'] < 70)
+    cold = sum(1 for c in all_clients if calculate_lead_score(c, '')['score'] < 40)
+    
+    # Conversazioni attive (con messaggio nelle ultime 24h)
+    active_conversations = await db.messages.distinct(
+        "client_phone",
+        {
+            "client_phone": {"$regex": "^telegram_"},
+            "timestamp": {"$gte": today_start}
+        }
+    )
+    
+    return {
+        "success": True,
+        "totals": {
+            "conversations": total_conversations,
+            "messages": total_messages,
+            "active_today": len(active_conversations)
+        },
+        "today": {
+            "new_conversations": new_today,
+            "messages": messages_today
+        },
+        "week": {
+            "new_conversations": new_week
+        },
+        "leads": {
+            "hot": hot,
+            "warm": warm,
+            "cold": cold
+        }
+    }
+
     from datetime import datetime, timezone, timedelta
     
     admin_id = os.getenv("TELEGRAM_ADMIN_ID")
