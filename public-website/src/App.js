@@ -8,6 +8,7 @@ import Properties from './pages/Properties';
 import PropertyDetail from './pages/PropertyDetail';
 import Valuation from './pages/Valuation';
 import Contact from './pages/Contact';
+import About from './pages/About';
 
 function App() {
   return (
