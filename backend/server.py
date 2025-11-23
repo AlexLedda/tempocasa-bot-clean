@@ -1646,13 +1646,6 @@ async def handle_property_callback(callback_data: str, chat_id: str, user_id: st
         telegram_bot.send_message(chat_id=chat_id, text="📄 Sto generando il PDF...")
         await send_property_pdf(telegram_bot, chat_id, property_data)
 
-        "commands": [
-            "/takeover_CHATID - Prendi controllo manuale di una chat",
-            "/release_CHATID - Rilascia controllo di una chat",
-            "/leads - Mostra statistiche lead HOT/WARM/COLD"
-        ]
-    }
-
 
 async def handle_telegram_admin_commands(chat_id: str, user_id: str, command: str, user_name: str):
     """
