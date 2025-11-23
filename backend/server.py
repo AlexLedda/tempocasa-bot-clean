@@ -949,8 +949,35 @@ async def telegram_webhook(request: Request):
         logging.info(f"=== TELEGRAM WEBHOOK ===")
         logging.info(f"Payload: {body}")
         
+        # Gestisci callback query (bottoni cliccati)
+        if "callback_query" in body:
+            callback = body["callback_query"]
+            chat_id = str(callback["message"]["chat"]["id"])
+            user_id = str(callback["from"]["id"])
+            first_name = callback["from"].get("first_name", "User")
+            callback_data = callback.get("data", "")
+            
+            logging.info(f"Callback from {first_name}: {callback_data}")
+            
+            # Rispondi al callback
+            from telegram_bot import get_telegram_bot
+            telegram_bot = get_telegram_bot()
+            
+            # Conferma callback (rimuove icona di caricamento)
+            try:
+                import requests
+                requests.post(
+                    f"https://api.telegram.org/bot{os.getenv('TELEGRAM_BOT_TOKEN')}/answerCallbackQuery",
+                    json={"callback_query_id": callback["id"]}
+                )
+            except:
+                pass
+            
+            # Processa il comando del bottone
+            await process_telegram_message(chat_id, user_id, callback_data, first_name)
+        
         # Verifica se c'è un messaggio
-        if "message" in body:
+        elif "message" in body:
             message = body["message"]
             chat_id = str(message["chat"]["id"])
             user_id = str(message["from"]["id"])
@@ -963,8 +990,12 @@ async def telegram_webhook(request: Request):
                 
                 logging.info(f"Message from {first_name} (@{username}): {text}")
                 
-                # Processa il messaggio
-                await process_telegram_message(chat_id, user_id, text, first_name)
+                # Gestisci comandi
+                if text.startswith("/"):
+                    await handle_telegram_command(chat_id, user_id, text, first_name)
+                else:
+                    # Processa messaggio normale
+                    await process_telegram_message(chat_id, user_id, text, first_name)
         
         return {"ok": True}
         
