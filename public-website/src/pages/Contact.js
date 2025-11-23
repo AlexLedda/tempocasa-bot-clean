@@ -54,7 +54,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Indirizzo</h3>
-                    <p className="text-gray-600">Via Roma 123, 01016 Tarquinia (VT)</p>
+                    <p className="text-gray-600">Viale Luigi Dasti, 6</p>
+                    <p className="text-gray-600">01016 Tarquinia (VT)</p>
                   </div>
                 </div>
 
@@ -64,8 +65,11 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Telefono</h3>
-                    <a href="tel:+390766123456" className="text-primary-600 hover:underline">
-                      +39 0766 123456
+                    <a href="tel:+390766180585" className="text-primary-600 hover:underline block">
+                      0766 180585 (Fisso)
+                    </a>
+                    <a href="tel:+393515290147" className="text-primary-600 hover:underline block">
+                      351 529 0147 (Mobile)
                     </a>
                   </div>
                 </div>
@@ -76,8 +80,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <a href="mailto:info@tempocasa-tarquinia.it" className="text-primary-600 hover:underline">
-                      info@tempocasa-tarquinia.it
+                    <a href="mailto:tarquinia@tempocasa.it" className="text-primary-600 hover:underline">
+                      tarquinia@tempocasa.it
                     </a>
                   </div>
                 </div>
