@@ -428,8 +428,12 @@ async def get_properties(status: Optional[str] = None):
     properties = await db.properties.find(query, {"_id": 0}).to_list(1000)
     
     for prop in properties:
-        if isinstance(prop['created_at'], str):
+        # Gestisci campo created_at opzionale
+        if prop.get('created_at') and isinstance(prop['created_at'], str):
             prop['created_at'] = datetime.fromisoformat(prop['created_at'])
+        elif not prop.get('created_at'):
+            # Aggiungi created_at di default se mancante
+            prop['created_at'] = datetime.now(timezone.utc)
     
     return properties
 
