@@ -30,6 +30,12 @@ const AgentNavigator = () => {
             case 'Dashboard':
               iconName = focused ? 'view-dashboard' : 'view-dashboard-outline';
               break;
+            case 'Immobili':
+              iconName = focused ? 'home' : 'home-outline';
+              break;
+            case 'Telegram':
+              iconName = focused ? 'send' : 'send-outline';
+              break;
             case 'Appuntamenti':
               iconName = focused ? 'calendar-check' : 'calendar-check-outline';
               break;
