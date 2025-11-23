@@ -211,6 +211,18 @@ frontend:
         agent: "testing"
         comment: "✅ TESTATO COMPLETAMENTE: Pagina Telegram Bot funziona perfettamente! Login con admin/Corneto1. riuscito, navigazione al menu 'Telegram Bot' funzionante. Statistiche caricate correttamente (4 conversazioni totali, 0 HOT, 0 WARM, 4 COLD). Lista conversazioni visualizzata con 4 elementi (Tempocasa, TestUser, Test, Alessandro). Dettagli conversazione caricati correttamente con score lead, messaggi storici e campo input per rispondere. Filtri HOT/WARM/COLD funzionanti. ISSUE MINORE RISOLTO: Backend aveva bug nel calculate_lead_score con budget=None, risolto cambiando 'budget = client.get('budget', 0)' in 'budget = client.get('budget', 0) or 0'. Tutte le funzionalità testate e operative."
 
+  - task: "Pagina Template Messaggi - MessageTemplates"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MessageTemplates.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Nuova pagina Template Messaggi implementata con design moderno e professionale. Features: 9 template configurabili (benvenuto, aiuto, contatti, valutazione, nessun immobile, conferma appuntamento, notifica VIP, report giornaliero, takeover), card colorate con icone per ogni template, textarea espandibili con contatore caratteri, pulsante reset per ogni template, pulsante salva globale con indicatore modifiche, box informativa con suggerimenti. Integrata nel menu di navigazione con rotta /templates. Gli endpoint backend /api/bot-templates (GET e PUT) sono già esistenti e funzionanti."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
