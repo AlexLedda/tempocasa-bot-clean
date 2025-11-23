@@ -1968,7 +1968,7 @@ def calculate_lead_score(client: Dict, message_text: str) -> Dict:
     reasons = []
     
     # Budget alto = +30 punti
-    budget = client.get('budget', 0)
+    budget = client.get('budget', 0) or 0
     if budget >= 300000:
         score += 30
         reasons.append(f"Budget alto: €{budget:,.0f}")
