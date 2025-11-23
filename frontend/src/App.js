@@ -256,7 +256,7 @@ function App() {
 
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter basename="/admin">
         <AuthProvider>
           <Routes>
             {/* Public Route */}
