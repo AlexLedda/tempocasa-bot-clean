@@ -1165,6 +1165,115 @@ Oppure continua a chattare con me per trovare la tua casa ideale! 🏠"""
         
         telegram_bot.send_message(chat_id=chat_id, text=response)
     
+    elif command.startswith("/takeover"):
+        # Comando admin per prendere controllo di una chat
+        admin_id = os.getenv("TELEGRAM_ADMIN_ID")
+        if str(user_id) != str(admin_id):
+            telegram_bot.send_message(
+                chat_id=chat_id,
+                text="⛔ Comando riservato all'amministratore"
+            )
+            return
+        
+        # Estrai chat_id dal comando (es: /takeover_123456789)
+        if "_" in command:
+            target_chat_id = command.split("_")[1]
+        else:
+            target_chat_id = chat_id
+        
+        # Attiva takeover
+        await db.telegram_takeovers.update_one(
+            {"chat_id": target_chat_id},
+            {
+                "$set": {
+                    "chat_id": target_chat_id,
+                    "admin_id": user_id,
+                    "active": True,
+                    "started_at": datetime.now(timezone.utc).isoformat()
+                }
+            },
+            upsert=True
+        )
+        
+        telegram_bot.send_message(
+            chat_id=chat_id,
+            text=f"✅ Hai preso il controllo della chat {target_chat_id}\n\nIl bot non risponderà più automaticamente. Usa /release_{target_chat_id} per rilasciare."
+        )
+        
+        # Notifica il cliente
+        try:
+            telegram_bot.send_message(
+                chat_id=target_chat_id,
+                text="👋 Un nostro agente si è unito alla conversazione e ti risponderà personalmente!"
+            )
+        except:
+            pass
+    
+    elif command.startswith("/release"):
+        # Rilascia il controllo di una chat
+        admin_id = os.getenv("TELEGRAM_ADMIN_ID")
+        if str(user_id) != str(admin_id):
+            return
+        
+        # Estrai chat_id
+        if "_" in command:
+            target_chat_id = command.split("_")[1]
+        else:
+            target_chat_id = chat_id
+        
+        # Disattiva takeover
+        await db.telegram_takeovers.update_one(
+            {"chat_id": target_chat_id},
+            {"$set": {"active": False, "ended_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        telegram_bot.send_message(
+            chat_id=chat_id,
+            text=f"✅ Hai rilasciato il controllo della chat {target_chat_id}\n\nIl bot risponderà di nuovo automaticamente."
+        )
+        
+        # Notifica il cliente
+        try:
+            telegram_bot.send_message(
+                chat_id=target_chat_id,
+                text="🤖 Il bot Elettra è tornato attivo! Posso continuare ad aiutarti."
+            )
+        except:
+            pass
+    
+    elif command == "/leads":
+        # Mostra statistiche lead (solo admin)
+        admin_id = os.getenv("TELEGRAM_ADMIN_ID")
+        if str(user_id) != str(admin_id):
+            return
+        
+        # Conta lead per temperatura
+        all_clients = await db.clients.find({"phone": {"$regex": "^telegram_"}}).to_list(1000)
+        
+        hot_leads = []
+        warm_leads = []
+        cold_leads = []
+        
+        for client in all_clients:
+            score_data = calculate_lead_score(client, "")
+            if score_data['score'] >= 70:
+                hot_leads.append(client)
+            elif score_data['score'] >= 40:
+                warm_leads.append(client)
+            else:
+                cold_leads.append(client)
+        
+        response = f"""📊 **STATISTICHE LEAD TELEGRAM**
+
+🔥 **HOT** ({len(hot_leads)}): Lead pronti per chiusura
+🌡️ **WARM** ({len(warm_leads)}): Lead interessati
+❄️ **COLD** ({len(cold_leads)}): Lead da riscaldare
+
+📈 **Totale lead:** {len(all_clients)}
+"""
+        
+        telegram_bot.send_message(chat_id=chat_id, text=response)
+    
     else:
         # Comando non riconosciuto, gestiscilo come messaggio normale
         await process_telegram_message(chat_id, user_id, command, user_name)
