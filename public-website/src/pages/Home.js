@@ -233,32 +233,32 @@ export default function Home() {
               <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <CheckCircle className="w-10 h-10 text-primary-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">30+ Anni Esperienza</h3>
-              <p className="text-gray-600">Professionalità consolidata nel mercato immobiliare</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Storia Millenaria</h3>
+              <p className="text-gray-600">Necropoli etrusche, musei e patrimonio UNESCO</p>
             </div>
 
             <div className="text-center">
               <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Star className="w-10 h-10 text-primary-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">500+ Clienti Soddisfatti</h3>
-              <p className="text-gray-600">Testimonianze reali di chi ha trovato casa con noi</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Posizione Strategica</h3>
+              <p className="text-gray-600">Vicino alla via Aurelia e ai collegamenti principali</p>
             </div>
 
             <div className="text-center">
               <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <HomeIcon className="w-10 h-10 text-primary-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">200+ Immobili</h3>
-              <p className="text-gray-600">Ampio catalogo sempre aggiornato</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Servizi Completi</h3>
+              <p className="text-gray-600">Scuole, ospedale, impianti sportivi e negozi</p>
             </div>
 
             <div className="text-center">
               <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Award className="w-10 h-10 text-primary-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Assistenza 24/7</h3>
-              <p className="text-gray-600">Bot Elettra sempre disponibile per te</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Qualità della Vita</h3>
+              <p className="text-gray-600">Tra storia, natura e Maremma Laziale</p>
             </div>
           </div>
         </div>
