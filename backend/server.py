@@ -869,10 +869,12 @@ async def handle_telegram_command(chat_id: str, user_id: str, command: str, user
                 upsert=True
             )
         else:
-            telegram_bot.send_message(
-                chat_id=chat_id,
-                text="Al momento non ci sono appartamenti disponibili. Ti contatterò appena arriveranno nuove proposte!"
-            )
+            # Carica template no properties
+            templates = await db.bot_templates.find_one({}, {"_id": 0})
+            no_props_msg = templates.get("no_properties_message", "Nessun immobile disponibile")
+            no_props_msg = no_props_msg.replace("{property_type}", "appartamenti")
+            
+            telegram_bot.send_message(chat_id=chat_id, text=no_props_msg)
     
     elif command == "/ville":
         # Mostra ville disponibili
