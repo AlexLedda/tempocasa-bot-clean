@@ -1285,10 +1285,49 @@ async def process_telegram_message(chat_id: str, user_id: str, message_text: str
         # Send response via Telegram
         try:
             telegram_bot = get_telegram_bot()
-            result = telegram_bot.send_message(
-                chat_id=chat_id,
-                text=ai_response["response"]
-            )
+            
+            # Controlla se la risposta contiene suggerimenti di immobili
+            response_text = ai_response["response"]
+            
+            # Se ci sono immobili nel contesto, invia foto
+            if any(keyword in response_text.lower() for keyword in ["immobile", "appartamento", "villa", "casa", "consiglio", "suggerisco"]):
+                # Trova immobili che potrebbero interessare
+                properties = await db.properties.find(
+                    {"status": "disponibile"},
+                    {"_id": 0}
+                ).to_list(3)
+                
+                # Invia la risposta testuale
+                result = telegram_bot.send_message(
+                    chat_id=chat_id,
+                    text=response_text
+                )
+                
+                # Invia foto dei primi 2 immobili se disponibili
+                for i, prop in enumerate(properties[:2]):
+                    if prop.get('images') and len(prop['images']) > 0:
+                        try:
+                            caption = f"""🏠 {prop['property_type']} - {prop['location']}
+💰 Prezzo: €{prop['price']:,.0f}
+📐 Superficie: {prop['square_meters']}mq
+🛏️ Camere: {prop['bedrooms']} | 🚿 Bagni: {prop['bathrooms']}
+
+{prop['description'][:150]}..."""
+                            
+                            telegram_bot.send_photo(
+                                chat_id=chat_id,
+                                photo_url=prop['images'][0],
+                                caption=caption
+                            )
+                        except Exception as photo_error:
+                            logging.error(f"Error sending photo: {photo_error}")
+            else:
+                # Risposta normale senza foto
+                result = telegram_bot.send_message(
+                    chat_id=chat_id,
+                    text=response_text
+                )
+            
             logging.info(f"Telegram message sent to {chat_id}: {result}")
                 
         except Exception as send_error:
