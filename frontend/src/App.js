@@ -14,7 +14,6 @@ import Appointments from "./pages/Appointments";
 import Clients from "./pages/Clients";
 import Valuations from "./pages/Valuations";
 import BotSettings from "./pages/BotSettings";
-import WhatsAppSetup from "./pages/WhatsAppSetup";
 import TelegramConversations from "./pages/TelegramConversations";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
