@@ -102,6 +102,7 @@ class Property(BaseModel):
     property_type: str  # appartamento, villa, ufficio, etc
     images: List[str] = []
     status: str = "disponibile"  # disponibile, venduto, riservato
+    agent_id: Optional[str] = None  # ID agente assegnato
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class PropertyCreate(BaseModel):
