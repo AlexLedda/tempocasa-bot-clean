@@ -45,6 +45,51 @@ export default function Profile() {
     }
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validazione tipo file
+    if (!file.type.startsWith('image/')) {
+      toast.error('Seleziona un file immagine valido');
+      return;
+    }
+
+    // Validazione dimensione (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Immagine troppo grande (max 5MB)');
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      const token = localStorage.getItem('token');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(
+        `${API_URL}/api/auth/users/avatar`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      toast.success('Foto profilo aggiornata con successo');
+      loadProfile(); // Ricarica profilo per mostrare nuovo avatar
+      
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error(error.response?.data?.detail || "Errore caricamento foto");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
