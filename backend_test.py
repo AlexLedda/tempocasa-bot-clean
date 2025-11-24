@@ -344,56 +344,78 @@ class MultiUserAPITester:
             )
             return False
 
-    def test_get_single_appointment(self) -> bool:
-        """Test GET /api/appointments/{id} - Dettaglio singolo appuntamento"""
-        if not self.created_appointment_id:
+    def test_toggle_user_status(self) -> bool:
+        """Test POST /api/auth/users/{user_id}/toggle - Abilita/disabilita utente"""
+        if not self.admin_token:
             self.log_result(
-                "GET /api/appointments/{id}", 
+                "POST /api/auth/users/{user_id}/toggle", 
                 False, 
-                "Nessun appuntamento disponibile per test dettaglio",
-                "Questo endpoint potrebbe non essere implementato"
+                "Token admin non disponibile",
+                ""
+            )
+            return False
+            
+        if not self.created_user_id:
+            self.log_result(
+                "POST /api/auth/users/{user_id}/toggle", 
+                False, 
+                "Nessun utente creato per test toggle",
+                ""
             )
             return False
             
         try:
-            print(f"🔍 Testing GET /api/appointments/{self.created_appointment_id}...")
+            print(f"🔄 Testing POST /api/auth/users/{self.created_user_id}/toggle...")
             
-            response = self.session.get(f"{self.base_url}/appointments/{self.created_appointment_id}")
+            response = self.session.put(f"{self.base_url}/auth/users/{self.created_user_id}/toggle")
             
             if response.status_code == 200:
-                appointment = response.json()
+                updated_user = response.json()
                 
-                # Verifica che sia un oggetto con i campi corretti
-                required_fields = ['id', 'client_name', 'property_title', 'appointment_date', 'status']
-                missing_fields = [field for field in required_fields if field not in appointment]
-                
-                if not missing_fields:
-                    self.log_result(
-                        "GET /api/appointments/{id}", 
-                        True, 
-                        "Dettaglio appuntamento restituito correttamente",
-                        f"Appuntamento: {appointment.get('client_name')} - {appointment.get('property_title')}"
-                    )
-                    return True
+                # Verifica che abbia i campi necessari
+                if 'is_active' in updated_user:
+                    # Test secondo toggle
+                    response2 = self.session.put(f"{self.base_url}/auth/users/{self.created_user_id}/toggle")
+                    
+                    if response2.status_code == 200:
+                        updated_user2 = response2.json()
+                        
+                        # Verifica che lo stato sia cambiato
+                        if updated_user.get('is_active') != updated_user2.get('is_active'):
+                            self.log_result(
+                                "POST /api/auth/users/{user_id}/toggle", 
+                                True, 
+                                "Toggle stato utente funziona correttamente",
+                                f"Primo toggle: {updated_user.get('is_active')}, Secondo toggle: {updated_user2.get('is_active')}"
+                            )
+                            return True
+                        else:
+                            self.log_result(
+                                "POST /api/auth/users/{user_id}/toggle", 
+                                False, 
+                                "Stato non cambia dopo toggle",
+                                f"Entrambi i toggle: {updated_user.get('is_active')}"
+                            )
+                            return False
+                    else:
+                        self.log_result(
+                            "POST /api/auth/users/{user_id}/toggle", 
+                            False, 
+                            f"Secondo toggle fallito: HTTP {response2.status_code}",
+                            f"Response: {response2.text}"
+                        )
+                        return False
                 else:
                     self.log_result(
-                        "GET /api/appointments/{id}", 
+                        "POST /api/auth/users/{user_id}/toggle", 
                         False, 
-                        f"Campi mancanti: {missing_fields}",
-                        f"Appuntamento: {json.dumps(appointment, indent=2)}"
+                        "Campo is_active mancante nella response",
+                        f"User data: {json.dumps(updated_user, indent=2)}"
                     )
                     return False
-            elif response.status_code == 404:
-                self.log_result(
-                    "GET /api/appointments/{id}", 
-                    False, 
-                    "Endpoint non implementato (404)",
-                    "Questo endpoint potrebbe non essere presente nel backend"
-                )
-                return False
             else:
                 self.log_result(
-                    "GET /api/appointments/{id}", 
+                    "POST /api/auth/users/{user_id}/toggle", 
                     False, 
                     f"HTTP {response.status_code}",
                     f"Response: {response.text}"
@@ -402,7 +424,7 @@ class MultiUserAPITester:
                 
         except Exception as e:
             self.log_result(
-                "GET /api/appointments/{id}", 
+                "POST /api/auth/users/{user_id}/toggle", 
                 False, 
                 f"Errore: {str(e)}",
                 ""
