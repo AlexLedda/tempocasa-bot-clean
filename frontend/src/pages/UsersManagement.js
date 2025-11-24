@@ -80,7 +80,7 @@ export default function UsersManagement() {
       toast.success('Utente eliminato');
       loadUsers();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Errore nell\\'eliminazione');
+      toast.error(error.response?.data?.detail || "Errore nell'eliminazione");
     }
   };
 
