@@ -195,6 +195,114 @@ backend:
         agent: "main"
         comment: "✅ IMPLEMENTATO: Aggiunto endpoint GET /api/appointments/{id} nel backend con gestione date e conversione corretta. Backend riavviato con successo."
 
+  - task: "API Autenticazione - POST /api/auth/login"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Login admin funziona perfettamente con credenziali admin/Corneto1. Restituisce access_token e dati utente corretti con role=admin. JWT token valido per 7 giorni."
+
+  - task: "API Autenticazione - GET /api/auth/me"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Verifica profilo admin funziona correttamente. Restituisce tutti i campi necessari (id, username, role, email, full_name) con autenticazione Bearer token."
+
+  - task: "API Gestione Utenti - GET /api/auth/users"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Lista utenti funziona correttamente. Solo admin può accedere, restituisce array con tutti gli utenti del sistema. Controllo permessi implementato."
+
+  - task: "API Gestione Utenti - POST /api/auth/users"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Creazione nuovo agente funziona perfettamente. Testato con dati: username=test_agent, password=TestAgent123, full_name=Test Agente, email=test@agent.com, phone=1234567890, role=agent. Utente creato con ID univoco."
+
+  - task: "API Gestione Utenti - PUT /api/auth/users/{user_id}/toggle"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Toggle stato utente funziona correttamente. Testati entrambi i cambi di stato (attivo→inattivo→attivo). Campo is_active si aggiorna correttamente nel database."
+
+  - task: "API Gestione Utenti - DELETE /api/auth/users/{user_id}"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Eliminazione utente funziona perfettamente. Utente rimosso dal database e verificato che non sia più presente nella lista utenti. Controllo che admin non possa eliminare se stesso."
+
+  - task: "API Immobili con agent_id - POST /api/properties"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Creazione immobile come admin funziona correttamente. Agent_id può essere nullo per admin, immobile creato con tutti i campi necessari. Sistema multi-agente implementato correttamente."
+
+  - task: "API Immobili con agent_id - GET /api/properties"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Admin vede tutti gli immobili correttamente (5 immobili totali). Sistema di filtro per ruolo implementato: admin vede tutto, agenti vedono solo i propri immobili."
+
+  - task: "API Profilo - PUT /api/auth/profile"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO: Aggiornamento profilo funziona perfettamente. Testato aggiornamento email e telefono admin. Campi aggiornati correttamente nel database e restituiti nella response."
+
 frontend:
   - task: "Pagina Telegram Bot - TelegramConversations"
     implemented: true
