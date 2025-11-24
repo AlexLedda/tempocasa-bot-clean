@@ -589,13 +589,20 @@ async def update_user_admin(
 async def upload_user_avatar_admin(
     user_id: str,
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_admin_user)
+    current_user: User = Depends(get_current_active_user)
 ):
-    """Upload avatar per qualsiasi utente (solo admin)"""
+    """Upload avatar - Admin per chiunque, Agente solo per se stesso"""
     # Verifica che l'utente esista
     existing_user = await db.users.find_one({"id": user_id}, {"_id": 0})
     if not existing_user:
         raise HTTPException(status_code=404, detail="Utente non trovato")
+    
+    # Controllo permessi: agente può modificare solo se stesso
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(
+            status_code=403, 
+            detail="Non autorizzato: puoi modificare solo il tuo avatar"
+        )
     
     try:
         # Upload to Cloudinary
