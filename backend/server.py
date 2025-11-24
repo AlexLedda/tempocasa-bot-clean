@@ -849,7 +849,7 @@ async def telegram_webhook(request: Request):
     """
     try:
         body = await request.json()
-        logging.info(f"=== TELEGRAM WEBHOOK ===")
+        logging.info("=== TELEGRAM WEBHOOK ===")
         logging.info(f"Payload: {body}")
         
         # Gestisci callback query (bottoni cliccati)
@@ -1627,7 +1627,7 @@ async def get_telegram_dashboard_stats():
     if not hot_leads_today and not warm_leads_today and new_clients_today == 0:
         report += "• 📣 Considera di promuovere il bot sui social!\n"
     
-    report += f"""
+    report += """
 ---
 
 🤖 Bot attivo e funzionante ✅
@@ -2053,7 +2053,7 @@ async def process_telegram_message(chat_id: str, user_id: str, message_text: str
         
         # If bot sent a message in last 10 minutes, it's an active conversation - always respond
         if last_bot_message:
-            logging.info(f"Cliente esistente - conversazione attiva")
+            logging.info("Cliente esistente - conversazione attiva")
         else:
             # Not in active conversation - check if message is a property query
             properties_cursor = db.properties.find({"status": "disponibile"}, {"_id": 0})
