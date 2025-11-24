@@ -69,6 +69,14 @@ class UserResponse(BaseModel):
     last_login: Optional[datetime] = None
 
 
+class UserUpdate(BaseModel):
+    """User update model"""
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    full_name: Optional[str] = None
+    password: Optional[str] = None  # Nuova password opzionale
+
+
 class Token(BaseModel):
     """JWT Token response"""
     access_token: str
