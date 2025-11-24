@@ -580,10 +580,20 @@ async def update_property(
     return updated
 
 @api_router.delete("/properties/{property_id}")
-async def delete_property(property_id: str):
-    result = await db.properties.delete_one({"id": property_id})
-    if result.deleted_count == 0:
+async def delete_property(
+    property_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    # Verifica proprietà
+    existing = await db.properties.find_one({"id": property_id})
+    if not existing:
         raise HTTPException(status_code=404, detail="Immobile non trovato")
+    
+    # Se l'utente è agente, può eliminare solo i suoi immobili
+    if current_user.role == "agent" and existing.get('agent_id') != current_user.id:
+        raise HTTPException(status_code=403, detail="Non autorizzato a eliminare questo immobile")
+    
+    result = await db.properties.delete_one({"id": property_id})
     return {"message": "Immobile eliminato"}
 
 # Clients endpoints
