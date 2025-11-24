@@ -9,6 +9,8 @@ export default function UsersManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
@@ -16,6 +18,13 @@ export default function UsersManagement() {
     full_name: '',
     password: '',
     role: 'agent'
+  });
+  const [editingUser, setEditingUser] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    password: ''
   });
 
   useEffect(() => {
