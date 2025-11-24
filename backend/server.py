@@ -493,8 +493,16 @@ async def create_user_admin(
 
 # Properties endpoints
 @api_router.post("/properties", response_model=Property)
-async def create_property(prop: PropertyCreate):
+async def create_property(
+    prop: PropertyCreate,
+    current_user: User = Depends(get_current_active_user)
+):
     property_dict = prop.model_dump()
+    
+    # Se l'utente è agente e non è specificato agent_id, assegna automaticamente
+    if current_user.role == "agent" and not property_dict.get('agent_id'):
+        property_dict['agent_id'] = current_user.id
+    
     property_obj = Property(**property_dict)
     
     doc = property_obj.model_dump()
