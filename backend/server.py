@@ -544,13 +544,20 @@ async def upload_user_avatar(
 async def update_user_admin(
     user_id: str,
     user_data: UserUpdate,
-    current_user: User = Depends(get_current_admin_user)
+    current_user: User = Depends(get_current_active_user)
 ):
-    """Aggiorna dati utente (solo admin)"""
+    """Aggiorna dati utente - Admin può modificare chiunque, Agente solo se stesso"""
     # Find user
     existing_user = await db.users.find_one({"id": user_id}, {"_id": 0})
     if not existing_user:
         raise HTTPException(status_code=404, detail="Utente non trovato")
+    
+    # Controllo permessi: agente può modificare solo se stesso
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(
+            status_code=403, 
+            detail="Non autorizzato: puoi modificare solo il tuo profilo"
+        )
     
     # Prepare update data
     update_dict = {}
