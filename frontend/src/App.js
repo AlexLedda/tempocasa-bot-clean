@@ -106,8 +106,10 @@ function LogoutButton() {
 function Layout({ children, settings }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = require('./contexts/AuthContext').useAuth();
 
-  const navigation = [
+  // Navigazione completa per ADMIN
+  const adminNavigation = [
     { name: "Dashboard", href: "/", icon: Home },
     { name: "Immobili", href: "/properties", icon: Building2 },
     { name: "Clienti", href: "/clients", icon: Users },
@@ -117,7 +119,17 @@ function Layout({ children, settings }) {
     { name: "Appuntamenti", href: "/appointments", icon: Calendar },
     { name: "Valutazioni", href: "/valuations", icon: ClipboardCheck },
     { name: "Impostazioni Bot", href: "/bot-settings", icon: Bot },
+    { name: "Gestione Utenti", href: "/users", icon: Shield },
   ];
+
+  // Navigazione semplificata per AGENTI
+  const agentNavigation = [
+    { name: "Dashboard", href: "/", icon: Home },
+    { name: "I Miei Immobili", href: "/properties", icon: Building2 },
+    { name: "Il Mio Profilo", href: "/profile", icon: UserIcon },
+  ];
+
+  const navigation = user?.role === 'admin' ? adminNavigation : agentNavigation;
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50">
