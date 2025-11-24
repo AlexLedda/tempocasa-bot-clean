@@ -207,6 +207,7 @@ def user_to_response(user: User) -> UserResponse:
         id=user.id,
         username=user.username,
         email=user.email,
+        phone=user.phone,
         full_name=user.full_name,
         role=user.role,
         is_active=user.is_active,
