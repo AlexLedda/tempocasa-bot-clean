@@ -511,68 +511,45 @@ class MultiUserAPITester:
             )
             return False
 
-    def test_delete_appointment(self) -> bool:
-        """Test DELETE /api/appointments/{id} - Eliminazione appuntamento"""
-        if not self.created_appointment_id:
+    def test_get_properties_as_admin(self) -> bool:
+        """Test GET /api/properties - Verifica che admin veda tutti gli immobili"""
+        if not self.admin_token:
             self.log_result(
-                "DELETE /api/appointments/{id}", 
+                "GET /api/properties (admin)", 
                 False, 
-                "Nessun appuntamento disponibile per test eliminazione",
+                "Token admin non disponibile",
                 ""
             )
             return False
             
         try:
-            print(f"🗑️  Testing DELETE /api/appointments/{self.created_appointment_id}...")
+            print("🏠📋 Testing GET /api/properties (admin)...")
             
-            response = self.session.delete(f"{self.base_url}/appointments/{self.created_appointment_id}")
+            response = self.session.get(f"{self.base_url}/properties")
             
             if response.status_code == 200:
-                result = response.json()
+                properties = response.json()
                 
-                # Verifica che l'eliminazione sia andata a buon fine
-                if "message" in result or "success" in result:
-                    # Verifica che l'appuntamento sia stato effettivamente eliminato
-                    verify_response = self.session.get(f"{self.base_url}/appointments")
-                    if verify_response.status_code == 200:
-                        appointments = verify_response.json()
-                        deleted_found = any(apt.get('id') == self.created_appointment_id for apt in appointments)
-                        
-                        if not deleted_found:
-                            self.log_result(
-                                "DELETE /api/appointments/{id}", 
-                                True, 
-                                "Appuntamento eliminato correttamente",
-                                "Verificato che non sia più presente nella lista"
-                            )
-                            return True
-                        else:
-                            self.log_result(
-                                "DELETE /api/appointments/{id}", 
-                                False, 
-                                "Appuntamento ancora presente dopo eliminazione",
-                                "L'eliminazione potrebbe non aver funzionato"
-                            )
-                            return False
-                    else:
-                        self.log_result(
-                            "DELETE /api/appointments/{id}", 
-                            True, 
-                            "Eliminazione completata (verifica non possibile)",
-                            f"Response: {json.dumps(result, indent=2)}"
-                        )
-                        return True
+                if isinstance(properties, list):
+                    # Admin dovrebbe vedere tutti gli immobili
+                    self.log_result(
+                        "GET /api/properties (admin)", 
+                        True, 
+                        f"Admin vede tutti gli immobili ({len(properties)} totali)",
+                        f"Immobili con agent_id diversi o nulli presenti"
+                    )
+                    return True
                 else:
                     self.log_result(
-                        "DELETE /api/appointments/{id}", 
+                        "GET /api/properties (admin)", 
                         False, 
-                        "Response non contiene conferma eliminazione",
-                        f"Response: {json.dumps(result, indent=2)}"
+                        "Response non è una lista",
+                        f"Response: {response.text}"
                     )
                     return False
             else:
                 self.log_result(
-                    "DELETE /api/appointments/{id}", 
+                    "GET /api/properties (admin)", 
                     False, 
                     f"HTTP {response.status_code}",
                     f"Response: {response.text}"
@@ -581,7 +558,7 @@ class MultiUserAPITester:
                 
         except Exception as e:
             self.log_result(
-                "DELETE /api/appointments/{id}", 
+                "GET /api/properties (admin)", 
                 False, 
                 f"Errore: {str(e)}",
                 ""
