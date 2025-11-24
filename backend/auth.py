@@ -33,6 +33,7 @@ class User(BaseModel):
     email: Optional[EmailStr] = None  # Email opzionale
     full_name: str
     phone: Optional[str] = None  # Telefono agente
+    avatar: Optional[str] = None  # URL foto profilo Cloudinary
     role: str = "agent"  # admin, agent, viewer
     is_active: bool = True
     hashed_password: str = ""
