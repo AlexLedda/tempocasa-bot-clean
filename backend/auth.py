@@ -44,6 +44,7 @@ class UserCreate(BaseModel):
     """User creation model"""
     username: str = Field(min_length=3, max_length=50)
     email: Optional[EmailStr] = None
+    phone: Optional[str] = None
     password: str = Field(min_length=8)
     full_name: str
     role: str = "agent"
