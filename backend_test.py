@@ -45,55 +45,58 @@ class MultiUserAPITester:
             print(f"   Details: {details}")
         print()
 
-    def test_get_properties(self) -> bool:
-        """Test GET /api/properties - Necessaria per popolare il selector delle proprietà"""
+    def test_admin_login(self) -> bool:
+        """Test POST /api/auth/login - Login admin"""
         try:
-            print("🏠 Testing GET /api/properties...")
-            response = self.session.get(f"{self.base_url}/properties")
+            print("🔐 Testing POST /api/auth/login (admin)...")
+            
+            response = self.session.post(
+                f"{self.base_url}/auth/login",
+                json=self.admin_credentials,
+                headers={"Content-Type": "application/json"}
+            )
             
             if response.status_code == 200:
-                properties = response.json()
+                login_data = response.json()
                 
-                if isinstance(properties, list):
-                    if len(properties) > 0:
-                        # Usa la prima proprietà disponibile per i test
-                        self.created_property_id = properties[0].get('id')
+                # Verifica che abbia token e user
+                if "access_token" in login_data and "user" in login_data:
+                    self.admin_token = login_data["access_token"]
+                    user_data = login_data["user"]
+                    
+                    # Verifica che sia admin
+                    if user_data.get("role") == "admin":
+                        # Imposta header Authorization per le prossime richieste
+                        self.session.headers.update({
+                            "Authorization": f"Bearer {self.admin_token}"
+                        })
                         
-                        # Verifica che abbia tutti i campi necessari
-                        required_fields = ['id', 'title', 'price', 'location']
-                        first_property = properties[0]
-                        missing_fields = [field for field in required_fields if field not in first_property]
-                        
-                        if not missing_fields:
-                            self.log_result(
-                                "GET /api/properties", 
-                                True, 
-                                f"Restituisce {len(properties)} proprietà con tutti i campi necessari",
-                                f"Prima proprietà: {first_property.get('title')} - ID: {self.created_property_id}"
-                            )
-                            return True
-                        else:
-                            self.log_result(
-                                "GET /api/properties", 
-                                False, 
-                                f"Campi mancanti nella proprietà: {missing_fields}",
-                                f"Proprietà: {json.dumps(first_property, indent=2)}"
-                            )
-                            return False
+                        self.log_result(
+                            "POST /api/auth/login", 
+                            True, 
+                            "Login admin riuscito con successo",
+                            f"Username: {user_data.get('username')}, Role: {user_data.get('role')}"
+                        )
+                        return True
                     else:
-                        # Nessuna proprietà esistente, creiamo una di test
-                        return self.create_test_property()
+                        self.log_result(
+                            "POST /api/auth/login", 
+                            False, 
+                            f"Utente non è admin: {user_data.get('role')}",
+                            f"User data: {json.dumps(user_data, indent=2)}"
+                        )
+                        return False
                 else:
                     self.log_result(
-                        "GET /api/properties", 
+                        "POST /api/auth/login", 
                         False, 
-                        "Response non è una lista",
-                        f"Response: {response.text}"
+                        "Response mancante di access_token o user",
+                        f"Response: {json.dumps(login_data, indent=2)}"
                     )
                     return False
             else:
                 self.log_result(
-                    "GET /api/properties", 
+                    "POST /api/auth/login", 
                     False, 
                     f"HTTP {response.status_code}",
                     f"Response: {response.text}"
@@ -102,9 +105,9 @@ class MultiUserAPITester:
                 
         except Exception as e:
             self.log_result(
-                "GET /api/properties", 
+                "POST /api/auth/login", 
                 False, 
-                f"Errore di connessione: {str(e)}",
+                f"Errore: {str(e)}",
                 ""
             )
             return False
