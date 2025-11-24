@@ -69,7 +69,7 @@ export default function Profile() {
       formData.append('file', file);
 
       const response = await axios.post(
-        `${API_URL}/api/auth/users/avatar`,
+        `${API_URL}/api/auth/users/${user.id}/avatar`,
         formData,
         {
           headers: {
