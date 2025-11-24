@@ -552,7 +552,17 @@ async def get_property(property_id: str):
     return prop
 
 @api_router.put("/properties/{property_id}", response_model=Property)
-async def update_property(property_id: str, prop: PropertyCreate):
+async def update_property(
+    property_id: str,
+    prop: PropertyCreate,
+    current_user: User = Depends(get_current_active_user)
+):
+    existing = await db.properties.find_one({"id": property_id})
+    
+    # Se l'utente è agente, può modificare solo i suoi immobili
+    if current_user.role == "agent" and existing.get('agent_id') != current_user.id:
+        raise HTTPException(status_code=403, detail="Non autorizzato a modificare questo immobile")
+    
     existing = await db.properties.find_one({"id": property_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Immobile non trovato")
