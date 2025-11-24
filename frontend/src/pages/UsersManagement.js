@@ -69,6 +69,31 @@ export default function UsersManagement() {
     }
   };
 
+  const handleExportUsers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/api/auth/users/export`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Crea e scarica file JSON
+      const dataStr = JSON.stringify(response.data, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `users_export_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success('Utenti esportati con successo');
+    } catch (error) {
+      toast.error("Errore nell'esportazione utenti");
+    }
+  };
+
   const handleDeleteUser = async (userId, username) => {
     if (!window.confirm(`Sei sicuro di voler eliminare l'utente ${username}?`)) return;
     
