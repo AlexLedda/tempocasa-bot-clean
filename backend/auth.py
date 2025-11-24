@@ -64,6 +64,7 @@ class UserResponse(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     full_name: str
+    avatar: Optional[str] = None
     role: str
     is_active: bool
     created_at: datetime
