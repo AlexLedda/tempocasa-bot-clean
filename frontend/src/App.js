@@ -290,7 +290,11 @@ function App() {
                     <Route path="/appointments" element={<Appointments />} />
                     <Route path="/valuations" element={<Valuations />} />
                     <Route path="/bot-settings" element={<BotSettings />} />
-                    <Route path="/users" element={<UsersManagement />} />
+                    <Route path="/users" element={
+                      <ProtectedRoute adminOnly={true}>
+                        <UsersManagement />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/profile" element={<Profile />} />
                   </Routes>
                 </Layout>
