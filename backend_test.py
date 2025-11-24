@@ -565,20 +565,176 @@ class MultiUserAPITester:
             )
             return False
 
+    def test_update_profile(self) -> bool:
+        """Test PUT /api/auth/profile - Aggiorna profilo utente corrente"""
+        if not self.admin_token:
+            self.log_result(
+                "PUT /api/auth/profile", 
+                False, 
+                "Token admin non disponibile",
+                ""
+            )
+            return False
+            
+        try:
+            print("👤✏️  Testing PUT /api/auth/profile...")
+            
+            # Aggiorna email e phone
+            update_data = {
+                "email": "admin.updated@tempocasa.it",
+                "phone": "+39 0766 123456"
+            }
+            
+            response = self.session.put(
+                f"{self.base_url}/auth/profile",
+                json=update_data,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code == 200:
+                updated_user = response.json()
+                
+                # Verifica che i campi siano stati aggiornati
+                if (updated_user.get('email') == update_data['email'] and 
+                    updated_user.get('phone') == update_data['phone']):
+                    
+                    self.log_result(
+                        "PUT /api/auth/profile", 
+                        True, 
+                        "Profilo aggiornato correttamente",
+                        f"Email: {updated_user.get('email')}, Phone: {updated_user.get('phone')}"
+                    )
+                    return True
+                else:
+                    self.log_result(
+                        "PUT /api/auth/profile", 
+                        False, 
+                        "Campi non aggiornati correttamente",
+                        f"Expected email: {update_data['email']}, Got: {updated_user.get('email')}"
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "PUT /api/auth/profile", 
+                    False, 
+                    f"HTTP {response.status_code}",
+                    f"Response: {response.text}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result(
+                "PUT /api/auth/profile", 
+                False, 
+                f"Errore: {str(e)}",
+                ""
+            )
+            return False
+
+    def test_delete_user(self) -> bool:
+        """Test DELETE /api/auth/users/{user_id} - Elimina agente creato"""
+        if not self.admin_token:
+            self.log_result(
+                "DELETE /api/auth/users/{user_id}", 
+                False, 
+                "Token admin non disponibile",
+                ""
+            )
+            return False
+            
+        if not self.created_user_id:
+            self.log_result(
+                "DELETE /api/auth/users/{user_id}", 
+                True, 
+                "Nessun utente da eliminare (creazione fallita)",
+                ""
+            )
+            return True
+            
+        try:
+            print(f"🗑️👤 Testing DELETE /api/auth/users/{self.created_user_id}...")
+            
+            response = self.session.delete(f"{self.base_url}/auth/users/{self.created_user_id}")
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Verifica che l'eliminazione sia andata a buon fine
+                if "success" in result or "message" in result:
+                    # Verifica che l'utente sia stato effettivamente eliminato
+                    verify_response = self.session.get(f"{self.base_url}/auth/users")
+                    if verify_response.status_code == 200:
+                        users = verify_response.json()
+                        deleted_found = any(user.get('id') == self.created_user_id for user in users)
+                        
+                        if not deleted_found:
+                            self.log_result(
+                                "DELETE /api/auth/users/{user_id}", 
+                                True, 
+                                "Utente eliminato correttamente",
+                                "Verificato che non sia più presente nella lista"
+                            )
+                            return True
+                        else:
+                            self.log_result(
+                                "DELETE /api/auth/users/{user_id}", 
+                                False, 
+                                "Utente ancora presente dopo eliminazione",
+                                "L'eliminazione potrebbe non aver funzionato"
+                            )
+                            return False
+                    else:
+                        self.log_result(
+                            "DELETE /api/auth/users/{user_id}", 
+                            True, 
+                            "Eliminazione completata (verifica non possibile)",
+                            f"Response: {json.dumps(result, indent=2)}"
+                        )
+                        return True
+                else:
+                    self.log_result(
+                        "DELETE /api/auth/users/{user_id}", 
+                        False, 
+                        "Response non contiene conferma eliminazione",
+                        f"Response: {json.dumps(result, indent=2)}"
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "DELETE /api/auth/users/{user_id}", 
+                    False, 
+                    f"HTTP {response.status_code}",
+                    f"Response: {response.text}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result(
+                "DELETE /api/auth/users/{user_id}", 
+                False, 
+                f"Errore: {str(e)}",
+                ""
+            )
+            return False
+
     def run_all_tests(self):
         """Esegue tutti i test in ordine di priorità"""
-        print("🚀 Avvio test API Backend - Gestione Appuntamenti")
+        print("🚀 Avvio test API Backend - Sistema Multi-Agente Tempocasa")
         print(f"🌐 Backend URL: {self.base_url}")
-        print("=" * 60)
+        print(f"👤 Credenziali Admin: {self.admin_credentials['username']}")
+        print("=" * 70)
         
         # Test in ordine di priorità come richiesto
         tests = [
-            ("1. GET /api/properties", self.test_get_properties),
-            ("2. POST /api/appointments", self.test_create_appointment),
-            ("3. GET /api/appointments", self.test_get_appointments),
-            ("4. GET /api/appointments/{id}", self.test_get_single_appointment),
-            ("5. PUT /api/appointments/{id}", self.test_update_appointment),
-            ("6. DELETE /api/appointments/{id}", self.test_delete_appointment),
+            ("1. Autenticazione Admin", self.test_admin_login),
+            ("2. Verifica Profilo Admin", self.test_get_me),
+            ("3. Lista Utenti", self.test_get_users),
+            ("4. Creazione Nuovo Agente", self.test_create_user),
+            ("5. Toggle Stato Utente", self.test_toggle_user_status),
+            ("6. Creazione Immobile (Admin)", self.test_create_property_with_agent_id),
+            ("7. Lista Immobili (Admin)", self.test_get_properties_as_admin),
+            ("8. Aggiornamento Profilo", self.test_update_profile),
+            ("9. Eliminazione Utente", self.test_delete_user),
         ]
         
         passed = 0
@@ -588,14 +744,14 @@ class MultiUserAPITester:
             print(f"📋 {test_name}")
             if test_func():
                 passed += 1
-            print("-" * 40)
+            print("-" * 50)
         
         # Riepilogo finale
-        print("=" * 60)
+        print("=" * 70)
         print(f"📊 RIEPILOGO TEST: {passed}/{total} PASSATI")
         
         if passed == total:
-            print("🎉 Tutti i test sono passati! Le API funzionano correttamente.")
+            print("🎉 Tutti i test sono passati! Il sistema multi-utente funziona correttamente.")
         else:
             print(f"⚠️  {total - passed} test falliti. Controllare i dettagli sopra.")
         
