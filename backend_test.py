@@ -764,7 +764,7 @@ class MultiUserAPITester:
 
 def main():
     """Funzione principale"""
-    tester = AppointmentAPITester()
+    tester = MultiUserAPITester()
     success = tester.run_all_tests()
     
     # Exit code per CI/CD
