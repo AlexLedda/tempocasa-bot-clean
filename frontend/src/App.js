@@ -16,6 +16,8 @@ import Valuations from "./pages/Valuations";
 import BotSettings from "./pages/BotSettings";
 import TelegramConversations from "./pages/TelegramConversations";
 import MessageTemplates from "./pages/MessageTemplates";
+import UsersManagement from "./pages/UsersManagement";
+import Profile from "./pages/Profile";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
