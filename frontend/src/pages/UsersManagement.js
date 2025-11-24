@@ -103,6 +103,91 @@ export default function UsersManagement() {
     }
   };
 
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setEditFormData({
+      full_name: user.full_name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      password: ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      
+      const updateData = {
+        full_name: editFormData.full_name,
+        email: editFormData.email,
+        phone: editFormData.phone
+      };
+      
+      // Aggiungi password solo se compilata
+      if (editFormData.password) {
+        updateData.password = editFormData.password;
+      }
+
+      await axios.put(
+        `${API_URL}/api/auth/users/${editingUser.id}`,
+        updateData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success('Utente aggiornato con successo');
+      setShowEditModal(false);
+      setEditingUser(null);
+      loadUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Errore nell'aggiornamento");
+    }
+  };
+
+  const handleAvatarUpload = async (e, userId) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Seleziona un file immagine valido');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Immagine troppo grande (max 5MB)');
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      const token = localStorage.getItem('token');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      await axios.post(
+        `${API_URL}/api/auth/users/${userId}/avatar`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      toast.success('Foto profilo aggiornata');
+      loadUsers();
+      
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error(error.response?.data?.detail || "Errore caricamento foto");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleDeleteUser = async (userId, username) => {
     if (!window.confirm(`Sei sicuro di voler eliminare l'utente ${username}?`)) return;
     
