@@ -247,7 +247,7 @@ class AIResponse(BaseModel):
 
 # ==================== AUTHENTICATION ENDPOINTS ====================
 from auth import (
-    User, UserCreate, UserLogin, UserResponse, Token,
+    User, UserCreate, UserLogin, UserResponse, UserUpdate, Token,
     get_password_hash, verify_password, create_access_token,
     get_current_user, get_current_active_user, get_current_admin_user,
     user_to_response
