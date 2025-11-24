@@ -119,6 +119,7 @@ class PropertyCreate(BaseModel):
     property_type: str
     images: List[str] = []
     status: str = "disponibile"
+    agent_id: Optional[str] = None
 
 class Client(BaseModel):
     model_config = ConfigDict(extra="ignore")
