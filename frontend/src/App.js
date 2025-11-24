@@ -285,8 +285,16 @@ function App() {
                     <Route path="/properties" element={<Properties />} />
                     <Route path="/clients" element={<Clients />} />
                     <Route path="/messages" element={<Messages />} />
-                    <Route path="/telegram" element={<TelegramConversations />} />
-                    <Route path="/templates" element={<MessageTemplates />} />
+                    <Route path="/telegram" element={
+                      <ProtectedRoute adminOnly={true}>
+                        <TelegramConversations />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/templates" element={
+                      <ProtectedRoute adminOnly={true}>
+                        <MessageTemplates />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/appointments" element={<Appointments />} />
                     <Route path="/valuations" element={<Valuations />} />
                     <Route path="/bot-settings" element={<BotSettings />} />
