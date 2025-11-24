@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Users, UserPlus, Edit, Trash2, Check, X, Shield, User as UserIcon } from 'lucide-react';
+import { Users, UserPlus, Edit, Trash2, Check, X, Shield, User as UserIcon, Download } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
