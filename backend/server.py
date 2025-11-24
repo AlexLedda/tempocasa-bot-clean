@@ -540,6 +540,83 @@ async def upload_user_avatar(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Errore caricamento avatar: {str(e)}")
 
+@api_router.put("/auth/users/{user_id}", response_model=UserResponse, tags=["auth"])
+async def update_user_admin(
+    user_id: str,
+    user_data: UserUpdate,
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Aggiorna dati utente (solo admin)"""
+    # Find user
+    existing_user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="Utente non trovato")
+    
+    # Prepare update data
+    update_dict = {}
+    if user_data.full_name is not None:
+        update_dict['full_name'] = user_data.full_name
+    if user_data.email is not None:
+        update_dict['email'] = user_data.email
+    if user_data.phone is not None:
+        update_dict['phone'] = user_data.phone
+    if user_data.password is not None:
+        update_dict['hashed_password'] = get_password_hash(user_data.password)
+    
+    if update_dict:
+        await db.users.update_one({"id": user_id}, {"$set": update_dict})
+    
+    # Get updated user
+    updated_user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    
+    # Convert datetime strings
+    if isinstance(updated_user.get('created_at'), str):
+        updated_user['created_at'] = datetime.fromisoformat(updated_user['created_at'])
+    if updated_user.get('last_login') and isinstance(updated_user.get('last_login'), str):
+        updated_user['last_login'] = datetime.fromisoformat(updated_user['last_login'])
+    
+    user_obj = User(**updated_user)
+    return user_to_response(user_obj)
+
+@api_router.post("/auth/users/{user_id}/avatar", tags=["auth"])
+async def upload_user_avatar_admin(
+    user_id: str,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Upload avatar per qualsiasi utente (solo admin)"""
+    # Verifica che l'utente esista
+    existing_user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="Utente non trovato")
+    
+    try:
+        # Upload to Cloudinary
+        result = cloudinary.uploader.upload(
+            file.file,
+            folder="tempocasa/avatars",
+            public_id=f"user_{user_id}",
+            overwrite=True,
+            resource_type="image",
+            transformation=[
+                {'width': 200, 'height': 200, 'crop': 'fill', 'gravity': 'face'},
+                {'quality': 'auto', 'fetch_format': 'auto'}
+            ]
+        )
+        
+        avatar_url = result['secure_url']
+        
+        # Update user in database
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"avatar": avatar_url}}
+        )
+        
+        return {"avatar_url": avatar_url, "message": "Avatar caricato con successo"}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore caricamento avatar: {str(e)}")
+
 # ==================== END AUTHENTICATION ENDPOINTS ====================
 
 # Properties endpoints
