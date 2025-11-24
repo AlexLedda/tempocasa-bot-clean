@@ -128,7 +128,7 @@ L'AI (Claude Sonnet 4) ha accesso a:
 ## 🔑 Credenziali e Setup
 
 ### Backend API
-- **URL**: https://rebot-tarquinia.preview.emergentagent.com/api
+- **URL**: https://agent-dashboard-82.preview.emergentagent.com/api
 - **AI Key**: EMERGENT_LLM_KEY (già configurata)
 - **Database**: MongoDB locale
 

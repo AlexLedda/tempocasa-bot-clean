@@ -186,7 +186,7 @@ pkill -f whatsapp-service
 netstat -tulpn | grep 3001
 
 # Test API backend
-curl https://rebot-tarquinia.preview.emergentagent.com/api/stats
+curl https://agent-dashboard-82.preview.emergentagent.com/api/stats
 ```
 
 ---

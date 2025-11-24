@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 # URL del backend dal frontend/.env
-BASE_URL = "https://rebot-tarquinia.preview.emergentagent.com/api"
+BASE_URL = "https://agent-dashboard-82.preview.emergentagent.com/api"
 
 class MultiUserAPITester:
     def __init__(self):

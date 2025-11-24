@@ -2191,7 +2191,7 @@ async def set_telegram_webhook():
     
     try:
         telegram_bot = get_telegram_bot()
-        webhook_url = f"{os.environ.get('REACT_APP_BACKEND_URL', 'https://rebot-tarquinia.preview.emergentagent.com')}/api/telegram/webhook"
+        webhook_url = f"{os.environ.get('REACT_APP_BACKEND_URL', 'https://agent-dashboard-82.preview.emergentagent.com')}/api/telegram/webhook"
         
         result = telegram_bot.set_webhook(webhook_url)
         

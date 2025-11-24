@@ -10,7 +10,7 @@ const ENV = {
     debug: true,
   },
   prod: {
-    apiUrl: 'https://rebot-tarquinia.preview.emergentagent.com',
+    apiUrl: 'https://agent-dashboard-82.preview.emergentagent.com',
     debug: false,
   },
 };

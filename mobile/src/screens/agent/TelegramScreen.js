@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { COLORS } from '../../constants/colors';
 
-const BACKEND_URL = 'https://rebot-tarquinia.preview.emergentagent.com';
+const BACKEND_URL = 'https://agent-dashboard-82.preview.emergentagent.com';
 
 export default function TelegramScreen() {
   const navigation = useNavigation();

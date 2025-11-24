@@ -67,7 +67,7 @@ npm install @whiskeysockets/baileys express cors axios dotenv qrcode-terminal
 ### Passo 6: Configura .env
 ```bash
 cat > .env << EOF
-FASTAPI_URL=https://rebot-tarquinia.preview.emergentagent.com
+FASTAPI_URL=https://agent-dashboard-82.preview.emergentagent.com
 PORT=3001
 EOF
 ```

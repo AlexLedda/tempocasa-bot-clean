@@ -96,7 +96,7 @@ async def create_share_link(property_id: str, db) -> str:
     })
     
     # Genera link
-    base_url = os.getenv("REACT_APP_BACKEND_URL", "https://rebot-tarquinia.preview.emergentagent.com")
+    base_url = os.getenv("REACT_APP_BACKEND_URL", "https://agent-dashboard-82.preview.emergentagent.com")
     share_link = f"{base_url}/share/{share_token}"
     
     return share_link

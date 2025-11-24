@@ -71,7 +71,7 @@ Assicurati di avere tutti questi file:
 
 **FASTAPI_URL**:
 ```
-https://rebot-tarquinia.preview.emergentagent.com
+https://agent-dashboard-82.preview.emergentagent.com
 ```
 
 **PORT**:

@@ -50,7 +50,7 @@
       "expo-font"
     ],
     "extra": {
-      "apiBaseUrl": "https://rebot-tarquinia.preview.emergentagent.com",
+      "apiBaseUrl": "https://agent-dashboard-82.preview.emergentagent.com",
       "eas": {
         "projectId": "your-project-id"
       }

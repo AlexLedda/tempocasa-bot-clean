@@ -10,7 +10,7 @@
    - Import repository
    - **Root Directory**: `public-website`
    - **Environment Variables**:
-     - `REACT_APP_BACKEND_URL` = `https://rebot-tarquinia.preview.emergentagent.com`
+     - `REACT_APP_BACKEND_URL` = `https://agent-dashboard-82.preview.emergentagent.com`
      - `REACT_APP_TELEGRAM_BOT` = `tempocasa_elettra_bot`
      - `REACT_APP_LOGO_URL` = `https://res.cloudinary.com/dywaykio8/image/upload/v1763064056/logos/logo_b0342083.png`
 
