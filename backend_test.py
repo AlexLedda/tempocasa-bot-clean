@@ -175,65 +175,64 @@ class MultiUserAPITester:
             )
             return False
 
-    def test_create_appointment(self) -> bool:
-        """Test POST /api/appointments - Creazione appuntamento"""
-        if not self.created_property_id:
+    def test_get_users(self) -> bool:
+        """Test GET /api/auth/users - Lista utenti (solo admin)"""
+        if not self.admin_token:
             self.log_result(
-                "POST /api/appointments", 
+                "GET /api/auth/users", 
                 False, 
-                "Nessuna proprietà disponibile per creare appuntamento",
+                "Token admin non disponibile",
                 ""
             )
             return False
             
         try:
-            print("📅 Testing POST /api/appointments...")
+            print("👥 Testing GET /api/auth/users...")
             
-            # Data appuntamento: domani alle 10:00
-            tomorrow = datetime.now() + timedelta(days=1)
-            appointment_date = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0)
-            
-            appointment_data = {
-                "client_name": "Mario Rossi",
-                "client_phone": "+39 333 1234567",
-                "property_id": self.created_property_id,
-                "appointment_date": appointment_date.isoformat(),
-                "notes": "Test appuntamento creato automaticamente"
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/appointments",
-                json=appointment_data,
-                headers={"Content-Type": "application/json"}
-            )
+            response = self.session.get(f"{self.base_url}/auth/users")
             
             if response.status_code == 200:
-                created_appointment = response.json()
-                self.created_appointment_id = created_appointment.get('id')
+                users = response.json()
                 
-                # Verifica che abbia tutti i campi necessari
-                required_fields = ['id', 'client_name', 'client_phone', 'property_id', 'property_title', 'appointment_date', 'status']
-                missing_fields = [field for field in required_fields if field not in created_appointment]
-                
-                if not missing_fields:
-                    self.log_result(
-                        "POST /api/appointments", 
-                        True, 
-                        "Appuntamento creato con successo con tutti i campi",
-                        f"ID: {self.created_appointment_id}, Cliente: {created_appointment.get('client_name')}, Data: {created_appointment.get('appointment_date')}"
-                    )
-                    return True
+                if isinstance(users, list):
+                    # Dovrebbe esserci almeno l'admin
+                    admin_found = any(user.get('role') == 'admin' for user in users)
+                    
+                    if admin_found:
+                        self.log_result(
+                            "GET /api/auth/users", 
+                            True, 
+                            f"Lista utenti restituita correttamente ({len(users)} utenti)",
+                            f"Admin trovato, utenti totali: {len(users)}"
+                        )
+                        return True
+                    else:
+                        self.log_result(
+                            "GET /api/auth/users", 
+                            False, 
+                            "Admin non trovato nella lista utenti",
+                            f"Utenti: {json.dumps(users, indent=2)}"
+                        )
+                        return False
                 else:
                     self.log_result(
-                        "POST /api/appointments", 
+                        "GET /api/auth/users", 
                         False, 
-                        f"Campi mancanti nell'appuntamento: {missing_fields}",
-                        f"Appuntamento: {json.dumps(created_appointment, indent=2)}"
+                        "Response non è una lista",
+                        f"Response: {response.text}"
                     )
                     return False
+            elif response.status_code == 403:
+                self.log_result(
+                    "GET /api/auth/users", 
+                    False, 
+                    "Accesso negato - verifica permessi admin",
+                    f"Response: {response.text}"
+                )
+                return False
             else:
                 self.log_result(
-                    "POST /api/appointments", 
+                    "GET /api/auth/users", 
                     False, 
                     f"HTTP {response.status_code}",
                     f"Response: {response.text}"
@@ -242,7 +241,7 @@ class MultiUserAPITester:
                 
         except Exception as e:
             self.log_result(
-                "POST /api/appointments", 
+                "GET /api/auth/users", 
                 False, 
                 f"Errore: {str(e)}",
                 ""
