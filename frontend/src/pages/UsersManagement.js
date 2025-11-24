@@ -65,7 +65,7 @@ export default function UsersManagement() {
       toast.success(`Utente ${currentStatus ? 'disabilitato' : 'abilitato'}`);
       loadUsers();
     } catch (error) {
-      toast.error('Errore nell\\'aggiornamento');
+      toast.error("Errore nell'aggiornamento");
     }
   };
 
