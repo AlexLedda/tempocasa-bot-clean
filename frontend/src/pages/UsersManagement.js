@@ -339,14 +339,24 @@ export default function UsersManagement() {
                     </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {user.role !== 'admin' && (
+                    <div className="flex justify-end gap-2">
                       <button
-                        onClick={() => handleDeleteUser(user.id, user.username)}
-                        className="text-red-600 hover:text-red-900 ml-4"
+                        onClick={() => handleEditUser(user)}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="Modifica utente"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Edit className="w-5 h-5" />
                       </button>
-                    )}
+                      {user.role !== 'admin' && (
+                        <button
+                          onClick={() => handleDeleteUser(user.id, user.username)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Elimina utente"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
