@@ -248,77 +248,87 @@ class MultiUserAPITester:
             )
             return False
 
-    def test_get_appointments(self) -> bool:
-        """Test GET /api/appointments - Lista appuntamenti"""
-        try:
-            print("📋 Testing GET /api/appointments...")
+    def test_create_user(self) -> bool:
+        """Test POST /api/auth/users - Crea nuovo agente (solo admin)"""
+        if not self.admin_token:
+            self.log_result(
+                "POST /api/auth/users", 
+                False, 
+                "Token admin non disponibile",
+                ""
+            )
+            return False
             
-            response = self.session.get(f"{self.base_url}/appointments")
+        try:
+            print("👤➕ Testing POST /api/auth/users...")
+            
+            new_user_data = {
+                "username": "test_agent",
+                "password": "TestAgent123",
+                "full_name": "Test Agente",
+                "email": "test@agent.com",
+                "phone": "1234567890",
+                "role": "agent"
+            }
+            
+            response = self.session.post(
+                f"{self.base_url}/auth/users",
+                json=new_user_data,
+                headers={"Content-Type": "application/json"}
+            )
             
             if response.status_code == 200:
-                appointments = response.json()
+                created_user = response.json()
+                self.created_user_id = created_user.get('id')
                 
-                if isinstance(appointments, list):
-                    if len(appointments) > 0:
-                        # Verifica formato date e campi corretti
-                        first_appointment = appointments[0]
-                        required_fields = ['id', 'client_name', 'property_title', 'appointment_date', 'status']
-                        missing_fields = [field for field in required_fields if field not in first_appointment]
-                        
-                        # Verifica formato data
-                        appointment_date = first_appointment.get('appointment_date')
-                        date_valid = False
-                        try:
-                            if isinstance(appointment_date, str):
-                                datetime.fromisoformat(appointment_date.replace('Z', '+00:00'))
-                                date_valid = True
-                            elif isinstance(appointment_date, dict):
-                                # Potrebbe essere un oggetto datetime serializzato
-                                date_valid = True
-                        except:
-                            pass
-                        
-                        if not missing_fields and date_valid:
-                            self.log_result(
-                                "GET /api/appointments", 
-                                True, 
-                                f"Restituisce {len(appointments)} appuntamenti con formato corretto",
-                                f"Primo appuntamento: {first_appointment.get('client_name')} - {first_appointment.get('property_title')}"
-                            )
-                            return True
-                        else:
-                            issues = []
-                            if missing_fields:
-                                issues.append(f"Campi mancanti: {missing_fields}")
-                            if not date_valid:
-                                issues.append(f"Formato data non valido: {appointment_date}")
-                            
-                            self.log_result(
-                                "GET /api/appointments", 
-                                False, 
-                                f"Problemi con formato: {'; '.join(issues)}",
-                                f"Appuntamento: {json.dumps(first_appointment, indent=2)}"
-                            )
-                            return False
-                    else:
-                        self.log_result(
-                            "GET /api/appointments", 
-                            True, 
-                            "Lista vuota (nessun appuntamento presente)",
-                            ""
-                        )
-                        return True
+                # Verifica campi essenziali
+                required_fields = ['id', 'username', 'role', 'email', 'full_name']
+                missing_fields = [field for field in required_fields if field not in created_user]
+                
+                if not missing_fields and created_user.get('role') == 'agent':
+                    self.log_result(
+                        "POST /api/auth/users", 
+                        True, 
+                        "Nuovo agente creato con successo",
+                        f"ID: {self.created_user_id}, Username: {created_user.get('username')}, Role: {created_user.get('role')}"
+                    )
+                    return True
+                else:
+                    issues = []
+                    if missing_fields:
+                        issues.append(f"Campi mancanti: {missing_fields}")
+                    if created_user.get('role') != 'agent':
+                        issues.append(f"Role non corretto: {created_user.get('role')}")
+                    
+                    self.log_result(
+                        "POST /api/auth/users", 
+                        False, 
+                        f"Problemi con utente creato: {'; '.join(issues)}",
+                        f"User data: {json.dumps(created_user, indent=2)}"
+                    )
+                    return False
+            elif response.status_code == 400:
+                # Potrebbe essere username già esistente
+                error_data = response.json() if response.headers.get('content-type', '').startswith('application/json') else {"detail": response.text}
+                if "già registrato" in error_data.get('detail', ''):
+                    self.log_result(
+                        "POST /api/auth/users", 
+                        True, 
+                        "Username già esistente (comportamento corretto)",
+                        f"Dettaglio: {error_data.get('detail')}"
+                    )
+                    return True
                 else:
                     self.log_result(
-                        "GET /api/appointments", 
+                        "POST /api/auth/users", 
                         False, 
-                        "Response non è una lista",
+                        f"Errore validazione: {error_data.get('detail')}",
                         f"Response: {response.text}"
                     )
                     return False
             else:
                 self.log_result(
-                    "GET /api/appointments", 
+                    "POST /api/auth/users", 
                     False, 
                     f"HTTP {response.status_code}",
                     f"Response: {response.text}"
@@ -327,7 +337,7 @@ class MultiUserAPITester:
                 
         except Exception as e:
             self.log_result(
-                "GET /api/appointments", 
+                "POST /api/auth/users", 
                 False, 
                 f"Errore: {str(e)}",
                 ""
