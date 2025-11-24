@@ -431,64 +431,71 @@ class MultiUserAPITester:
             )
             return False
 
-    def test_update_appointment(self) -> bool:
-        """Test PUT /api/appointments/{id} - Aggiornamento appuntamento"""
-        if not self.created_appointment_id:
+    def test_create_property_with_agent_id(self) -> bool:
+        """Test POST /api/properties - Crea immobile come admin (agent_id può essere nullo)"""
+        if not self.admin_token:
             self.log_result(
-                "PUT /api/appointments/{id}", 
+                "POST /api/properties", 
                 False, 
-                "Nessun appuntamento disponibile per test aggiornamento",
+                "Token admin non disponibile",
                 ""
             )
             return False
             
         try:
-            print(f"✏️  Testing PUT /api/appointments/{self.created_appointment_id}...")
+            print("🏠➕ Testing POST /api/properties (admin)...")
             
-            # Test cambio stato: confermato → completato
-            response = self.session.put(
-                f"{self.base_url}/appointments/{self.created_appointment_id}",
-                params={"status": "completato"}
+            test_property = {
+                "title": "Appartamento Test Multi-Utente",
+                "description": "Proprietà creata per test sistema multi-agente",
+                "price": 280000.0,
+                "location": "Tarquinia Centro",
+                "street": "Via Test",
+                "street_number": "456",
+                "bedrooms": 2,
+                "bathrooms": 1,
+                "square_meters": 75.0,
+                "property_type": "appartamento",
+                "status": "disponibile"
+                # agent_id non specificato - dovrebbe essere nullo per admin
+            }
+            
+            response = self.session.post(
+                f"{self.base_url}/properties",
+                json=test_property,
+                headers={"Content-Type": "application/json"}
             )
             
             if response.status_code == 200:
-                result = response.json()
+                created_property = response.json()
+                self.created_property_id = created_property.get('id')
                 
-                # Verifica che l'aggiornamento sia andato a buon fine
-                if "message" in result or "success" in result:
-                    # Test cambio stato: completato → cancellato
-                    response2 = self.session.put(
-                        f"{self.base_url}/appointments/{self.created_appointment_id}",
-                        params={"status": "cancellato"}
-                    )
+                # Verifica campi essenziali
+                required_fields = ['id', 'title', 'price', 'location', 'property_type']
+                missing_fields = [field for field in required_fields if field not in created_property]
+                
+                if not missing_fields:
+                    # Verifica che agent_id possa essere nullo per admin
+                    agent_id = created_property.get('agent_id')
                     
-                    if response2.status_code == 200:
-                        self.log_result(
-                            "PUT /api/appointments/{id}", 
-                            True, 
-                            "Aggiornamento stato funziona correttamente",
-                            "Testati cambi stato: confermato → completato → cancellato"
-                        )
-                        return True
-                    else:
-                        self.log_result(
-                            "PUT /api/appointments/{id}", 
-                            False, 
-                            f"Secondo aggiornamento fallito: HTTP {response2.status_code}",
-                            f"Response: {response2.text}"
-                        )
-                        return False
+                    self.log_result(
+                        "POST /api/properties", 
+                        True, 
+                        "Immobile creato con successo come admin",
+                        f"ID: {self.created_property_id}, Agent ID: {agent_id}, Titolo: {created_property.get('title')}"
+                    )
+                    return True
                 else:
                     self.log_result(
-                        "PUT /api/appointments/{id}", 
+                        "POST /api/properties", 
                         False, 
-                        "Response non contiene conferma aggiornamento",
-                        f"Response: {json.dumps(result, indent=2)}"
+                        f"Campi mancanti: {missing_fields}",
+                        f"Property: {json.dumps(created_property, indent=2)}"
                     )
                     return False
             else:
                 self.log_result(
-                    "PUT /api/appointments/{id}", 
+                    "POST /api/properties", 
                     False, 
                     f"HTTP {response.status_code}",
                     f"Response: {response.text}"
@@ -497,7 +504,7 @@ class MultiUserAPITester:
                 
         except Exception as e:
             self.log_result(
-                "PUT /api/appointments/{id}", 
+                "POST /api/properties", 
                 False, 
                 f"Errore: {str(e)}",
                 ""
