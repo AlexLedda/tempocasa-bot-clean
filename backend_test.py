@@ -112,54 +112,63 @@ class MultiUserAPITester:
             )
             return False
 
-    def create_test_property(self) -> bool:
-        """Crea una proprietà di test se non ne esistono"""
-        try:
-            print("🏗️  Creando proprietà di test...")
-            
-            test_property = {
-                "title": "Appartamento Test per Appuntamenti",
-                "description": "Proprietà creata automaticamente per test API appuntamenti",
-                "price": 250000.0,
-                "location": "Tarquinia Centro",
-                "street": "Via Roma",
-                "street_number": "123",
-                "bedrooms": 3,
-                "bathrooms": 2,
-                "square_meters": 85.0,
-                "property_type": "appartamento",
-                "status": "disponibile"
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/properties",
-                json=test_property,
-                headers={"Content-Type": "application/json"}
+    def test_get_me(self) -> bool:
+        """Test GET /api/auth/me - Verifica profilo admin"""
+        if not self.admin_token:
+            self.log_result(
+                "GET /api/auth/me", 
+                False, 
+                "Token admin non disponibile",
+                ""
             )
+            return False
+            
+        try:
+            print("👤 Testing GET /api/auth/me...")
+            
+            response = self.session.get(f"{self.base_url}/auth/me")
             
             if response.status_code == 200:
-                created_property = response.json()
-                self.created_property_id = created_property.get('id')
+                user_data = response.json()
                 
-                self.log_result(
-                    "CREATE Test Property", 
-                    True, 
-                    "Proprietà di test creata con successo",
-                    f"ID: {self.created_property_id}, Titolo: {created_property.get('title')}"
-                )
-                return True
+                # Verifica campi essenziali
+                required_fields = ['id', 'username', 'role', 'email', 'full_name']
+                missing_fields = [field for field in required_fields if field not in user_data]
+                
+                if not missing_fields and user_data.get('role') == 'admin':
+                    self.log_result(
+                        "GET /api/auth/me", 
+                        True, 
+                        "Profilo admin verificato correttamente",
+                        f"Username: {user_data.get('username')}, Email: {user_data.get('email')}"
+                    )
+                    return True
+                else:
+                    issues = []
+                    if missing_fields:
+                        issues.append(f"Campi mancanti: {missing_fields}")
+                    if user_data.get('role') != 'admin':
+                        issues.append(f"Role non admin: {user_data.get('role')}")
+                    
+                    self.log_result(
+                        "GET /api/auth/me", 
+                        False, 
+                        f"Problemi con profilo: {'; '.join(issues)}",
+                        f"User data: {json.dumps(user_data, indent=2)}"
+                    )
+                    return False
             else:
                 self.log_result(
-                    "CREATE Test Property", 
+                    "GET /api/auth/me", 
                     False, 
-                    f"Errore creazione proprietà: HTTP {response.status_code}",
+                    f"HTTP {response.status_code}",
                     f"Response: {response.text}"
                 )
                 return False
                 
         except Exception as e:
             self.log_result(
-                "CREATE Test Property", 
+                "GET /api/auth/me", 
                 False, 
                 f"Errore: {str(e)}",
                 ""
