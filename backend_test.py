@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test script per le API del backend - Gestione Appuntamenti
-Testa tutte le API degli appuntamenti seguendo il test plan
+Test script per le API del backend - Sistema Multi-Agente Tempocasa
+Testa tutte le nuove funzionalità del sistema multi-utente
 """
 
 import requests
@@ -13,7 +13,7 @@ from typing import Dict, List, Optional
 # URL del backend dal frontend/.env
 BASE_URL = "https://rebot-tarquinia.preview.emergentagent.com/api"
 
-class AppointmentAPITester:
+class MultiUserAPITester:
     def __init__(self):
         self.base_url = BASE_URL
         self.session = requests.Session()
