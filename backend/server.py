@@ -489,6 +489,57 @@ async def create_user_admin(
     
     return user_to_response(user)
 
+@api_router.get("/auth/users/export", tags=["auth"])
+async def export_users_json(current_user: User = Depends(get_current_admin_user)):
+    """Esporta tutti gli utenti in formato JSON (solo admin)"""
+    users = await db.users.find({}, {"_id": 0, "hashed_password": 0}).to_list(1000)
+    
+    # Convert datetime to string
+    for user in users:
+        if user.get('created_at'):
+            user['created_at'] = user['created_at'] if isinstance(user['created_at'], str) else user['created_at'].isoformat()
+        if user.get('last_login'):
+            user['last_login'] = user['last_login'] if isinstance(user['last_login'], str) else user['last_login'].isoformat()
+    
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        content={"users": users, "exported_at": datetime.now(timezone.utc).isoformat()},
+        headers={"Content-Disposition": "attachment; filename=users_export.json"}
+    )
+
+@api_router.post("/auth/users/avatar", tags=["auth"])
+async def upload_user_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Upload avatar utente su Cloudinary"""
+    try:
+        # Upload to Cloudinary
+        result = cloudinary.uploader.upload(
+            file.file,
+            folder="tempocasa/avatars",
+            public_id=f"user_{current_user.id}",
+            overwrite=True,
+            resource_type="image",
+            transformation=[
+                {'width': 200, 'height': 200, 'crop': 'fill', 'gravity': 'face'},
+                {'quality': 'auto', 'fetch_format': 'auto'}
+            ]
+        )
+        
+        avatar_url = result['secure_url']
+        
+        # Update user in database
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": {"avatar": avatar_url}}
+        )
+        
+        return {"avatar_url": avatar_url, "message": "Avatar caricato con successo"}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore caricamento avatar: {str(e)}")
+
 # ==================== END AUTHENTICATION ENDPOINTS ====================
 
 # Properties endpoints
