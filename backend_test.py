@@ -18,8 +18,15 @@ class MultiUserAPITester:
         self.base_url = BASE_URL
         self.session = requests.Session()
         self.test_results = []
+        self.admin_token = None
+        self.created_user_id = None
         self.created_property_id = None
-        self.created_appointment_id = None
+        
+        # Credenziali admin
+        self.admin_credentials = {
+            "username": "admin",
+            "password": "Corneto1."
+        }
         
     def log_result(self, test_name: str, success: bool, message: str, details: str = ""):
         """Log test result"""
