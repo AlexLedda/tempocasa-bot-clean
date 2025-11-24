@@ -87,7 +87,7 @@ export default function Profile() {
       
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.detail || 'Errore nell\'aggiornamento');
+      toast.error(error.response?.data?.detail || "Errore nell'aggiornamento");
     } finally {
       setSaving(false);
     }
