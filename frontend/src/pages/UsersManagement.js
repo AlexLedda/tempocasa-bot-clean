@@ -117,13 +117,22 @@ export default function UsersManagement() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestione Utenti</h1>
             <p className="text-gray-600">Gestisci gli agenti e i loro permessi</p>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2"
-          >
-            <UserPlus className="w-5 h-5" />
-            Nuovo Utente
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleExportUsers}
+              className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2"
+            >
+              <Download className="w-5 h-5" />
+              Esporta JSON
+            </button>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2"
+            >
+              <UserPlus className="w-5 h-5" />
+              Nuovo Utente
+            </button>
+          </div>
         </div>
       </div>
 
