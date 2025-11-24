@@ -398,6 +398,97 @@ async def toggle_user_status(
     user = User(**updated_user_data)
     return user_to_response(user)
 
+
+
+@api_router.put("/auth/profile", response_model=UserResponse, tags=["auth"])
+async def update_profile(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Aggiorna profilo utente corrente"""
+    update_data = {}
+    
+    if user_update.email is not None:
+        update_data['email'] = user_update.email
+    if user_update.phone is not None:
+        update_data['phone'] = user_update.phone
+    if user_update.full_name is not None:
+        update_data['full_name'] = user_update.full_name
+    if user_update.password is not None:
+        update_data['hashed_password'] = get_password_hash(user_update.password)
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="Nessun dato da aggiornare")
+    
+    await db.users.update_one(
+        {"id": current_user.id},
+        {"$set": update_data}
+    )
+    
+    # Get updated user
+    updated_user_data = await db.users.find_one({"id": current_user.id}, {"_id": 0})
+    
+    if isinstance(updated_user_data.get('created_at'), str):
+        updated_user_data['created_at'] = datetime.fromisoformat(updated_user_data['created_at'])
+    if updated_user_data.get('last_login') and isinstance(updated_user_data.get('last_login'), str):
+        updated_user_data['last_login'] = datetime.fromisoformat(updated_user_data['last_login'])
+    
+    user = User(**updated_user_data)
+    return user_to_response(user)
+
+
+@api_router.delete("/auth/users/{user_id}", tags=["auth"])
+async def delete_user(
+    user_id: str,
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Elimina utente (solo admin)"""
+    # Non può eliminare se stesso
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Non puoi eliminare te stesso")
+    
+    result = await db.users.delete_one({"id": user_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Utente non trovato")
+    
+    return {"success": True, "message": "Utente eliminato"}
+
+
+@api_router.post("/auth/users", response_model=UserResponse, tags=["auth"])
+async def create_user_admin(
+    user_data: UserCreate,
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Crea nuovo utente (solo admin)"""
+    # Check if user already exists
+    existing_user = await db.users.find_one({"username": user_data.username})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username già registrato"
+        )
+    
+    # Create new user
+    user = User(
+        username=user_data.username,
+        email=user_data.email,
+        phone=user_data.phone,
+        full_name=user_data.full_name,
+        role=user_data.role,
+        hashed_password=get_password_hash(user_data.password)
+    )
+    
+    # Save to database
+    user_dict = user.model_dump()
+    user_dict['created_at'] = user_dict['created_at'].isoformat()
+    if user_dict.get('last_login'):
+        user_dict['last_login'] = user_dict['last_login'].isoformat()
+    
+    await db.users.insert_one(user_dict)
+    
+    return user_to_response(user)
+
 # ==================== END AUTHENTICATION ENDPOINTS ====================
 
 # Properties endpoints
