@@ -261,12 +261,41 @@ export default function UsersManagement() {
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        {user.role === 'admin' ? (
-                          <Shield className="w-5 h-5 text-blue-600" />
+                      <div className="relative group">
+                        {user.avatar ? (
+                          <img 
+                            src={user.avatar} 
+                            alt={user.full_name}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
                         ) : (
-                          <UserIcon className="w-5 h-5 text-gray-600" />
+                          <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            {user.role === 'admin' ? (
+                              <Shield className="w-5 h-5 text-blue-600" />
+                            ) : (
+                              <UserIcon className="w-5 h-5 text-gray-600" />
+                            )}
+                          </div>
                         )}
+                        {/* Upload Overlay */}
+                        <label 
+                          htmlFor={`avatar-upload-${user.id}`}
+                          className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        >
+                          {uploadingAvatar ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          ) : (
+                            <Camera className="w-4 h-4 text-white" />
+                          )}
+                        </label>
+                        <input
+                          id={`avatar-upload-${user.id}`}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleAvatarUpload(e, user.id)}
+                          className="hidden"
+                          disabled={uploadingAvatar}
+                        />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
