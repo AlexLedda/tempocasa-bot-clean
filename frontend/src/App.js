@@ -297,7 +297,11 @@ function App() {
                     } />
                     <Route path="/appointments" element={<Appointments />} />
                     <Route path="/valuations" element={<Valuations />} />
-                    <Route path="/bot-settings" element={<BotSettings />} />
+                    <Route path="/bot-settings" element={
+                      <ProtectedRoute adminOnly={true}>
+                        <BotSettings />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/users" element={
                       <ProtectedRoute adminOnly={true}>
                         <UsersManagement />
