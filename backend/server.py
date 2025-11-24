@@ -512,8 +512,16 @@ async def create_property(
     return property_obj
 
 @api_router.get("/properties", response_model=List[Property])
-async def get_properties(status: Optional[str] = None):
+async def get_properties(
+    status: Optional[str] = None,
+    current_user: User = Depends(get_current_active_user)
+):
     query = {}
+    
+    # Se l'utente è agente, mostra solo i suoi immobili
+    if current_user.role == "agent":
+        query['agent_id'] = current_user.id
+    
     if status:
         query['status'] = status
     
