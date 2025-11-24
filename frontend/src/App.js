@@ -3,7 +3,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
-import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot, LogOut, Send, FileText } from "lucide-react";
+import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot, LogOut, Send, FileText, User as UserIcon, Shield } from "lucide-react";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
