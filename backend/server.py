@@ -691,6 +691,14 @@ async def get_messages(client_phone: Optional[str] = None):
     
     return messages
 
+@api_router.delete("/messages/{message_id}")
+async def delete_message(message_id: str):
+    """Elimina un messaggio specifico"""
+    result = await db.messages.delete_one({"id": message_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Messaggio non trovato")
+    return {"message": "Messaggio eliminato"}
+
 # Appointments endpoints
 @api_router.post("/appointments", response_model=Appointment)
 async def create_appointment(appt: AppointmentCreate):
