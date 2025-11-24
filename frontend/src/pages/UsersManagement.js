@@ -450,6 +450,167 @@ export default function UsersManagement() {
           </div>
         </div>
       )}
+
+      {/* Edit User Modal */}
+      {showEditModal && editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Modifica Utente</h3>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingUser(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Avatar Section */}
+            <div className="mb-6 flex flex-col items-center">
+              <div className="relative group mb-3">
+                {editingUser.avatar ? (
+                  <img 
+                    src={editingUser.avatar} 
+                    alt={editingUser.full_name}
+                    className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center border-4 border-blue-200">
+                    <UserIcon className="w-12 h-12 text-blue-600" />
+                  </div>
+                )}
+                
+                {/* Upload Button Overlay */}
+                <label 
+                  htmlFor={`edit-avatar-upload-${editingUser.id}`}
+                  className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  {uploadingAvatar ? (
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                  ) : (
+                    <Camera className="w-8 h-8 text-white" />
+                  )}
+                </label>
+                <input
+                  id={`edit-avatar-upload-${editingUser.id}`}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleAvatarUpload(e, editingUser.id)}
+                  className="hidden"
+                  disabled={uploadingAvatar}
+                />
+              </div>
+              <p className="text-sm text-gray-500 text-center">
+                <Camera className="w-4 h-4 inline mr-1" />
+                Clicca sulla foto per cambiarla
+              </p>
+            </div>
+
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              {/* Username (readonly) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Username (non modificabile)
+                </label>
+                <input
+                  type="text"
+                  value={editingUser.username}
+                  disabled
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
+                />
+              </div>
+
+              {/* Full Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nome Completo *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editFormData.full_name}
+                  onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                  placeholder="Mario Rossi"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                  placeholder="mario.rossi@email.com"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Telefono
+                </label>
+                <input
+                  type="tel"
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                  placeholder="+39 123 456 7890"
+                />
+              </div>
+
+              {/* Divider */}
+              <div className="border-t-2 border-gray-200 pt-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Cambia Password</h4>
+                <p className="text-xs text-gray-500 mb-3">Lascia vuoto per non modificare</p>
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nuova Password
+                </label>
+                <input
+                  type="password"
+                  value={editFormData.password}
+                  onChange={(e) => setEditFormData({...editFormData, password: e.target.value})}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                  placeholder="Minimo 8 caratteri"
+                  minLength={8}
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingUser(null);
+                  }}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                >
+                  Annulla
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2"
+                >
+                  <Save className="w-5 h-5" />
+                  Salva Modifiche
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
