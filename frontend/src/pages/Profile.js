@@ -156,15 +156,52 @@ export default function Profile() {
 
       {/* User Info Card */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 mb-8 text-white">
-        <div className="flex items-center gap-4">
-          <div className="bg-white/20 p-4 rounded-full">
-            <User className="w-12 h-12" />
+        <div className="flex items-center gap-6">
+          {/* Avatar */}
+          <div className="relative group">
+            {user?.avatar ? (
+              <img 
+                src={user.avatar} 
+                alt={user.full_name}
+                className="w-24 h-24 rounded-full object-cover border-4 border-white/30"
+              />
+            ) : (
+              <div className="bg-white/20 p-6 rounded-full">
+                <User className="w-12 h-12" />
+              </div>
+            )}
+            
+            {/* Upload Button Overlay */}
+            <label 
+              htmlFor="avatar-upload" 
+              className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            >
+              {uploadingAvatar ? (
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+              ) : (
+                <Camera className="w-8 h-8" />
+              )}
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+              disabled={uploadingAvatar}
+            />
           </div>
+
+          {/* User Info */}
           <div>
             <h2 className="text-2xl font-bold">{user?.full_name}</h2>
             <p className="text-blue-100">@{user?.username}</p>
             <p className="text-sm bg-white/20 px-3 py-1 rounded-full inline-block mt-2">
               {user?.role === 'admin' ? 'Amministratore' : 'Agente'}
+            </p>
+            <p className="text-sm text-blue-100 mt-2">
+              <Camera className="w-4 h-4 inline mr-1" />
+              Passa il mouse sulla foto per cambiarla
             </p>
           </div>
         </div>
