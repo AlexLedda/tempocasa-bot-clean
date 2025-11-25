@@ -620,118 +620,116 @@ export default function PropertiesNew() {
                     </Button>
                   </div>
                 </div>
-                {formData.images.map((img, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white space-y-2">
-                    {/* Header con numero posizione e pulsanti riordino */}
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <GripVertical className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-semibold text-gray-700">
-                          Foto #{index + 1}
-                          {index === 0 && <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Principale</span>}
+                {/* Griglia Drag and Drop */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {formData.images.filter(img => img).map((img, index) => (
+                    <div
+                      key={index}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={`
+                        relative group cursor-move border-2 rounded-xl overflow-hidden bg-white
+                        transition-all duration-200 hover:shadow-lg
+                        ${draggedIndex === index ? 'opacity-50 scale-95' : 'opacity-100'}
+                        ${dragOverIndex === index ? 'border-blue-500 scale-105' : 'border-gray-200'}
+                        ${index === 0 ? 'ring-2 ring-blue-400' : ''}
+                      `}
+                      style={{ aspectRatio: '4/3' }}
+                    >
+                      {/* Badge Numero e Principale */}
+                      <div className="absolute top-2 left-2 z-10 flex gap-1">
+                        <span className="bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          #{index + 1}
                         </span>
+                        {index === 0 && (
+                          <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            ⭐ Principale
+                          </span>
+                        )}
                       </div>
-                      <div className="flex gap-1">
-                        {/* Pulsanti riordino */}
-                        {index > 0 && (
-                          <Button
-                            type="button"
-                            onClick={() => moveImageUp(index)}
-                            size="sm"
-                            variant="outline"
-                            className="h-8 w-8 p-0"
-                            title="Sposta su"
-                          >
-                            <ChevronUp className="w-4 h-4" />
-                          </Button>
-                        )}
-                        {index < formData.images.length - 1 && (
-                          <Button
-                            type="button"
-                            onClick={() => moveImageDown(index)}
-                            size="sm"
-                            variant="outline"
-                            className="h-8 w-8 p-0"
-                            title="Sposta giù"
-                          >
-                            <ChevronDown className="w-4 h-4" />
-                          </Button>
-                        )}
-                        {formData.images.length > 1 && (
+
+                      {/* Icona Drag */}
+                      <div className="absolute top-2 right-2 z-10 bg-black/50 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <GripVertical className="w-4 h-4 text-white" />
+                      </div>
+
+                      {/* Pulsante Elimina */}
+                      <button
+                        type="button"
+                        onClick={() => removeImageField(index)}
+                        className="absolute bottom-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Elimina foto"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      {/* Immagine */}
+                      <img 
+                        src={img} 
+                        alt={`Foto ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext fill="%23999" x="50%" y="50%" text-anchor="middle" dy=".3em"%3ENessuna immagine%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+
+                      {/* Overlay drag */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    </div>
+                  ))}
+
+                  {/* Placeholder "Aggiungi Foto" */}
+                  <label
+                    htmlFor="add-photo-input"
+                    className="border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all group"
+                    style={{ aspectRatio: '4/3' }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      multiple
+                      onChange={handleMultipleImageUpload}
+                      className="hidden"
+                      id="add-photo-input"
+                      disabled={uploadingImage}
+                    />
+                    <Upload className="w-8 h-8 text-gray-400 group-hover:text-blue-500 mb-2" />
+                    <span className="text-sm text-gray-500 group-hover:text-blue-600 font-medium">
+                      Aggiungi foto
+                    </span>
+                  </label>
+                </div>
+
+                {/* Sezione per aggiungere URL manualmente (collassabile) */}
+                {formData.images.some(img => !img) && (
+                  <div className="mt-4 space-y-2 border-t pt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-3">📎 Aggiungi foto via URL</p>
+                    {formData.images.map((img, index) => (
+                      !img && (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            placeholder="https://esempio.com/immagine.jpg"
+                            value={img}
+                            onChange={(e) => updateImageField(index, e.target.value)}
+                            className="flex-1"
+                          />
                           <Button
                             type="button"
                             onClick={() => removeImageField(index)}
                             size="sm"
-                            variant="destructive"
-                            className="h-8 w-8 p-0"
-                            title="Elimina"
+                            variant="outline"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <X className="w-4 h-4" />
                           </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Input URL */}
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="https://esempio.com/immagine.jpg o carica dal PC"
-                        value={img}
-                        onChange={(e) => updateImageField(index, e.target.value)}
-                        className="flex-1"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                        onChange={(e) => handleImageUpload(index, e)}
-                        className="hidden"
-                        id={`image-upload-${index}`}
-                        disabled={uploadingImage && uploadingIndex === index}
-                      />
-                      <label htmlFor={`image-upload-${index}`}>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={uploadingImage && uploadingIndex === index}
-                          onClick={() => document.getElementById(`image-upload-${index}`).click()}
-                          className="w-full"
-                        >
-                          {uploadingImage && uploadingIndex === index ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                              Caricamento...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              📤 Carica dal PC
-                            </>
-                          )}
-                        </Button>
-                      </label>
-                      {img && (
-                        <div className="text-xs text-green-600 flex items-center">
-                          ✅ Immagine caricata
                         </div>
-                      )}
-                    </div>
-                    {img && (
-                      <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                        <img 
-                          src={img} 
-                          alt={`Preview ${index + 1}`}
-                          className="max-h-32 max-w-full object-contain mx-auto rounded"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    )}
+                      )
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
 
               <div className="flex gap-3">
