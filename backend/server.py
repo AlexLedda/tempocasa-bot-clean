@@ -3125,8 +3125,8 @@ async def upload_property_images_multiple(
     current_user: User = Depends(get_current_active_user)
 ):
     """Upload multiple property images to Cloudinary"""
-    if len(files) > 20:
-        raise HTTPException(status_code=400, detail="Massimo 20 immagini per volta")
+    if len(files) > 50:
+        raise HTTPException(status_code=400, detail="Massimo 50 immagini per volta")
     
     results = []
     errors = []
