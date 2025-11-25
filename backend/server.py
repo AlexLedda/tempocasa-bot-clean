@@ -120,6 +120,9 @@ class PropertyCreate(BaseModel):
     bathrooms: int
     square_meters: float
     property_type: str
+    property_subtype: Optional[str] = None
+    categoria_catastale: Optional[str] = None
+    rendita_catastale: Optional[float] = None
     images: List[str] = []
     status: str = "disponibile"
     agent_id: Optional[str] = None
