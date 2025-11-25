@@ -3,6 +3,7 @@ import axios from "axios";
 import { API } from "../App";
 import { toast } from "sonner";
 import { Building2, Plus, X, Save, Trash2, Edit, Upload, ChevronUp, ChevronDown, GripVertical } from "lucide-react";
+import { PROPERTY_TYPES, CATEGORIE_CATASTALI } from '../data/propertyTypes';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
