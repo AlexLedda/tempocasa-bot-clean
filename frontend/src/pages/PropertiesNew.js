@@ -295,8 +295,8 @@ export default function PropertiesNew() {
     const files = Array.from(event.target.files);
     if (!files.length) return;
 
-    if (files.length > 20) {
-      toast.error('Massimo 20 immagini per volta');
+    if (files.length > 50) {
+      toast.error('Massimo 50 immagini per volta');
       return;
     }
 
