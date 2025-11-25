@@ -165,6 +165,26 @@ export default function PropertiesNew() {
     });
   };
 
+  const moveImageUp = (index) => {
+    if (index === 0) return; // Già in prima posizione
+    const newImages = [...formData.images];
+    [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
+    setFormData({
+      ...formData,
+      images: newImages
+    });
+  };
+
+  const moveImageDown = (index) => {
+    if (index === formData.images.length - 1) return; // Già in ultima posizione
+    const newImages = [...formData.images];
+    [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+    setFormData({
+      ...formData,
+      images: newImages
+    });
+  };
+
   const updateImageField = (index, value) => {
     const newImages = [...formData.images];
     newImages[index] = value;
