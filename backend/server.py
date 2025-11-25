@@ -99,7 +99,10 @@ class Property(BaseModel):
     bedrooms: int
     bathrooms: int
     square_meters: float
-    property_type: str  # appartamento, villa, ufficio, etc
+    property_type: str  # Tipo principale: Ville, Appartamento, Case, etc
+    property_subtype: Optional[str] = None  # Sottotipo: Villa, Bilocale, Casa indipendente, etc
+    categoria_catastale: Optional[str] = None  # Es: A/2, C/1, D/8
+    rendita_catastale: Optional[float] = None  # Rendita catastale in euro
     images: List[str] = []
     status: str = "disponibile"  # disponibile, venduto, riservato
     agent_id: Optional[str] = None  # ID agente assegnato
