@@ -198,9 +198,11 @@ export default function PropertiesNew() {
     formDataUpload.append('file', file);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.post(`${API}/upload-property-image`, formDataUpload, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         },
       });
 
@@ -217,6 +219,85 @@ export default function PropertiesNew() {
     } finally {
       setUploadingImage(false);
       setUploadingIndex(null);
+    }
+  };
+
+  const handleMultipleImageUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
+
+    if (files.length > 20) {
+      toast.error('Massimo 20 immagini per volta');
+      return;
+    }
+
+    // Validate each file
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validFiles = [];
+    
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(`${file.name}: formato non valido`);
+        continue;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`${file.name}: troppo grande (max 10MB)`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (!validFiles.length) {
+      toast.error('Nessun file valido selezionato');
+      return;
+    }
+
+    setUploadingImage(true);
+    toast.info(`Caricamento di ${validFiles.length} immagini...`);
+
+    const formDataUpload = new FormData();
+    validFiles.forEach(file => {
+      formDataUpload.append('files', file);
+    });
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API}/upload-property-images-multiple`, formDataUpload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      if (response.data.uploaded > 0) {
+        // Aggiungi le immagini caricate
+        const uploadedUrls = response.data.results.map(r => r.url);
+        
+        // Rimuovi campi vuoti esistenti
+        const existingImages = formData.images.filter(img => img);
+        
+        // Combina immagini esistenti con nuove
+        const allImages = [...existingImages, ...uploadedUrls];
+        
+        setFormData({
+          ...formData,
+          images: allImages
+        });
+
+        toast.success(`${response.data.uploaded} immagini caricate con successo!`);
+        
+        if (response.data.failed > 0) {
+          toast.warning(`${response.data.failed} immagini non caricate`);
+        }
+      } else {
+        toast.error('Nessuna immagine caricata');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Errore durante il caricamento multiplo');
+    } finally {
+      setUploadingImage(false);
+      // Reset input
+      event.target.value = '';
     }
   };
 
