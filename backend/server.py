@@ -3119,6 +3119,87 @@ async def upload_property_image(
         raise HTTPException(status_code=500, detail=f"Errore durante l'upload: {str(e)}")
 
 
+@api_router.post("/upload-property-images-multiple")
+async def upload_property_images_multiple(
+    files: List[UploadFile] = File(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Upload multiple property images to Cloudinary"""
+    if len(files) > 20:
+        raise HTTPException(status_code=400, detail="Massimo 20 immagini per volta")
+    
+    results = []
+    errors = []
+    
+    for idx, file in enumerate(files):
+        try:
+            # Validate file type
+            allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+            if file.content_type not in allowed_types:
+                errors.append({
+                    "file": file.filename,
+                    "error": "Formato non valido"
+                })
+                continue
+            
+            # Validate file size (max 10MB)
+            file.file.seek(0, 2)
+            file_size = file.file.tell()
+            file.file.seek(0)
+            
+            if file_size > 10 * 1024 * 1024:
+                errors.append({
+                    "file": file.filename,
+                    "error": "File troppo grande (max 10MB)"
+                })
+                continue
+            
+            # Upload to Cloudinary
+            upload_result = cloudinary.uploader.upload(
+                file.file,
+                folder="real_estate_properties",
+                resource_type="image",
+                eager=[
+                    {'width': 300, 'height': 200, 'crop': 'fill', 'gravity': 'auto', 'quality': 'auto:eco', 'fetch_format': 'auto'},
+                    {'width': 800, 'height': 600, 'crop': 'fill', 'gravity': 'auto', 'quality': 'auto:good', 'fetch_format': 'auto'},
+                    {'width': 1200, 'height': 800, 'crop': 'fill', 'gravity': 'auto', 'quality': 'auto:best', 'fetch_format': 'auto'}
+                ],
+                strip_exif=True,
+                unique_filename=True
+            )
+            
+            base_url = upload_result['secure_url']
+            public_id = upload_result['public_id']
+            
+            results.append({
+                "success": True,
+                "filename": file.filename,
+                "url": base_url,
+                "public_id": public_id,
+                "urls": {
+                    "original": base_url,
+                    "thumbnail": cloudinary.CloudinaryImage(public_id).build_url(width=300, height=200, crop='fill', gravity='auto', quality='auto:eco', fetch_format='auto'),
+                    "medium": cloudinary.CloudinaryImage(public_id).build_url(width=800, height=600, crop='fill', gravity='auto', quality='auto:good', fetch_format='auto'),
+                    "large": cloudinary.CloudinaryImage(public_id).build_url(width=1200, height=800, crop='fill', gravity='auto', quality='auto:best', fetch_format='auto')
+                }
+            })
+            
+        except Exception as e:
+            logging.error(f"Error uploading {file.filename}: {str(e)}")
+            errors.append({
+                "file": file.filename,
+                "error": str(e)
+            })
+    
+    return {
+        "success": len(results) > 0,
+        "uploaded": len(results),
+        "failed": len(errors),
+        "results": results,
+        "errors": errors
+    }
+
+
 # Cloudinary optimization endpoints
 @api_router.get("/cloudinary/optimize/{public_id:path}")
 async def get_optimized_image(
