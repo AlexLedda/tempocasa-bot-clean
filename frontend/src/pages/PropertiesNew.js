@@ -570,9 +570,14 @@ export default function PropertiesNew() {
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Immagini Immobile</Label>
+                  <div>
+                    <Label>Immagini Immobile</Label>
+                    <p className="text-sm text-gray-500 mt-1">
+                      🎯 Trascina le foto per riordinarle • La prima foto è quella principale
+                    </p>
+                  </div>
                   <div className="flex gap-2">
                     <input
                       type="file"
@@ -611,13 +616,10 @@ export default function PropertiesNew() {
                       size="sm"
                       variant="outline"
                     >
-                      ➕ Aggiungi Campo
+                      ➕ Aggiungi URL
                     </Button>
                   </div>
                 </div>
-                <p className="text-sm text-gray-500">
-                  Puoi caricare foto dal PC o inserire URL manualmente
-                </p>
                 {formData.images.map((img, index) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white space-y-2">
                     {/* Header con numero posizione e pulsanti riordino */}
