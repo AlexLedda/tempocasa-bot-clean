@@ -40,7 +40,10 @@ export default function PropertiesNew() {
     bedrooms: "",
     bathrooms: "",
     square_meters: "",
-    property_type: "appartamento",
+    property_type: "",
+    property_subtype: "",
+    categoria_catastale: "",
+    rendita_catastale: "",
     status: "disponibile",
     images: [""]
   });
