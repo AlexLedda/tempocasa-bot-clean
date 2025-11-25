@@ -3005,8 +3005,11 @@ async def delete_logo(filename: str):
         raise HTTPException(status_code=500, detail=f"Errore durante l'eliminazione: {str(e)}")
 
 @api_router.post("/upload-property-image")
-async def upload_property_image(file: UploadFile = File(...)):
-    """Upload property image to Cloudinary"""
+async def upload_property_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Upload property image to Cloudinary (autenticazione richiesta)"""
     # Validate file type
     allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
     if file.content_type not in allowed_types:
