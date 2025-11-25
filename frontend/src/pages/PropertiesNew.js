@@ -504,9 +504,47 @@ export default function PropertiesNew() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label>Immagini Immobile</Label>
-                  <Button type="button" onClick={addImageField} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Aggiungi Campo
-                  </Button>
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      multiple
+                      onChange={handleMultipleImageUpload}
+                      className="hidden"
+                      id="multiple-image-upload"
+                      disabled={uploadingImage}
+                    />
+                    <label htmlFor="multiple-image-upload">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={uploadingImage}
+                        onClick={() => document.getElementById('multiple-image-upload').click()}
+                        className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300"
+                      >
+                        {uploadingImage ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-2"></div>
+                            Caricamento...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            📤 Carica Multiple
+                          </>
+                        )}
+                      </Button>
+                    </label>
+                    <Button
+                      type="button"
+                      onClick={addImageField}
+                      size="sm"
+                      variant="outline"
+                    >
+                      ➕ Aggiungi Campo
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-sm text-gray-500">
                   Puoi caricare foto dal PC o inserire URL manualmente
