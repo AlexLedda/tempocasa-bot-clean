@@ -417,21 +417,75 @@ export default function PropertiesNew() {
                   />
                 </div>
 
+                {/* Tipo Immobile */}
                 <div>
                   <Label htmlFor="property_type">Tipo Immobile *</Label>
                   <select
                     id="property_type"
                     value={formData.property_type}
-                    onChange={(e) => setFormData({ ...formData, property_type: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    onChange={(e) => setFormData({ ...formData, property_type: e.target.value, property_subtype: "" })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="appartamento">Appartamento</option>
-                    <option value="villa">Villa</option>
-                    <option value="ufficio">Ufficio</option>
-                    <option value="negozio">Negozio</option>
-                    <option value="terreno">Terreno</option>
+                    <option value="">Seleziona tipo...</option>
+                    {Object.keys(PROPERTY_TYPES).map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
                   </select>
+                </div>
+
+                {/* Sottocategoria (appare solo dopo aver selezionato il tipo) */}
+                {formData.property_type && PROPERTY_TYPES[formData.property_type] && (
+                  <div className="animate-fadeIn">
+                    <Label htmlFor="property_subtype">Sottocategoria *</Label>
+                    <select
+                      id="property_subtype"
+                      value={formData.property_subtype}
+                      onChange={(e) => setFormData({ ...formData, property_subtype: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Seleziona sottocategoria...</option>
+                      {PROPERTY_TYPES[formData.property_type].map(subtype => (
+                        <option key={subtype} value={subtype}>{subtype}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Categoria Catastale */}
+                <div>
+                  <Label htmlFor="categoria_catastale">Categoria Catastale</Label>
+                  <select
+                    id="categoria_catastale"
+                    value={formData.categoria_catastale}
+                    onChange={(e) => setFormData({ ...formData, categoria_catastale: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Seleziona categoria...</option>
+                    {Object.entries(CATEGORIE_CATASTALI).map(([gruppo, categorie]) => (
+                      <optgroup key={gruppo} label={gruppo}>
+                        {categorie.map(cat => (
+                          <option key={cat} value={cat.split(' - ')[0]}>{cat}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Rendita Catastale */}
+                <div>
+                  <Label htmlFor="rendita_catastale">Rendita Catastale (€)</Label>
+                  <Input
+                    id="rendita_catastale"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Es: 450.00"
+                    value={formData.rendita_catastale}
+                    onChange={(e) => setFormData({ ...formData, rendita_catastale: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Inserire la rendita catastale annua in euro</p>
                 </div>
 
                 <div>
