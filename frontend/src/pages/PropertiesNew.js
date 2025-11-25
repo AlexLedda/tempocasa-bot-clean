@@ -570,7 +570,58 @@ export default function PropertiesNew() {
                   Puoi caricare foto dal PC o inserire URL manualmente
                 </p>
                 {formData.images.map((img, index) => (
-                  <div key={index} className="space-y-2">
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white space-y-2">
+                    {/* Header con numero posizione e pulsanti riordino */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <GripVertical className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-semibold text-gray-700">
+                          Foto #{index + 1}
+                          {index === 0 && <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Principale</span>}
+                        </span>
+                      </div>
+                      <div className="flex gap-1">
+                        {/* Pulsanti riordino */}
+                        {index > 0 && (
+                          <Button
+                            type="button"
+                            onClick={() => moveImageUp(index)}
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0"
+                            title="Sposta su"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {index < formData.images.length - 1 && (
+                          <Button
+                            type="button"
+                            onClick={() => moveImageDown(index)}
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0"
+                            title="Sposta giù"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {formData.images.length > 1 && (
+                          <Button
+                            type="button"
+                            onClick={() => removeImageField(index)}
+                            size="sm"
+                            variant="destructive"
+                            className="h-8 w-8 p-0"
+                            title="Elimina"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Input URL */}
                     <div className="flex gap-2">
                       <Input
                         placeholder="https://esempio.com/immagine.jpg o carica dal PC"
@@ -578,16 +629,6 @@ export default function PropertiesNew() {
                         onChange={(e) => updateImageField(index, e.target.value)}
                         className="flex-1"
                       />
-                      {formData.images.length > 1 && (
-                        <Button
-                          type="button"
-                          onClick={() => removeImageField(index)}
-                          size="sm"
-                          variant="destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <input
