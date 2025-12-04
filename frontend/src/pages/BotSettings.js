@@ -284,7 +284,9 @@ export default function BotSettings() {
                     alt="Logo" 
                     className="max-h-20 max-w-full object-contain"
                     onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/150?text=Logo";
+                      // Previeni loop infinito: rimuovi il gestore onError e usa un placeholder SVG
+                      e.target.onerror = null;
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%23e5e7eb' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='14' fill='%239ca3af'%3ELogo%3C/text%3E%3C/svg%3E";
                       toast.error("Errore nel caricamento del logo");
                     }}
                   />
