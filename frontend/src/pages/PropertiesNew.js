@@ -84,7 +84,14 @@ export default function PropertiesNew() {
       bedrooms: parseInt(formData.bedrooms),
       bathrooms: parseInt(formData.bathrooms),
       square_meters: parseFloat(formData.square_meters),
-      images: formData.images.filter(img => img.trim() !== "")
+      images: formData.images.filter(img => img.trim() !== ""),
+      // Converti stringhe vuote in null per campi opzionali
+      property_subtype: formData.property_subtype?.trim() || null,
+      categoria_catastale: formData.categoria_catastale?.trim() || null,
+      rendita_catastale: formData.rendita_catastale?.trim() ? parseFloat(formData.rendita_catastale) : null,
+      reference: formData.reference?.trim() || null,
+      street: formData.street?.trim() || null,
+      street_number: formData.street_number?.trim() || null
     };
 
     try {
@@ -98,6 +105,7 @@ export default function PropertiesNew() {
       fetchProperties();
       resetForm();
     } catch (error) {
+      console.error("Errore dettagliato:", error.response?.data);
       toast.error("Errore nel salvataggio");
     }
   };
