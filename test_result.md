@@ -303,6 +303,21 @@ backend:
         agent: "testing"
         comment: "✅ TESTATO: Aggiornamento profilo funziona perfettamente. Testato aggiornamento email e telefono admin. Campi aggiornati correttamente nel database e restituiti nella response."
 
+  - task: "API Properties - POST /api/properties con nuovi campi opzionali"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "❌ ISSUE SEGNALATO: Errore 422 Unprocessable Entity quando si tenta di salvare una proprietà. Problema iniziato dopo l'aggiunta dei nuovi campi: sub_type, cadastral_category, cadastral_income."
+      - working: true
+        agent: "main"
+        comment: "✅ RISOLTO: Identificato problema root cause: indice univoco su campo 'reference' impediva creazione multipla di proprietà con reference=null. Rimosso indice 'reference_1' da MongoDB. Aggiornato frontend PropertiesNew.js per convertire stringhe vuote in null per campi opzionali (property_subtype, categoria_catastale, rendita_catastale, reference, street, street_number). Testato backend con curl: ✅ creazione con campi null, ✅ creazione con campi omessi, ✅ creazione con tutti i campi compilati. Tutte le varianti funzionano correttamente. Necessita testing frontend end-to-end."
+
 frontend:
   - task: "Pagina Telegram Bot - TelegramConversations"
     implemented: true
