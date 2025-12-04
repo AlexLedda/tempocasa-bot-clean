@@ -243,7 +243,7 @@ Creati indici su tutti i campi frequentemente cercati:
 3. **Ottieni Credenziali**
    ```
    API Key: [da WATI dashboard]
-   Webhook URL: https://agent-dashboard-82.preview.emergentagent.com/api/whatsapp/webhook
+   Webhook URL: https://propmate-13.preview.emergentagent.com/api/whatsapp/webhook
    ```
 
 ### Step 2: Configura nel Backend
@@ -259,7 +259,7 @@ WHATSAPP_PHONE_NUMBER=+39...
 
 In WATI Dashboard → Webhooks:
 ```
-URL: https://agent-dashboard-82.preview.emergentagent.com/api/whatsapp/webhook
+URL: https://propmate-13.preview.emergentagent.com/api/whatsapp/webhook
 Events: Message Received
 ```
 
@@ -302,7 +302,7 @@ Elettra dovrebbe rispondere con il messaggio di benvenuto!
 **API Diretta:**
 ```bash
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-  https://agent-dashboard-82.preview.emergentagent.com/api/stats/bot-insights
+  https://propmate-13.preview.emergentagent.com/api/stats/bot-insights
 ```
 
 ### Manutenzione Settimanale
