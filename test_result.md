@@ -319,6 +319,21 @@ backend:
         comment: "✅ RISOLTO: Identificato problema root cause: indice univoco su campo 'reference' impediva creazione multipla di proprietà con reference=null. Rimosso indice 'reference_1' da MongoDB. Aggiornato frontend PropertiesNew.js per convertire stringhe vuote in null per campi opzionali (property_subtype, categoria_catastale, rendita_catastale, reference, street, street_number). Testato backend con curl: ✅ creazione con campi null, ✅ creazione con campi omessi, ✅ creazione con tutti i campi compilati. Tutte le varianti funzionano correttamente. Necessita testing frontend end-to-end."
 
 frontend:
+  - task: "Form Creazione Proprietà con nuovi campi opzionali"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/PropertiesNew.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "❌ ISSUE SEGNALATO: Errore 422 Unprocessable Entity quando si prova a salvare una proprietà dal frontend. Nuovi campi aggiunti: property_subtype, categoria_catastale, rendita_catastale."
+      - working: "NA"
+        agent: "main"
+        comment: "✅ FRONTEND AGGIORNATO: Modificato handleSubmit in PropertiesNew.js per convertire correttamente stringhe vuote in null per tutti i campi opzionali. Aggiunta conversione parseFloat per rendita_catastale quando presente. Rimosso indice MongoDB che causava problemi. Backend testato con curl e funziona. Necessita testing frontend completo: creazione proprietà con campi opzionali null, creazione con tutti i campi compilati, modifica proprietà esistente."
+
   - task: "Pagina Telegram Bot - TelegramConversations"
     implemented: true
     working: true
