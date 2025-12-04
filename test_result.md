@@ -309,7 +309,7 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -317,6 +317,9 @@ backend:
       - working: true
         agent: "main"
         comment: "✅ RISOLTO: Identificato problema root cause: indice univoco su campo 'reference' impediva creazione multipla di proprietà con reference=null. Rimosso indice 'reference_1' da MongoDB. Aggiornato frontend PropertiesNew.js per convertire stringhe vuote in null per campi opzionali (property_subtype, categoria_catastale, rendita_catastale, reference, street, street_number). Testato backend con curl: ✅ creazione con campi null, ✅ creazione con campi omessi, ✅ creazione con tutti i campi compilati. Tutte le varianti funzionano correttamente. Necessita testing frontend end-to-end."
+      - working: true
+        agent: "testing"
+        comment: "✅ CONFERMATO FUNZIONANTE: API POST /api/properties testata end-to-end tramite frontend. Status 200 ricevuto per tutte le chiamate. Payload corretto con campi opzionali null. Integrazione frontend-backend completamente operativa."
 
 frontend:
   - task: "Form Creazione Proprietà con nuovi campi opzionali"
