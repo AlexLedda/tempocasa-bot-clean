@@ -321,11 +321,11 @@ backend:
 frontend:
   - task: "Form Creazione Proprietà con nuovi campi opzionali"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/PropertiesNew.js"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -333,6 +333,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "✅ FRONTEND AGGIORNATO: Modificato handleSubmit in PropertiesNew.js per convertire correttamente stringhe vuote in null per tutti i campi opzionali. Aggiunta conversione parseFloat per rendita_catastale quando presente. Rimosso indice MongoDB che causava problemi. Backend testato con curl e funziona. Necessita testing frontend completo: creazione proprietà con campi opzionali null, creazione con tutti i campi compilati, modifica proprietà esistente."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTATO COMPLETAMENTE E FUNZIONANTE: Bug 422 risolto con successo! TUTTI I SCENARI TESTATI: ✅ Test 1 (CRITICO): Creazione proprietà con campi opzionali VUOTI - SUCCESS! Toast 'Immobile aggiunto!' apparso, API POST status 200, proprietà 'Appartamento Test Frontend' visibile in lista. ✅ Test 2: Modifica proprietà esistente - funziona correttamente con mix di campi vuoti/compilati. ✅ Test 3: Dropdown dipendenti - Appartamento→Bilocale, Ville→Villa, Case→sottotipi corretti. ✅ Test 4: Categoria Catastale - dropdown con gruppi A/B/C/D/E/F funzionante, selezione A/1, A/2, C/1, D/8 testata. ✅ Test 5: Rendita Catastale - parseFloat funziona (es: 500.75). CONVERSIONE STRINGHE VUOTE→NULL VERIFICATA: reference='', street='', street_number='', categoria_catastale='', rendita_catastale='' correttamente convertiti in null nel payload API. Form completamente operativo per produzione!"
 
   - task: "Pagina Telegram Bot - TelegramConversations"
     implemented: true
