@@ -377,9 +377,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Form Creazione Proprietà con nuovi campi opzionali"
-    - "API Properties - POST /api/properties con nuovi campi opzionali"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
