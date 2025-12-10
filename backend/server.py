@@ -85,9 +85,14 @@ async def rate_limit_middleware(request: Request, call_next):
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Include valuation router
+# Include routers
 from routers import valuations_router
+from routers.export import router as export_router
+from routers.bulk import router as bulk_router
+
 app.include_router(valuations_router)
+app.include_router(export_router)
+app.include_router(bulk_router)
 
 # Initialize Redis Cache
 from core import cache
