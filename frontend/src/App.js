@@ -3,7 +3,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
-import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot, LogOut, Send, FileText, User as UserIcon, Shield } from "lucide-react";
+import { Home, Building2, MessageSquare, Calendar, Settings, Menu, X, Users, ClipboardCheck, Bot, LogOut, Send, FileText, User as UserIcon, Shield, TrendingUp } from "lucide-react";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
@@ -18,6 +18,7 @@ import TelegramConversations from "./pages/TelegramConversations";
 import MessageTemplates from "./pages/MessageTemplates";
 import UsersManagement from "./pages/UsersManagement";
 import Profile from "./pages/Profile";
+import ValuationReview from "./pages/ValuationReview";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
@@ -43,11 +44,11 @@ export function applyAllColors(primary, secondary, accent) {
 export function applyPrimaryColor(color) {
   const rgb = hexToRgb(color);
   if (!rgb) return;
-  
+
   const root = document.documentElement;
   root.style.setProperty('--primary-color', color);
   root.style.setProperty('--primary-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
-  
+
   // Varianti del colore
   root.style.setProperty('--primary-50', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`);
   root.style.setProperty('--primary-100', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`);
@@ -61,7 +62,7 @@ export function applyPrimaryColor(color) {
 export function applySecondaryColor(color) {
   const rgb = hexToRgb(color);
   if (!rgb) return;
-  
+
   const root = document.documentElement;
   root.style.setProperty('--secondary-color', color);
   root.style.setProperty('--secondary-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
@@ -71,7 +72,7 @@ export function applySecondaryColor(color) {
 export function applyAccentColor(color) {
   const rgb = hexToRgb(color);
   if (!rgb) return;
-  
+
   const root = document.documentElement;
   root.style.setProperty('--accent-color', color);
   root.style.setProperty('--accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
@@ -81,7 +82,7 @@ export function applyAccentColor(color) {
 // Logout Button Component
 function LogoutButton() {
   const { logout, user } = require('./contexts/AuthContext').useAuth();
-  
+
   return (
     <button
       onClick={() => {
@@ -118,6 +119,7 @@ function Layout({ children, settings }) {
     { name: "Template Messaggi", href: "/templates", icon: FileText },
     { name: "Appuntamenti", href: "/appointments", icon: Calendar },
     { name: "Valutazioni", href: "/valuations", icon: ClipboardCheck },
+    { name: "Review Valutazioni AI", href: "/valuation-review", icon: TrendingUp },
     { name: "Impostazioni Bot", href: "/bot-settings", icon: Bot },
     { name: "Gestione Utenti", href: "/users", icon: Shield },
   ];
@@ -143,9 +145,8 @@ function Layout({ children, settings }) {
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white/80 backdrop-blur-xl border-r border-blue-100 transform transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white/80 backdrop-blur-xl border-r border-blue-100 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -153,9 +154,9 @@ function Layout({ children, settings }) {
             <div className="flex items-center space-x-3">
               {settings?.logo_url ? (
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-white">
-                  <img 
-                    src={settings.logo_url} 
-                    alt="Logo Agenzia" 
+                  <img
+                    src={settings.logo_url}
+                    alt="Logo Agenzia"
                     className="w-full h-full object-contain"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -215,7 +216,7 @@ function Layout({ children, settings }) {
                 {settings?.bot_name ? `${settings.bot_name} gestisce i clienti` : "Gestisci i tuoi clienti automaticamente"}
               </p>
             </div>
-            
+
             {/* Logout Button - Inserted by auth integration */}
             <LogoutButton />
           </div>
@@ -253,7 +254,7 @@ function App() {
     axios.get(`${API}/settings`)
       .then(response => {
         setSettings(response.data);
-        
+
         // Applica tutti i colori
         if (response.data.primary_color) {
           applyPrimaryColor(response.data.primary_color);
@@ -275,7 +276,7 @@ function App() {
           <Routes>
             {/* Public Route */}
             <Route path="/login" element={<Login />} />
-            
+
             {/* Protected Routes */}
             <Route path="/*" element={
               <ProtectedRoute>
@@ -297,6 +298,11 @@ function App() {
                     } />
                     <Route path="/appointments" element={<Appointments />} />
                     <Route path="/valuations" element={<Valuations />} />
+                    <Route path="/valuation-review" element={
+                      <ProtectedRoute adminOnly={true}>
+                        <ValuationReview />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/bot-settings" element={
                       <ProtectedRoute adminOnly={true}>
                         <BotSettings />

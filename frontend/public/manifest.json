@@ -1,0 +1,81 @@
+{
+    "short_name": "Tempocasa",
+    "name": "Tempocasa Bot Manager",
+    "description": "Gestisci immobili, clienti e bot WhatsApp",
+    "icons": [
+        {
+            "src": "favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "logo192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "logo512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#3b82f6",
+    "background_color": "#ffffff",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "categories": [
+        "business",
+        "productivity"
+    ],
+    "screenshots": [
+        {
+            "src": "screenshot1.png",
+            "type": "image/png",
+            "sizes": "540x720"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "Vai alla dashboard",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "logo192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Immobili",
+            "short_name": "Immobili",
+            "description": "Gestisci immobili",
+            "url": "/properties",
+            "icons": [
+                {
+                    "src": "logo192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Clienti",
+            "short_name": "Clienti",
+            "description": "Gestisci clienti",
+            "url": "/clients",
+            "icons": [
+                {
+                    "src": "logo192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
+}

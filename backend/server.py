@@ -85,6 +85,32 @@ async def rate_limit_middleware(request: Request, call_next):
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Include valuation router
+from routers import valuations_router
+app.include_router(valuations_router)
+
+# Initialize Redis Cache
+from core import cache
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    # Connect to Redis
+    redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+    await cache.connect(redis_url)
+    
+    if cache.enabled:
+        logging.info("✓ Redis cache connected and enabled")
+    else:
+        logging.warning("⚠️  Redis cache disabled (not available or connection failed)")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    await cache.disconnect()
+    logging.info("Application shutdown complete")
+
+
 # Define Models
 class Property(BaseModel):
     model_config = ConfigDict(extra="ignore")
