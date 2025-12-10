@@ -1,0 +1,87 @@
+services:
+  # Backend API Service
+  - type: web
+    name: tempocasa-backend
+    runtime: python
+    region: frankfurt  # EU region
+    plan: starter  # Free tier (upgrade to standard for production)
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: MONGO_URL
+        sync: false  # Set in Render dashboard
+      - key: DB_NAME
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true  # Auto-generate secure secret
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_NUMBER
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: tempocasa-redis
+          property: connectionString
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+  # Frontend Static Site
+  - type: web
+    name: tempocasa-frontend
+    runtime: static
+    buildCommand: "cd frontend && npm install --legacy-peer-deps && npm run build"
+    staticPublishPath: frontend/build
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: REACT_APP_BACKEND_URL
+        fromService:
+          type: web
+          name: tempocasa-backend
+          envVarKey: RENDER_EXTERNAL_URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /service-worker.js
+        name: Cache-Control
+        value: no-cache
+    autoDeploy: true
+
+  # Redis Cache
+  - type: redis
+    name: tempocasa-redis
+    region: frankfurt
+    plan: starter  # Free tier (25MB)
+    maxmemoryPolicy: allkeys-lru  # Evict least recently used
+    ipAllowList: []  # Allow all (or restrict to backend IP)
+
+  # MongoDB (if using Render's MongoDB - optional)
+  # - type: pserv
+  #   name: tempocasa-mongodb
+  #   runtime: docker
+  #   dockerfilePath: ./Dockerfile.mongo
+  #   plan: starter

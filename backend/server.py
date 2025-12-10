@@ -89,7 +89,9 @@ api_router = APIRouter(prefix="/api")
 from routers import valuations_router
 from routers.export import router as export_router
 from routers.bulk import router as bulk_router
+from routers.health import router as health_router
 
+app.include_router(health_router)  # No prefix for /health
 app.include_router(valuations_router)
 app.include_router(export_router)
 app.include_router(bulk_router)
