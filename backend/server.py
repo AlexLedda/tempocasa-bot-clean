@@ -102,6 +102,18 @@ from core import cache
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
+    # Load secrets from AWS Secrets Manager if in production
+    if os.environ.get('ENVIRONMENT') == 'production':
+        try:
+            from core.aws_secrets import load_aws_secrets
+            secret_name = os.environ.get('AWS_SECRETS_NAME', 'tempocasa-bot-secrets-production')
+            if load_aws_secrets(secret_name):
+                logging.info(f"✓ AWS Secrets loaded from {secret_name}")
+            else:
+                logging.warning("⚠️  Failed to load AWS Secrets, using environment variables")
+        except Exception as e:
+            logging.warning(f"⚠️  AWS Secrets Manager error: {e}, using environment variables")
+    
     # Connect to Redis
     redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
     await cache.connect(redis_url)
@@ -116,6 +128,7 @@ async def shutdown_event():
     """Cleanup on shutdown"""
     await cache.disconnect()
     logging.info("Application shutdown complete")
+
 
 
 # Define Models

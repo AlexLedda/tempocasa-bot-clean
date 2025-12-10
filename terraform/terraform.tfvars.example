@@ -1,0 +1,40 @@
+# Terraform Variables - Example Configuration
+# Copy this file to terraform.tfvars and fill in your actual values
+# NEVER commit terraform.tfvars to git (it contains secrets!)
+
+# AWS Configuration
+aws_region  = "eu-central-1" # Frankfurt
+environment = "production"
+
+# Redis Configuration
+redis_node_type = "cache.t3.micro" # ~$15/month
+
+# Frontend S3 Bucket (must be globally unique)
+frontend_bucket_name = "tempocasa-frontend-prod-YOUR-UNIQUE-ID"
+
+# ============================================================================
+# Application Secrets (FILL THESE IN!)
+# ============================================================================
+
+# MongoDB Atlas (your existing connection string)
+mongo_url = "mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority"
+db_name   = "tempocasa"
+
+# JWT Secret (generate with: openssl rand -hex 32)
+jwt_secret_key = "your-secret-key-here"
+
+# Cloudinary
+cloudinary_cloud_name = "your-cloud-name"
+cloudinary_api_key    = "your-api-key"
+cloudinary_api_secret = "your-api-secret"
+
+# OpenAI
+openai_api_key = "sk-..."
+
+# Twilio
+twilio_account_sid     = "AC..."
+twilio_auth_token      = "your-auth-token"
+twilio_whatsapp_number = "whatsapp:+..."
+
+# Telegram
+telegram_bot_token = "123456:ABC-DEF..."
