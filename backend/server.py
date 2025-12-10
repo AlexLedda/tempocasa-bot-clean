@@ -519,10 +519,27 @@ async def upload_user_avatar(
     current_user: User = Depends(get_current_active_user)
 ):
     """Upload avatar utente su Cloudinary"""
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tipo file non supportato. Usa: {', '.join(allowed_types)}"
+        )
+    
+    # Validate file size (max 5MB for avatars)
+    MAX_SIZE = 5 * 1024 * 1024  # 5MB
+    file_content = await file.read()
+    if len(file_content) > MAX_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File troppo grande. Massimo 5MB, ricevuto {len(file_content) / 1024 / 1024:.2f}MB"
+        )
+    
     try:
         # Upload to Cloudinary
         result = cloudinary.uploader.upload(
-            file.file,
+            file_content,
             folder="tempocasa/avatars",
             public_id=f"user_{current_user.id}",
             overwrite=True,
@@ -543,8 +560,12 @@ async def upload_user_avatar(
         
         return {"avatar_url": avatar_url, "message": "Avatar caricato con successo"}
     
+    except cloudinary.exceptions.Error as e:
+        logging.error(f"Cloudinary error uploading avatar: {str(e)}")
+        raise HTTPException(status_code=500, detail="Errore durante l'upload su Cloudinary")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Errore caricamento avatar: {str(e)}")
+        logging.error(f"Unexpected error uploading avatar: {str(e)}")
+        raise HTTPException(status_code=500, detail="Errore durante il caricamento dell'avatar")
 
 @api_router.put("/auth/users/{user_id}", response_model=UserResponse, tags=["auth"])
 async def update_user_admin(
@@ -610,10 +631,27 @@ async def upload_user_avatar_admin(
             detail="Non autorizzato: puoi modificare solo il tuo avatar"
         )
     
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tipo file non supportato. Usa: {', '.join(allowed_types)}"
+        )
+    
+    # Validate file size (max 5MB for avatars)
+    MAX_SIZE = 5 * 1024 * 1024  # 5MB
+    file_content = await file.read()
+    if len(file_content) > MAX_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File troppo grande. Massimo 5MB, ricevuto {len(file_content) / 1024 / 1024:.2f}MB"
+        )
+    
     try:
         # Upload to Cloudinary
         result = cloudinary.uploader.upload(
-            file.file,
+            file_content,
             folder="tempocasa/avatars",
             public_id=f"user_{user_id}",
             overwrite=True,
@@ -634,8 +672,12 @@ async def upload_user_avatar_admin(
         
         return {"avatar_url": avatar_url, "message": "Avatar caricato con successo"}
     
+    except cloudinary.exceptions.Error as e:
+        logging.error(f"Cloudinary error uploading avatar: {str(e)}")
+        raise HTTPException(status_code=500, detail="Errore durante l'upload su Cloudinary")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Errore caricamento avatar: {str(e)}")
+        logging.error(f"Unexpected error uploading avatar: {str(e)}")
+        raise HTTPException(status_code=500, detail="Errore durante il caricamento dell'avatar")
 
 # ==================== END AUTHENTICATION ENDPOINTS ====================
 

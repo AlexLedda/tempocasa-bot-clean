@@ -125,4 +125,4 @@ cloudinary==1.41.0
 schedule
 reportlab
 qrcode
-pillow
+pydantic-settings==2.1.0

@@ -92,8 +92,36 @@ def generate_property_pdf(property_data: Dict) -> bytes:
     pdf.drawString(2*cm, 2*cm, "Tempocasa Tarquinia")
     pdf.drawString(2*cm, 1.5*cm, "Tel: +39 0766 xxx xxx | info@tempocasa-tarquinia.it")
     
-    # QR Code (opzionale)
-    # TODO: Aggiungere QR code con link immobile
+    # QR Code con link immobile
+    try:
+        import qrcode
+        import os
+        
+        property_id = property_data.get('id', '')
+        base_url = os.getenv('BACKEND_URL', 'https://tempocasa.com')
+        property_url = f\"{base_url}/properties/{property_id}\"
+        
+        # Genera QR code
+        qr = qrcode.QRCode(version=1, box_size=10, border=2)
+        qr.add_data(property_url)
+        qr.make(fit=True)
+        
+        qr_img = qr.make_image(fill_color=\"black\", back_color=\"white\")
+        
+        # Salva in buffer temporaneo
+        qr_buffer = io.BytesIO()
+        qr_img.save(qr_buffer, format='PNG')
+        qr_buffer.seek(0)
+        
+        # Aggiungi QR code al PDF
+        pdf.drawImage(ImageReader(qr_buffer), width - 5*cm, 2*cm, 3*cm, 3*cm)
+        
+        # Testo sotto QR code
+        pdf.setFont(\"Helvetica\", 8)
+        pdf.setFillColorRGB(0, 0, 0)
+        pdf.drawString(width - 5*cm, 1.5*cm, \"Scansiona per dettagli\")\n        
+    except Exception as e:
+        logger.warning(f\"Could not generate QR code: {e}\")
     
     pdf.showPage()
     pdf.save()

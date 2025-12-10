@@ -88,11 +88,12 @@ async def create_share_link(property_id: str, db) -> str:
     share_token = uuid.uuid4().hex[:12]
     
     # Salva nel DB
+    from datetime import datetime, timezone
     await db.property_shares.insert_one({
         "token": share_token,
         "property_id": property_id,
         "views": 0,
-        "created_at": None  # TODO: add timestamp
+        "created_at": datetime.now(timezone.utc)
     })
     
     # Genera link

@@ -13,7 +13,16 @@ import os
 import secrets
 
 # JWT Configuration
-SECRET_KEY = os.environ.get("JWT_SECRET_KEY", secrets.token_urlsafe(32))
+# CRITICAL: JWT_SECRET_KEY must be set in environment variables
+# Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+try:
+    SECRET_KEY = os.environ["JWT_SECRET_KEY"]
+except KeyError:
+    raise RuntimeError(
+        "JWT_SECRET_KEY environment variable is required. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+    )
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 giorni
 
