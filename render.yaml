@@ -51,7 +51,7 @@ services:
     pullRequestPreviewsEnabled: true
     envVars:
       - key: NODE_VERSION
-        value: "18"
+        value: "20"
       - key: REACT_APP_BACKEND_URL
         fromService:
           type: web
