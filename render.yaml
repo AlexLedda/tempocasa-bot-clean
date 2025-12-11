@@ -43,9 +43,8 @@ services:
     autoDeploy: true
 
   # Frontend Static Site
-  - type: web
+  - type: static
     name: tempocasa-frontend
-    runtime: static
     buildCommand: "cd frontend && npm install --legacy-peer-deps && npm run build"
     staticPublishPath: frontend/build
     pullRequestPreviewsEnabled: true
