@@ -78,6 +78,12 @@ variable "openai_api_key" {
   sensitive   = true
 }
 
+variable "anthropic_api_key" {
+  description = "Anthropic API key for Claude"
+  type        = string
+  sensitive   = true
+}
+
 variable "twilio_account_sid" {
   description = "Twilio account SID"
   type        = string
@@ -101,3 +107,4 @@ variable "telegram_bot_token" {
   type        = string
   sensitive   = true
 }
+

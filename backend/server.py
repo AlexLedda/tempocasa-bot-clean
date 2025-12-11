@@ -12,7 +12,9 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+# Removed emergentintegrations (not available on PyPI)
+# Using Anthropic SDK directly instead
+import anthropic
 import httpx
 import cloudinary
 import cloudinary.uploader
@@ -2699,17 +2701,40 @@ CREATE_VALUATION: location=Roma Centro|property_type=appartamento|notes=Cliente 
 Perfetto! Ho registrato la richiesta di valutazione per il suo immobile a Roma Centro. Quando sarebbe disponibile per un sopralluogo gratuito?
 """
     
-    # Initialize AI chat
-    api_key = os.environ.get('EMERGENT_LLM_KEY')
-    chat = LlmChat(
-        api_key=api_key,
-        session_id=f"client_{client_phone}",
-        system_message=system_message
-    ).with_model("anthropic", "claude-3-7-sonnet-20250219")
+    # Initialize Anthropic client
+    api_key = os.environ.get('ANTHROPIC_API_KEY') or os.environ.get('EMERGENT_LLM_KEY')
+    if not api_key:
+        logging.warning("No Anthropic API key found, using fallback response")
+        return {
+            "response": "Mi dispiace, il servizio AI non è al momento disponibile. Ti prego di riprovare più tardi.",
+            "update_client": {},
+            "create_appointment": None,
+            "create_valuation": None
+        }
     
-    # Send message
-    user_message = UserMessage(text=message)
-    response = await chat.send_message(user_message)
+    client_anthropic = anthropic.Anthropic(api_key=api_key)
+    
+    # Send message to Claude
+    try:
+        response_obj = client_anthropic.messages.create(
+            model="claude-3-5-sonnet-20241022",  # Updated to latest available model
+            max_tokens=2048,
+            system=system_message,
+            messages=[
+                {"role": "user", "content": message}
+            ]
+        )
+        
+        # Extract text from response
+        response = response_obj.content[0].text
+    except Exception as e:
+        logging.error(f"Error calling Anthropic API: {e}")
+        return {
+            "response": "Mi dispiace, si è verificato un errore. Ti prego di riprovare.",
+            "update_client": {},
+            "create_appointment": None,
+            "create_valuation": None
+        }
     
     # Parse response for commands and updates
     update_client = {}

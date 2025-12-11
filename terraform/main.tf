@@ -209,6 +209,7 @@ resource "aws_secretsmanager_secret_version" "app_secrets" {
     CLOUDINARY_API_KEY     = var.cloudinary_api_key
     CLOUDINARY_API_SECRET  = var.cloudinary_api_secret
     OPENAI_API_KEY         = var.openai_api_key
+    ANTHROPIC_API_KEY      = var.anthropic_api_key
     TWILIO_ACCOUNT_SID     = var.twilio_account_sid
     TWILIO_AUTH_TOKEN      = var.twilio_auth_token
     TWILIO_WHATSAPP_NUMBER = var.twilio_whatsapp_number

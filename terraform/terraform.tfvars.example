@@ -31,6 +31,9 @@ cloudinary_api_secret = "your-api-secret"
 # OpenAI
 openai_api_key = "sk-..."
 
+# Anthropic (Claude)
+anthropic_api_key = "sk-ant-..."
+
 # Twilio
 twilio_account_sid     = "AC..."
 twilio_auth_token      = "your-auth-token"
@@ -38,3 +41,4 @@ twilio_whatsapp_number = "whatsapp:+..."
 
 # Telegram
 telegram_bot_token = "123456:ABC-DEF..."
+
